@@ -101,7 +101,7 @@ return'<div class="prod"><header><b>'+esc(it.name)+'</b><span class="tot'+(it.mi
 it.lots.map(function(l,i){var d=days(l.exp);return'<div class="lot"><span>Lotto '+esc(l.lot)+'<br><small>scade '+fmt(l.exp)+(d<0?' <b class="x">scaduto</b>':'')+(firstLot(it)===i?' <b class="first">usa per primo</b>':'')+'</small></span><button data-k="'+esc(k)+'" data-i="'+i+'" data-q="-1" aria-label="Usa un kit">−</button><b>'+l.qty+'</b><button data-k="'+esc(k)+'" data-i="'+i+'" data-q="1" aria-label="Aggiungi un kit">+</button></div>'}).join('')+'<button class="ed" data-a="edit" data-k="'+esc(k)+'">Modifica prodotto e lotti</button></div>'}).join(''):'<p class="empty">Nessun kit registrato.</p>'}
 if(view==='nuovo'){h=(LIVE_OK?'<button class="cta" id="lv" type="button" style="margin:0 0 10px">Scansione in diretta</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph">Scatta foto (codice o testo)</label><p id="st"></p>'+
 '<label for="sc">Settore</label><select id="sc"><option value="">Scegli il settore</option>'+SECT.map(function(s){return'<option'+((F.sc||S.cur)===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select>'+
-'<label for="n">Nome del kit</label><input type="text" id="n" value="'+esc(F.n)+'">'+
+'<label for="n">Nome del kit</label><input type="text" id="n" value="'+esc(F.n)+'">'+nameTools()+
 '<label for="g">Codice prodotto (GTIN)</label><input type="text" id="g" inputmode="numeric" value="'+esc(F.g)+'">'+
 '<label for="r">Codice articolo (come sulla confezione)</label><input type="text" id="r" value="'+esc(F.r)+'">'+
 '<div class="grid"><div><label for="l">Lotto</label><input type="text" id="l" value="'+esc(F.l)+'"></div><div><label for="e">Scadenza</label><input type="date" id="e" value="'+esc(F.e)+'"></div>'+
@@ -143,6 +143,7 @@ if(a==='ro'){RO=!RO;render();return}
 if(a==='rocopy'){var ta=document.getElementById('rot'),m=document.getElementById('rost');try{navigator.clipboard.writeText(ta.value).then(function(){m.textContent='Testo copiato.'},function(){ta.select();m.textContent='Seleziona e copia il testo a mano.'})}catch(e){ta.select();m.textContent='Seleziona e copia il testo a mano.'}return}
 if(a==='cal'||a==='cal1'||a==='calx'){var q=S.items[b.dataset.k];if(!q)return;if(a==='calx'){q.calPending=undefined}else{var dv=a==='cal'&&b.previousElementSibling&&b.previousElementSibling.value?b.previousElementSibling.value:isod(today());q.cals=(q.cals||[]).concat([{d:dv,lot:q.used||q.calPending||'',k:a==='cal1'?'cambio lotto':'manuale'}]).slice(-20);q.calPending=undefined}save();render();var s9=document.getElementById('st');if(s9)s9.textContent=a==='calx'?'':'Calibrazione registrata.';return}
 if(a==='ropdf'){makeOrderPdf();return}
+if(a==='nm'){F.n=(F.cand||[])[+b.dataset.i]||F.n;render();return}
 if(a==='bk'){doBk();return}
 if(a==='bkno'){BK=null;render();return}
 if(a==='bkok'){S=BK;BK=null;S.hist=S.hist||[];S.log=S.log||[];S.items=S.items||{};S.cur=S.cur||'';Object.keys(S.items).forEach(function(k){if(k.indexOf('|')<0){var q=S.items[k];q.sec=q.sec||'';S.items['|'+k]=q;delete S.items[k]}});save();render();return}
@@ -219,10 +220,24 @@ var PP=document.permissionsPolicy||document.featurePolicy;
 var LIVE_OK=!!(window.isSecureContext&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&!(PP&&PP.allowsFeature&&!PP.allowsFeature('camera')));
 async function ocrStep(fc){var q=LV;if(!q||q.busy||!q.w||Date.now()-q.t0<3000||Date.now()-q.last<1200)return;q.busy=true;q.last=Date.now();
 try{var c=document.createElement('canvas'),sc=Math.min(1,1400/Math.max(fc.width,fc.height));c.width=Math.round(fc.width*sc);c.height=Math.round(fc.height*sc);c.getContext('2d').drawImage(fc,0,0,c.width,c.height);
-var rs=await q.w.recognize(c),p=parseTxt(rs.data.text);if(LV!==q)return;
+var rs=await q.w.recognize(binarize(c)),p=parseTxt(rs.data.text);if(LV!==q)return;
 if(p.lot&&p.exp){var key=p.lot+'|'+p.exp;if(q.prev===key){stopLive();fillTxt(p);return}q.prev=key}else q.prev=null}catch(e){}
 if(LV===q)q.busy=false}
 function fillTxt(p){F.l=p.lot;F.e=p.exp;render();document.getElementById('st').textContent='Testo letto: CONTROLLA lotto e scadenza prima di salvare, la lettura del testo può sbagliare.'}
+function nameCands(tx){var bad=/\b(LOT|EXP|REF|IVD|CE|UDI|STORE|MADE|WWW|COM|STREET|USA|ITALY|SPAIN|GMBH|INC|LTD|SRL)\b/i,ls=String(tx).split(/\r?\n/).map(function(s){return s.replace(/[^A-Za-z0-9 .()\/+&-]/g,' ').replace(/\s+/g,' ').trim()}).filter(function(s){return s});
+function ok(s){var dg=(s.match(/\d/g)||[]).length;return s.length>=4&&s.length<=60&&dg/s.length<.25&&/[A-Za-z]{3}/.test(s)&&!bad.test(s)}
+var ai=-1,i,best='',ref='';for(i=0;i<ls.length;i++)if(/^\d{8,12}$/.test(ls[i].replace(/ /g,''))){ai=i;break}
+if(ai>0){ref=ls[ai].replace(/ /g,'');var up=[];for(i=ai-1;i>=0&&up.length<2;i--){if(ok(ls[i]))up.unshift(ls[i]);else if(up.length)break}best=up.join(' ')}
+var cs=ls.filter(ok);if(!best)best=cs.slice(0,2).join(' ');var cands=[];if(best)cands.push(best);cs.forEach(function(s){if(cands.indexOf(s)<0&&cands.length<5)cands.push(s)});return{best:best,ref:ref,cands:cands}}
+function lev(a,b){var m=[],i,j;for(i=0;i<=a.length;i++)m[i]=[i];for(j=1;j<=b.length;j++)m[0][j]=j;for(i=1;i<=a.length;i++)for(j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
+function fuzzyName(n){var k=String(n).toLowerCase().replace(/[^a-z0-9]/g,''),best=n,bs=0;Object.keys(S.items).forEach(function(x){var nm=S.items[x].name,t=nm.toLowerCase().replace(/[^a-z0-9]/g,''),s=1-lev(k,t)/Math.max(k.length,t.length,1);if(s>bs&&s>=.75){bs=s;best=nm}});return best}
+function binarize(c){var w=c.width,h=c.height,p=c.getContext('2d').getImageData(0,0,w,h).data,g=new Uint8Array(w*h),W=w+1,I=new Float64Array(W*(h+1)),i,j,x,y;
+for(i=0,j=0;i<p.length;i+=4,j++)g[j]=(p[i]*299+p[i+1]*587+p[i+2]*114)/1000;
+for(y=0;y<h;y++){var s=0;for(x=0;x<w;x++){s+=g[y*w+x];I[(y+1)*W+x+1]=I[y*W+x+1]+s}}
+var r=Math.max(8,Math.round(Math.max(w,h)*0.0095)),o=document.createElement('canvas');o.width=w;o.height=h;var ox=o.getContext('2d'),od=ox.createImageData(w,h),q=od.data;
+for(y=0;y<h;y++){var y0=Math.max(0,y-r),y1=Math.min(h,y+r+1);for(x=0;x<w;x++){var x0=Math.max(0,x-r),x1=Math.min(w,x+r+1),a=(I[y1*W+x1]-I[y0*W+x1]-I[y1*W+x0]+I[y0*W+x0])/((y1-y0)*(x1-x0)),v=g[y*w+x]>a-12?255:0,k=(y*w+x)*4;q[k]=q[k+1]=q[k+2]=v;q[k+3]=255}}
+ox.putImageData(od,0,0);return o}
+function nameTools(){return'<label class="scan" style="margin:8px 0 0;padding:10px;font-size:.9rem"><input type="file" accept="image/*" capture="environment" id="phn">Fotografa il nome del kit (da vicino)</label>'+((F.cand||[]).length?'<small class="sub" style="display:block;margin-top:8px">Suggerimenti dal testo letto:</small><div style="margin-top:4px">'+F.cand.map(function(c,i){return'<button type="button" class="ed" data-a="nm" data-i="'+i+'" style="margin:0 6px 6px 0">'+esc(c)+'</button>'}).join('')+'</div>':'')}
 function guessName(tx){var ls=String(tx).split(/\r?\n/).map(function(s){return s.replace(/[^A-Za-z0-9 .()\/+-]/g,' ').replace(/\s+/g,' ').trim()}).filter(function(s){var dg=(s.match(/\d/g)||[]).length;return s.length>=4&&s.length<=60&&dg/s.length<.25&&/[A-Za-z]{3}/.test(s)&&!/\b(LOT|EXP|REF|IVD|CE|UDI|STORE|MADE|WWW|COM|STREET|USA)\b/i.test(s)});return ls.slice(0,2).join(' ')}
 function byGtin(g){var k=Object.keys(S.items).filter(function(x){return S.items[x].gtin===g})[0];return k?S.items[k]:null}
 async function lookupName(g){if(!g||!/^\d{14}$/.test(g)||F.n)return;
@@ -235,7 +250,7 @@ else if((d=T.match(/\b(0[1-9]|1[0-2])[-\/.](20\d{2})\b/)))o.exp=d[2]+'-'+d[1]+'-
 var L=T.match(/(?:LOT|LOTTO|LOTE)\s*[:.]?\s*([A-Z0-9][A-Z0-9-]{4,})/i);
 if(L&&/\d/.test(L[1]))o.lot=L[1].toUpperCase();
 else{var c=T.split(/\s+/).filter(function(w){return/^[A-Z0-9-]{6,14}$/.test(w)&&/\d/.test(w)&&/[A-Z]/.test(w)});if(c.length)o.lot=c[0]}
-o.name=guessName(tx);return o}
+var nc=nameCands(tx);o.name=nc.best;o.cands=nc.cands;o.ref=nc.ref;return o}
 function toBlob(img){return new Promise(function(res){var sc=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(function(b){res({b:b,c:c})},'image/jpeg',.9)})}
 function loadTess(){return new Promise(function(res,rej){if(window.Tesseract)return res();var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=res;s.onerror=function(){rej(new Error('load'))};document.head.appendChild(s)})}
 async function readText(f,nameOnly,src){if(!f&&!src)return;var st=document.getElementById('st');read();if(!nameOnly)st.textContent='Lettura del testo in corso… (può richiedere qualche secondo)';
@@ -243,11 +258,11 @@ var o={},u=f?URL.createObjectURL(f):'',img=src||new Image();
 try{if(!src){img.src=u;await img.decode()}var x=await toBlob(img),sm=null;
 try{sm=window.claude?await window.claude.use('sample'):null}catch(e){}
 if(sm){var r=await sm.json('Leggi l\u2019etichetta di questo kit di laboratorio. Rispondi solo con un oggetto JSON con le chiavi name, article, lot, expiry (formato AAAA-MM-GG), gtin. Usa null per ci\u00f2 che non leggi con certezza. Non inventare nulla.',{images:x.b});o={n:r.name,r:r.article,l:r.lot,e:r.expiry,g:r.gtin}}
-else{await loadTess();var w=await Tesseract.createWorker('eng'),rs=await w.recognize(x.c);await w.terminate();var p=parseTxt(rs.data.text);o={l:p.lot,e:p.exp,n:p.name}}
+else{await loadTess();var w=await Tesseract.createWorker('eng');await w.setParameters({tessedit_pageseg_mode:'6'});var rs=await w.recognize(binarize(x.c));await w.terminate();var p=parseTxt(rs.data.text);o={l:p.lot,e:p.exp,n:p.name,r:p.ref,c:p.cands}}
 }catch(e){if(u)URL.revokeObjectURL(u);if(!nameOnly)st.textContent='Lettura del testo non riuscita o non disponibile: compila a mano.';return}
-if(u)URL.revokeObjectURL(u);var n=0;if(nameOnly)o={n:o.n};
-if(o.n&&!F.n){F.n=String(o.n);n++}if(o.r&&!F.r){F.r=String(o.r);n++}if(o.g&&!F.g){F.g=String(o.g);n++}if(o.l){F.l=String(o.l).toUpperCase();n++}if(o.e&&/^\d{4}-\d{2}-\d{2}$/.test(o.e)){F.e=o.e;n++}
-if(nameOnly&&!n)return;render();document.getElementById('st').textContent=nameOnly?'Nome proposto dal testo: controllalo prima di salvare.':n?'Testo letto: CONTROLLA lotto e scadenza prima di salvare, la lettura del testo può sbagliare.':'Nessun dato leggibile dal testo: compila a mano.'}
+if(u)URL.revokeObjectURL(u);var n=0;if(nameOnly)o={n:o.n,r:o.r,c:o.c};F.cand=o.c||[];
+if(o.n&&!F.n){F.n=fuzzyName(String(o.n));n++}if(o.r&&!F.r){F.r=String(o.r);n++}if(o.g&&!F.g){F.g=String(o.g);n++}if(o.l){F.l=String(o.l).toUpperCase();n++}if(o.e&&/^\d{4}-\d{2}-\d{2}$/.test(o.e)){F.e=o.e;n++}
+if(nameOnly&&!n){render();document.getElementById('st').textContent=(F.cand&&F.cand.length)?'Scegli uno dei suggerimenti sotto il nome oppure scrivilo a mano.':'Nome non letto dal testo: scrivilo la prima volta.';return}render();document.getElementById('st').textContent=nameOnly?'Nome proposto dal testo: controllalo prima di salvare.':n?'Testo letto: CONTROLLA lotto e scadenza prima di salvare, la lettura del testo può sbagliare.':'Nessun dato leggibile dal testo: compila a mano.'}
 function readPhoto(f,st,cb){if(!f)return;st.textContent='Lettura in corso…';var u=URL.createObjectURL(f),img=new Image();
 img.onload=function(){scan(img).then(function(t){URL.revokeObjectURL(u);if(!t){st.textContent='Codice non leggibile. Avvicinati, usa più luce e riprova.';return}cb(t)},function(){st.textContent='Lettura non riuscita: riprova.'})};
 img.onerror=function(){st.textContent='Immagine non valida.'};img.src=u}
@@ -264,7 +279,7 @@ async function startLive(cb,bid){cb=cb||fill;var txt=cb===fill;bid=bid||'lv';var
 if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){st.textContent='Fotocamera non disponibile qui: usa la foto o compila a mano.';return}
 var s=await openCam(st);if(!s)return;
 var w=document.createElement('div');w.id='lw';w.innerHTML='<video playsinline muted></video><button class="cta" type="button">Chiudi fotocamera</button>';
-document.getElementById(bid).after(w);var v=w.querySelector('video');v.muted=true;v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.srcObject=s;LV={on:true,s:s,v:v,t0:Date.now(),last:0,prev:null};var me=LV;if(txt)loadTess().then(function(){return Tesseract.createWorker('eng')}).then(function(wk){if(LV===me)me.w=wk;else wk.terminate()}).catch(function(){});
+document.getElementById(bid).after(w);var v=w.querySelector('video');v.muted=true;v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.srcObject=s;LV={on:true,s:s,v:v,t0:Date.now(),last:0,prev:null};var me=LV;if(txt)loadTess().then(function(){return Tesseract.createWorker('eng')}).then(function(wk){if(LV===me){me.w=wk;wk.setParameters({tessedit_pageseg_mode:'6'})}else wk.terminate()}).catch(function(){});
 w.querySelector('button').onclick=function(){stopLive();st.textContent=''};
 try{await v.play()}catch(e){st.textContent='Tocca il video per avviare la fotocamera.';v.onclick=function(){v.play()}}
 var fc=document.createElement('canvas'),i=0,L=[[[0,0,1,1],1000,0],[[0,0,1,1],1000,90],[[.2,.2,.6,.6],1000,0],[[.2,.2,.6,.6],1000,90],[[0,0,1,1],1000,270],[[0,0,1,1],1000,180],[[.2,.2,.6,.6],1000,270],[[.2,.2,.6,.6],1000,180]];
@@ -281,7 +296,7 @@ var it=S.items[(F.sc||S.cur||'')+'|'+F.g];if(it){F.n=it.name;F.m=it.min;F.r=it.r
 render();document.getElementById('st').textContent=o['01']?'Codice letto. Controlla i dati e completa il nome.':'Codice letto e inserito nel campo prodotto. Compila lotto e scadenza a mano.';if(o['01']){lookupName(F.g);if(!F.n)readText(f,true)}},
 function(){st.textContent='Codice non leggibile. Avvicinati, usa più luce oppure compila a mano.'})}catch(e){st.textContent='Lettura non disponibile: compila a mano.'}};
 img.onerror=function(){st.textContent='Immagine non valida.'};img.src=URL.createObjectURL(f)};
-var lb=document.getElementById('lv');if(lb)lb.onclick=function(){startLive()};
+var lb=document.getElementById('lv');if(lb)lb.onclick=function(){startLive()};document.getElementById('phn').onchange=function(e){var f=e.target.files[0];e.target.value='';readText(f,true)};
 document.getElementById('sv').onclick=function(){read();var st=document.getElementById('st');
 var n=(F.n||'').trim(),g=(F.g||'').trim(),l=(F.l||'').trim(),q=parseInt(F.q,10);
 if(!n||!l||!F.e||!(q>0)){st.textContent='Mancano nome, lotto, scadenza o quantità.';return}
