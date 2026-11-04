@@ -53,6 +53,7 @@ select{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;ba
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
+<p class="sub" style="text-align:center;margin-top:24px">Versione 04/11/2026 - b</p>
 <nav>
 <button data-v="avvisi">Avvisi</button>
 <button data-v="scorte">Scorte</button>
@@ -116,10 +117,10 @@ v.innerHTML=h;if(view==='nuovo')bind();if(view==='scarico'){var b2=document.getE
 function attempts(){var L=[],cr=[[0,0,1,1],[0,0,.6,.6],[.4,0,.6,.6],[0,.4,.6,.6],[.4,.4,.6,.6]];cr.forEach(function(c){[1400,800].forEach(function(sz){[0,90,270,180].forEach(function(r){L.push([c,sz,r])})})});return L}
 function dec(img,a){var c=a[0],sx=c[0]*img.naturalWidth,sy=c[1]*img.naturalHeight,sw=c[2]*img.naturalWidth,sh=c[3]*img.naturalHeight,sc=Math.min(1,a[1]/Math.max(sw,sh)),cw=Math.round(sw*sc),ch=Math.round(sh*sc),q=a[2]%180!==0,cv=document.createElement('canvas');
 cv.width=q?ch:cw;cv.height=q?cw:ch;var x=cv.getContext('2d');x.translate(cv.width/2,cv.height/2);x.rotate(a[2]*Math.PI/180);x.drawImage(img,sx,sy,sw,sh,-cw/2,-ch/2,cw,ch);
-var hs=new Map();hs.set(ZXing.DecodeHintType.TRY_HARDER,true);hs.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.DATA_MATRIX,ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.QR_CODE,ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.CODE_39]);
+var hs=new Map();hs.set(ZXing.DecodeHintType.TRY_HARDER,true);hs.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[ZXing.BarcodeFormat.DATA_MATRIX,ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.QR_CODE,ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8]);
 var mr=new ZXing.MultiFormatReader();mr.setHints(hs);
 try{var t=mr.decode(new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(cv)))).getText();return t||null}catch(e){return null}}
-async function scan(img){var L=attempts(),fb=null;for(var i=0;i<L.length;i++){var t=dec(img,L[i]);if(t){if(gs1(t)['01'])return t;fb=fb||t}if(fb&&i>=7)return fb;await new Promise(function(r){setTimeout(r,0)})}return fb}
+async function scan(img){var L=attempts(),cnt={};for(var i=0;i<L.length;i++){var t=dec(img,L[i]);if(t){if(gs1(t)['01'])return t;cnt[t]=(cnt[t]||0)+1;if(cnt[t]>=(/^\d{8,14}$/.test(t)?2:3))return t}await new Promise(function(r){setTimeout(r,0)})}return null}
 var EK=null,DP=false,RO=false,BK=null;
 function est(k){var it=S.items[k],h=(S.hist||[]).filter(function(x){return(x.k||('|'+x.gtin))===k&&days(x.d)>=-90});if(!it||h.length<3)return null;var f=Math.max(14,-days(h.reduce(function(a,x){return x.d<a?x.d:a},h[0].d))),r=h.length/f,t=total(it);return{m:Math.round(r*300)/10,d:t>0?Math.round(t/r):0}}
 function dur(d){return d<=0?'esaurita':d>=60?Math.round(d/30)+' mesi':d+' giorni'}
@@ -218,12 +219,12 @@ function stopLive(){if(LV){LV.on=false;LV.s.getTracks().forEach(function(t){t.st
 function fill(t){var o=gs1(t);F.g=o['01'];if(o['10'])F.l=o['10'];if(o['17'])F.e=d6(o['17']);var it=S.items[(F.sc||S.cur||'')+'|'+F.g];if(it){F.n=it.name;F.m=it.min;F.r=it.ref||'';F.cal=!!it.cal}else{var o2=byGtin(F.g);if(o2){F.n=o2.name;F.r=o2.ref||'';F.cal=!!o2.cal}}render();document.getElementById('st').textContent='Codice letto. Controlla i dati e completa il nome.';lookupName(F.g)}
 var PP=document.permissionsPolicy||document.featurePolicy;
 var LIVE_OK=!!(window.isSecureContext&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&!(PP&&PP.allowsFeature&&!PP.allowsFeature('camera')));
-async function ocrStep(fc){var q=LV;if(!q||q.busy||!q.w||Date.now()-q.t0<3000||Date.now()-q.last<1200)return;q.busy=true;q.last=Date.now();
+async function ocrStep(fc){var q=LV;if(!q||q.busy||!q.w||Date.now()-q.t0<6000||Date.now()-q.last<1200)return;q.busy=true;q.last=Date.now();
 try{var c=document.createElement('canvas'),sc=Math.min(1,1400/Math.max(fc.width,fc.height));c.width=Math.round(fc.width*sc);c.height=Math.round(fc.height*sc);c.getContext('2d').drawImage(fc,0,0,c.width,c.height);
 var rs=await q.w.recognize(binarize(c)),p=parseTxt(rs.data.text);if(LV!==q)return;
 if(p.lot&&p.exp){var key=p.lot+'|'+p.exp;if(q.prev===key){stopLive();fillTxt(p);return}q.prev=key}else q.prev=null}catch(e){}
 if(LV===q)q.busy=false}
-function fillTxt(p){F.l=p.lot;F.e=p.exp;render();document.getElementById('st').textContent='Testo letto: CONTROLLA lotto e scadenza prima di salvare, la lettura del testo può sbagliare.'}
+function fillTxt(p){F.l=p.lot;F.e=p.exp;if(p.gtin&&!F.g)F.g=p.gtin;render();document.getElementById('st').textContent='Testo letto: CONTROLLA lotto e scadenza prima di salvare, la lettura del testo può sbagliare.'+(F.g?'':' Codice prodotto non letto: inquadra anche il codice.')}
 function nameCands(tx){var bad=/\b(LOT|EXP|REF|IVD|CE|UDI|STORE|MADE|WWW|COM|STREET|USA|ITALY|SPAIN|GMBH|INC|LTD|SRL)\b/i,ls=String(tx).split(/\r?\n/).map(function(s){return s.replace(/[^A-Za-z0-9 .()\/+&-]/g,' ').replace(/\s+/g,' ').trim()}).filter(function(s){return s});
 function ok(s){var dg=(s.match(/\d/g)||[]).length;return s.length>=4&&s.length<=60&&dg/s.length<.25&&/[A-Za-z]{3}/.test(s)&&!bad.test(s)}
 var ai=-1,i,best='',ref='';for(i=0;i<ls.length;i++)if(/^\d{8,12}$/.test(ls[i].replace(/ /g,''))){ai=i;break}
@@ -250,6 +251,9 @@ else if((d=T.match(/\b(0[1-9]|1[0-2])[-\/.](20\d{2})\b/)))o.exp=d[2]+'-'+d[1]+'-
 var L=T.match(/(?:LOT|LOTTO|LOTE)\s*[:.]?\s*([A-Z0-9][A-Z0-9-]{4,})/i);
 if(L&&/\d/.test(L[1]))o.lot=L[1].toUpperCase();
 else{var c=T.split(/\s+/).filter(function(w){return/^[A-Z0-9-]{6,14}$/.test(w)&&/\d/.test(w)&&/[A-Z]/.test(w)});if(c.length)o.lot=c[0]}
+var gm=T.match(/\(\s*[0O]1\s*\)\s*([0-9OIl ]{14,20})/);if(gm){var gd=gm[1].replace(/[Oo]/g,'0').replace(/[Il]/g,'1').replace(/ /g,'');if(/^\d{14}/.test(gd))o.gtin=gd.slice(0,14)}
+var lm=T.match(/\(\s*10\s*\)\s*([A-Z0-9]{3,20})/i);if(lm)o.lot=lm[1].toUpperCase();
+var em=T.match(/\(\s*17\s*\)\s*(\d{6})/);if(em)o.exp=d6(em[1]);
 var nc=nameCands(tx);o.name=nc.best;o.cands=nc.cands;o.ref=nc.ref;return o}
 function toBlob(img){return new Promise(function(res){var sc=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*sc);c.height=Math.round(img.naturalHeight*sc);c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(function(b){res({b:b,c:c})},'image/jpeg',.9)})}
 function loadTess(){return new Promise(function(res,rej){if(window.Tesseract)return res();var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=res;s.onerror=function(){rej(new Error('load'))};document.head.appendChild(s)})}
@@ -258,7 +262,7 @@ var o={},u=f?URL.createObjectURL(f):'',img=src||new Image();
 try{if(!src){img.src=u;await img.decode()}var x=await toBlob(img),sm=null;
 try{sm=window.claude?await window.claude.use('sample'):null}catch(e){}
 if(sm){var r=await sm.json('Leggi l\u2019etichetta di questo kit di laboratorio. Rispondi solo con un oggetto JSON con le chiavi name, article, lot, expiry (formato AAAA-MM-GG), gtin. Usa null per ci\u00f2 che non leggi con certezza. Non inventare nulla.',{images:x.b});o={n:r.name,r:r.article,l:r.lot,e:r.expiry,g:r.gtin}}
-else{await loadTess();var w=await Tesseract.createWorker('eng');await w.setParameters({tessedit_pageseg_mode:'6'});var rs=await w.recognize(binarize(x.c));await w.terminate();var p=parseTxt(rs.data.text);o={l:p.lot,e:p.exp,n:p.name,r:p.ref,c:p.cands}}
+else{await loadTess();var w=await Tesseract.createWorker('eng');await w.setParameters({tessedit_pageseg_mode:'6'});var rs=await w.recognize(binarize(x.c));await w.terminate();var p=parseTxt(rs.data.text);o={l:p.lot,e:p.exp,n:p.name,r:p.ref,c:p.cands,g:p.gtin}}
 }catch(e){if(u)URL.revokeObjectURL(u);if(!nameOnly)st.textContent='Lettura del testo non riuscita o non disponibile: compila a mano.';return}
 if(u)URL.revokeObjectURL(u);var n=0;if(nameOnly)o={n:o.n,r:o.r,c:o.c};F.cand=o.c||[];
 if(o.n&&!F.n){F.n=fuzzyName(String(o.n));n++}if(o.r&&!F.r){F.r=String(o.r);n++}if(o.g&&!F.g){F.g=String(o.g);n++}if(o.l){F.l=String(o.l).toUpperCase();n++}if(o.e&&/^\d{4}-\d{2}-\d{2}$/.test(o.e)){F.e=o.e;n++}
