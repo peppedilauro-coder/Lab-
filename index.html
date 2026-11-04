@@ -44,16 +44,20 @@ input[type=text],input[type=date],input[type=number]{width:100%;padding:12px;bor
 nav button{font-size:.8rem}
 select{width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--ink);font:inherit}
 .ed{padding:10px 12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;font:inherit;margin-top:8px}.ed.bad{color:var(--bad);border-color:var(--bad)}.prod .cta{margin-top:12px}
+.help{float:right;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surf);color:var(--acc);font:inherit;font-weight:800;font-size:1.1rem;margin-top:6px}
+.tip{background:var(--infobg);color:var(--ink);border-left:6px solid var(--info);border-radius:6px;padding:10px 12px;margin:0 0 12px;font-size:.92rem}
+details{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 8px}summary{font-weight:700;cursor:pointer}details ul{margin:8px 0 0;padding-left:20px;font-size:.93rem}details li{margin:5px 0}
 .lot .first{color:var(--acc);font-weight:800}
 #lw video{width:100%;border-radius:12px;margin-top:10px;background:#000}
 #st{min-height:1.4em;margin:8px 0 0;font-size:.9rem;color:var(--mut)}
 </style>
 </head>
 <body>
+<button class="help" id="hb" type="button" aria-label="Guida">?</button>
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" style="text-align:center;margin-top:24px">Versione 04/11/2026 - b</p>
+<p class="sub" style="text-align:center;margin-top:24px">Versione 04/11/2026 - c</p>
 <nav>
 <button data-v="avvisi">Avvisi</button>
 <button data-v="scorte">Scorte</button>
@@ -95,7 +99,7 @@ function render(){stopLive();
 var al=alerts(),b=document.querySelectorAll('nav button');
 b.forEach(function(x){x.setAttribute('aria-current',x.dataset.v===view);if(x.dataset.v==='avvisi')x.textContent='Avvisi'+(al.length?' ('+al.length+')':'')});
 var h='',v=document.getElementById('v');
-document.getElementById('s').textContent=view==='avvisi'?'Scadenze, scorte basse e cambi lotto':view==='scorte'?'Quantità per prodotto e lotto':view==='scarico'?'Inquadra il kit che stai per usare':view==='riepilogo'?'Kit scaricati nel mese, pronti da stampare':'Fotografa l’etichetta o compila a mano';
+document.getElementById('s').textContent=view==='avvisi'?'Scadenze, scorte basse e cambi lotto':view==='scorte'?'Quantità per prodotto e lotto':view==='scarico'?'Inquadra il kit che stai per usare':view==='guida'?'Guida e suggerimenti':view==='riepilogo'?'Kit scaricati nel mese, pronti da stampare':'Fotografa l’etichetta o compila a mano';
 if(view==='avvisi'){h=al.length?al.map(function(x){return'<div class="row '+x.c+'"><b>'+esc(x.t)+'</b><small>'+esc(x.d)+'</small></div>'}).join(''):'<p class="empty">Nessun avviso. Aggiungi il primo kit dalla scheda “Nuovo kit”.</p>'}
 if(view==='scorte'){var ks=Object.keys(S.items).filter(function(k){return!S.cur||S.items[k].sec===S.cur}).sort(function(a,b){var x=S.items[a],y=S.items[b],p=(x.sec||'')+x.name,q=(y.sec||'')+y.name;return p<q?-1:p>q?1:0});h=ks.length?ks.map(function(k){if(EK===k)return editHtml(k);var it=S.items[k],t=total(it);
 return'<div class="prod"><header><b>'+esc(it.name)+'</b><span class="tot'+(it.min>0&&t<=it.min?' low':'')+'">'+t+' pz</span></header><small class="sub">'+(it.sec?esc(it.sec)+' · ':'')+(it.gtin?'Codice '+esc(it.gtin)+' · ':'')+'soglia minima '+(it.min||0)+(it.used?' · lotto in uso '+esc(it.used):'')+'</small><input type="text" class="rf" data-k="'+esc(k)+'" placeholder="Codice articolo" aria-label="Codice articolo" value="'+esc(it.ref||'')+'" style="margin:6px 0">'+estHtml(k)+calHtml(k)+
@@ -110,9 +114,11 @@ if(view==='nuovo'){h=(LIVE_OK?'<button class="cta" id="lv" type="button" style="
 '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="cal"'+(F.cal?' checked':'')+' style="width:auto"> Richiede calibrazione al cambio lotto</label>'+
 '<button class="cta" id="sv">Salva kit</button>'}
 if(view==='riepilogo')h=repHtml()+bkHtml();
+if(view==='guida')h=guideHtml();
 if(view==='scarico')h=(LIVE_OK?'<button class="cta" id="lv2" type="button" style="margin:0 0 10px">Scansiona il kit da usare</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph2">Scatta foto del codice</label><div id="rs"></div><p id="st"></p>'+undoBtn();
 if(view==='avvisi')h+=ro2Html();
-if(view!=='nuovo')h=secBar()+h;
+if(view!=='nuovo'&&view!=='guida')h=secBar()+h;
+if(view!=='guida')h=tipHtml()+h;
 v.innerHTML=h;if(view==='nuovo')bind();if(view==='scarico'){var b2=document.getElementById('lv2');if(b2)b2.onclick=function(){startLive(use,'lv2')};document.getElementById('ph2').onchange=function(e){var f=e.target.files[0];e.target.value='';readPhoto(f,document.getElementById('st'),use)}};if(view==='riepilogo')bindRep()}
 function attempts(){var L=[],cr=[[0,0,1,1],[0,0,.6,.6],[.4,0,.6,.6],[0,.4,.6,.6],[.4,.4,.6,.6]];cr.forEach(function(c){[1400,800].forEach(function(sz){[0,90,270,180].forEach(function(r){L.push([c,sz,r])})})});return L}
 function dec(img,a){var c=a[0],sx=c[0]*img.naturalWidth,sy=c[1]*img.naturalHeight,sw=c[2]*img.naturalWidth,sh=c[3]*img.naturalHeight,sc=Math.min(1,a[1]/Math.max(sw,sh)),cw=Math.round(sw*sc),ch=Math.round(sh*sc),q=a[2]%180!==0,cv=document.createElement('canvas');
@@ -137,6 +143,10 @@ function readBk(f){var r=new FileReader();r.onload=function(){try{var o=JSON.par
 async function dlSave(name,blob){var dl=null;try{dl=window.claude?await window.claude.use('downloads'):null}catch(e){}if(dl)return dl.save({filename:name,data:blob});var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
 async function doBk(){var d=today();S.bk=ym(d)+'-'+pad(d.getDate());save();var b=new Blob([JSON.stringify({app:'magazzino-kit',v:1,date:S.bk,S:S})],{type:'application/json'}),ok=true;try{await dlSave('backup-magazzino-kit-'+S.bk+'.json',b)}catch(e){ok=false}render();var m=document.getElementById('bkst');if(m)m.textContent=ok?'Backup salvato: conservalo in un posto sicuro, ad esempio nell’app File.':'Non sono riuscito a salvare il backup.'}
 function act(b){var a=b.dataset.a,it=EK?S.items[EK]:null;
+if(a==='help'){openGuide(GM[b.dataset.s]||'primi');return}
+if(a==='gclose'){view=PV||'avvisi';render();return}
+if(a==='tipx'){S.notips=true;save();render();return}
+if(a==='gtips'){S.notips=!S.notips;save();render();return}
 if(a==='edit'){EK=b.dataset.k;DP=false;render();return}
 if(a==='eca'){EK=null;DP=false;render();return}
 if(a==='undo'){var x=undoLast();render();var r=document.getElementById('rs');if(x&&r)r.innerHTML='<div class="row info"><b>Scarico annullato</b><small>'+esc(x.name)+' · lotto '+esc(x.lot)+'</small></div>';return}
@@ -173,6 +183,26 @@ ks.forEach(function(k){var it=S.items[k],nm=doc.splitTextToSize(it.name,cols[0][
 doc.setFontSize(9);doc.text(nm,12,y);doc.text(fit(it.ref||'-',34),90,y);doc.text(fit(it.gtin||'-',36),124,y);doc.text(fit(it.sec||'-',40),160,y);doc.text(String(total(it)),200,y);doc.setFont('helvetica','bold');doc.text(String(roQ(k)),228,y);doc.setFont('helvetica','normal');y+=h;doc.setDrawColor(200);doc.line(M,y-3,285,y-3)});
 var n=doc.getNumberOfPages();for(var i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.text('Pagina '+i+' di '+n,285,205,{align:'right'})}
 try{await dlSave('ordine-kit-'+isod(d)+'.pdf',doc.output('blob'));m.textContent='PDF salvato.'}catch(e){m.textContent='Non sono riuscito a salvare il PDF.'}}
+var GU=null,PV='avvisi',GM={avvisi:'avvisi',scorte:'scorte',scarico:'scarico',nuovo:'carico',riepilogo:'riepilogo',guida:'primi'};
+function openGuide(s){if(view!=='guida')PV=view;view='guida';GU=s||'primi';EK=null;BK=null;render();window.scrollTo(0,0);setTimeout(function(){var e=document.getElementById('g-'+GU);if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})},0)}
+function tipFor(){var n=Object.keys(S.items).length;
+if(view==='avvisi')return!n?'Benvenuto! Per iniziare: 1) scegli il settore; 2) tocca “Nuovo kit” e scansiona un kit; 3) quando ne apri uno, usa “Scarico”. Qui compariranno scadenze, scorte basse e cambi lotto.':(!S.hist.length?'Quando apri un kit, usa “Scarico”: così l’app impara i consumi, segna il lotto in uso e suggerisce i riordini.':'');
+if(view==='scorte')return n?'Imposta la soglia minima di ogni prodotto: sotto quella quantità ricevi l’avviso. Per correggere errori usa “Modifica prodotto e lotti”.':'Qui vedrai le quantità per prodotto e lotto, dopo aver registrato il primo kit da “Nuovo kit”.';
+if(view==='scarico')return'Inquadra il kit che stai per aprire (non quello finito). Se il lotto cambia, o non è quello che scade prima, l’app te lo segnala.';
+if(view==='nuovo')return'Inquadra il codice da solo, a 10-15 cm e senza riflessi. Se il codice manca, “Scatta foto” legge il testo. Controlla sempre lotto e scadenza prima di salvare.';
+if(view==='riepilogo')return'Scarica il PDF del mese per il registro. Fai ogni tanto un backup: i dati sono solo su questo telefono.';return''}
+function tipHtml(){if(S.notips)return'';var t=tipFor();if(!t)return'';return'<div class="tip">'+esc(t)+'<br><button class="ed" data-a="help" data-s="'+view+'" type="button" style="margin-top:6px">Apri la guida</button> <button class="ed" data-a="tipx" type="button" style="margin-top:6px">Nascondi suggerimenti</button></div>'}
+function guideHtml(){var G=[
+['primi','Primi passi','<li>In alto scegli il <b>settore</b>: ogni settore ha le sue scorte e i suoi avvisi.</li><li><b>Nuovo kit</b>: scansiona il codice sulla confezione, controlla i dati e tocca Salva.</li><li>Quando apri un kit usa <b>Scarico</b>: scansiona il kit che stai per mettere in uso.</li><li><b>Avvisi</b> mostra scadenze e scorte basse, <b>Scorte</b> le quantità, <b>Riepilogo</b> i PDF e il backup.</li><li>Durante la prova tieni anche il tuo registro abituale: l’app non lo sostituisce.</li>'],
+['carico','Nuovo kit (carico)','<li><b>Scansione in diretta</b>: inquadra il codice a 10-15 cm, senza riflessi, tenendo il kit fermo. Funziona solo nella versione online.</li><li><b>Scatta foto</b>: legge il codice; se manca, legge il testo di lotto e scadenza (controllali sempre).</li><li><b>Nome del kit</b>: la prima volta lo scrivi o scegli un suggerimento; “Fotografa il nome” legge solo la scritta. Poi l’app lo ricorda.</li><li><b>Soglia minima</b>: sotto questa quantità arriva l’avviso di scorta.</li><li><b>Richiede calibrazione</b>: attivala per i kit da calibrare al cambio lotto.</li>'],
+['scarico','Scarico','<li>Scansiona il kit che stai per <b>aprire</b>, non quello finito.</li><li>L’app ti avvisa se non è il lotto che scade prima, o se è scaduto.</li><li>Se il lotto in uso cambia, compare l’avviso e, se prevista, la calibrazione da registrare.</li><li>Errore? Usa <b>Annulla ultimo scarico</b>.</li><li>Per kit senza lotto nel codice usa il tasto − nella scheda Scorte.</li>'],
+['scorte','Scorte e modifiche','<li>Quantità per lotto, “usa per primo”, consumo medio e durata stimata (servono almeno 3 scarichi in 90 giorni).</li><li><b>Modifica prodotto e lotti</b>: cambia nome, soglia, lotto, scadenza e quantità, oppure elimina.</li><li><b>Calibrazione</b>: registri quella del nuovo lotto o una nuova sullo stesso lotto, e vedi l’ultima.</li><li><b>Codice articolo</b>: la casella sotto il nome del prodotto.</li>'],
+['avvisi','Avvisi e riordino','<li>Avvisi: scaduti, in scadenza (60 giorni), scorta sotto soglia o per pochi giorni, nuovo lotto in arrivo, cambio lotto in uso, calibrazione da registrare, backup.</li><li><b>Lista di riordino</b>: quantità suggerite dal consumo medio per i mesi di scorta scelti, modificabili. Puoi scaricare il PDF, copiare il testo o inviarlo su WhatsApp.</li>'],
+['riepilogo','Riepilogo e backup','<li>Scegli il mese e scarica il <b>PDF dei kit scaricati</b>.</li><li><b>Backup</b>: salva tutti i dati in un file. <b>Ripristina</b> sostituisce i dati attuali.</li><li>Fai un backup prima di cambiare telefono, rimuovere l’icona o cancellare i dati di Safari.</li>'],
+['problemi','Problemi comuni','<li><b>La fotocamera non parte</b>: consentila in Impostazioni, Safari, Fotocamera. Se resta bloccata usa “Scatta foto”. Se la pagina è dentro un’altra app, aprila in Safari.</li><li><b>Codice non letto</b>: avvicinati, usa più luce, evita i riflessi, oppure compila a mano.</li><li><b>Nome sbagliato</b>: scegli un suggerimento, usa “Fotografa il nome” o scrivilo: la volta dopo l’app lo ricorda.</li><li><b>Dati che sembrano spariti</b>: l’app dalla Home e Safari hanno dati separati. Usa sempre la stessa e ripristina dal backup.</li><li><b>Versione</b>: la trovi in fondo alla pagina.</li>'],
+['limiti','Limiti e privacy','<li>I dati stanno solo su questo telefono, non vengono condivisi.</li><li>Non inserire dati dei pazienti.</li><li>L’app non sostituisce procedure e registri del laboratorio: controlla sempre lotto e scadenza.</li><li>La ricerca online del nome invia soltanto il codice prodotto.</li>'],
+['installa','Icona sulla Home','<li>In Safari tocca Condividi e poi <b>Aggiungi a Home</b>, e usa sempre quell’icona.</li><li>Per aggiornare l’app chiudila e riaprila.</li><li>Prima di rimuovere l’icona fai un backup: i dati sono dentro l’app.</li>']];
+return'<button class="ed" data-a="gclose" type="button" style="margin:0 0 12px">Chiudi la guida</button>'+G.map(function(g){return'<details id="g-'+g[0]+'"'+(GU===g[0]?' open':'')+'><summary>'+g[1]+'</summary><ul>'+g[2]+'</ul></details>'}).join('')+'<button class="ed" data-a="gtips" type="button">'+(S.notips?'Mostra i suggerimenti nelle schede':'Nascondi i suggerimenti nelle schede')+'</button>'}
 function secBar(){return'<label for="cur">Settore</label><select id="cur"><option value=""'+(S.cur?'':' selected')+'>Tutti i settori</option>'+SECT.map(function(s){return'<option'+(S.cur===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select>'}
 function ym(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)}
 function monthRows(mo){return(S.hist||[]).filter(function(x){return x.d.slice(0,7)===mo&&(!S.cur||(x.sec||'')===S.cur)}).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0})}
@@ -315,6 +345,7 @@ document.getElementById('v').onclick=function(e){var b=e.target.closest('button[
 var it=S.items[b.dataset.k],l=it.lots[+b.dataset.i];l.qty+=+b.dataset.q;
 if(l.qty<=0)it.lots.splice(+b.dataset.i,1);save();render()};
 document.getElementById('v').onchange=function(e){var i=e.target;if(i.id==='cur'){S.cur=i.value;save();render();return}if(i.classList&&i.classList.contains('roq')){RQ[i.dataset.k]=Math.max(0,parseInt(i.value,10)||0);render();return}if(i.id==='cov'){S.cov=Math.max(.5,parseFloat(i.value)||2);RQ={};save();render();return}if(i.id==='forn'){FO=i.value.trim();render();return}if(i.classList&&i.classList.contains('rf')&&S.items[i.dataset.k]){S.items[i.dataset.k].ref=i.value.trim();save()}};
+document.getElementById('hb').onclick=function(){openGuide(GM[view]||'primi')};
 document.getElementById('v').addEventListener('click',function(e){var b=e.target.closest('button[data-a]');if(b)act(b)});
 document.addEventListener('visibilitychange',function(){if(document.hidden)stopLive()});window.addEventListener('pagehide',stopLive);
 render();
