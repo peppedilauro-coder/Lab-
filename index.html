@@ -68,7 +68,7 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" style="text-align:center;margin-top:24px">Versione 05/11/2026 - i</p>
+<p class="sub" style="text-align:center;margin-top:24px">Versione 05/11/2026 - j</p>
 <nav>
 <button data-v="avvisi">Avvisi</button>
 <button data-v="scorte">Scorte</button>
@@ -82,7 +82,7 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 /* ====== DATABASE INTERNO DEI KIT (catalogo) ====== */
-var A='ACL TOP 500',I='ILab Taurus',U='URISCAN';
+var A='ACL TOP 500',I='ILab Taurus',U='URISCAN',M='MAGLUMI';
 var DATABASE_KIT=[
 ['0020002500','Antitrombina Liquida',A,'Reagente'],
 ['0020300400','Antitrombina Liquida (2 x 2 mL)',A,'Reagente'],
@@ -106,7 +106,9 @@ var DATABASE_KIT=[
 ['0009802100','AcuStar D-Dimer Controls',A,'Controllo'],
 ['0020008500','D-Dimer',A,'Reagente'],
 ['0020013000','D-Dimer Controls (Liquid)',A,'Controllo'],
-['0020007700','D-Dimer HS',A,'Reagente'],
+['0020007700','D-Dimer HS',A,'Reagente','08426950358695'],
+['130659005M','Cholylglycine (CLIA)',M,'Reagente','06947145529345'],
+['130651028M','H.pylori IgA (CLIA)',M,'Reagente','06947145523343'],
 ['0020500100','D-Dimer HS 500',A,'Reagente'],
 ['0020013100','D-Dimer HS 500 Controls (Liquid)',A,'Controllo'],
 ['00020301000','D-Dimero 500',A,'Reagente'],
@@ -175,14 +177,15 @@ var DATABASE_KIT=[
 ['05755101','URISCAN 1 KETONE STRIP',U,'Strisce reattive'],
 ['05755102','URISCAN 1 GLUCOSE STRIP',U,'Strisce reattive'],
 ['U81','Uriscan Super Plus CASSETTE',U,'Consumabile/cassetta']
-].map(function(r){return{codice:r[0],nome:r[1],strumento:r[2],tipologia:r[3]}});
+].map(function(r){return{codice:r[0],codiceBarre:r[4]||'',nome:r[1],strumento:r[2],tipologia:r[3]}});
 /* i codici si confrontano senza spazi, simboli e zeri iniziali (es. 0018257100 = 00018257100) */
 function nk(c){return String(c||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/^0+/,'')}
-var KIT_IDX={};DATABASE_KIT.forEach(function(k){KIT_IDX[nk(k.codice)]=k});
-function cercaKit(c,exact){var k=nk(c);if(!k)return null;if(KIT_IDX[k])return KIT_IDX[k];if(!exact&&k.length>=6)for(var i=0;i<DATABASE_KIT.length;i++){var d=nk(DATABASE_KIT[i].codice);if(d.length>=6&&k.indexOf(d)>-1)return DATABASE_KIT[i]}return null}
+var KIT_IDX={},KIT_GT={};DATABASE_KIT.forEach(function(k){KIT_IDX[nk(k.codice)]=k;if(k.codiceBarre)KIT_GT[nk(k.codiceBarre)]=k});
+/* cerca per codice articolo (REF) OPPURE per codice a barre globale (GTIN), anche quelli imparati salvando i kit */
+function cercaKit(c,exact){var k=nk(c);if(!k)return null;if(KIT_IDX[k])return KIT_IDX[k];if(KIT_GT[k])return KIT_GT[k];if(typeof S!=='undefined'&&S.gmap&&S.gmap[k]&&KIT_IDX[nk(S.gmap[k])])return KIT_IDX[nk(S.gmap[k])];if(!exact&&k.length>=6)for(var i=0;i<DATABASE_KIT.length;i++){var d=nk(DATABASE_KIT[i].codice);if(d.length>=6&&k.indexOf(d)>-1)return DATABASE_KIT[i]}return null}
 function nomeKit(n){n=String(n||'').trim().toLowerCase();if(!n)return null;var m=DATABASE_KIT.filter(function(k){return k.nome.toLowerCase()===n});return m.length===1?m[0]:null}
-function dbApply(){var e=cercaKit(F.r)||cercaKit(F.g,true);if(e){F.n=e.nome;F.ks=e.strumento;F.kt=e.tipologia;if(!F.r)F.r=e.codice;F.dba=true;F.dbr=F.r;F.unk=false}return e}
-function flashOk(){var e=document.getElementById('n');if(e){e.classList.add('okf');setTimeout(function(){e.classList.remove('okf')},2500)}}
+function dbApply(){var e=cercaKit(F.r)||cercaKit(F.g,true);if(e){F.n=e.nome;F.ks=e.strumento;F.kt=e.tipologia;F.r=e.codice;F.dba=true;F.dbr=F.r;F.unk=false}return e}
+function flashOk(){['n','r','ks','kt'].forEach(function(id){var e=document.getElementById(id);if(e){e.classList.add('okf');setTimeout(function(){e.classList.remove('okf')},2500)}})}
 var KEY='magazzino-kit-v1',DAYS=60,S={items:{},log:[]},view='avvisi',F={};
 try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
 S.hist=S.hist||[];S.log=S.log||[];S.items=S.items||{};
@@ -313,7 +316,7 @@ if(view==='riepilogo')return'Scarica il PDF del mese per il registro. Fai ogni t
 function tipHtml(){if(S.notips)return'';var t=tipFor();if(!t)return'';return'<div class="tip">'+esc(t)+'<br><button class="ed" data-a="help" data-s="'+view+'" type="button" style="margin-top:6px">Apri la guida</button> <button class="ed" data-a="tipx" type="button" style="margin-top:6px">Nascondi suggerimenti</button></div>'}
 function guideHtml(){var G=[
 ['primi','Primi passi','<li>In alto scegli il <b>settore</b>: ogni settore ha le sue scorte e i suoi avvisi.</li><li><b>Nuovo kit</b>: scansiona il codice sulla confezione, controlla i dati e tocca Salva.</li><li>Quando apri un kit usa <b>Scarico</b>: scansiona il kit che stai per mettere in uso.</li><li><b>Bolle</b>: registra le bolle di consegna e ritrovale per reparto.</li><li><b>Avvisi</b> mostra scadenze e scorte basse, <b>Scorte</b> le quantità, <b>Riepilogo</b> i PDF e il backup.</li><li>Durante la prova tieni anche il tuo registro abituale: l’app non lo sostituisce.</li>'],
-['carico','Nuovo kit (carico)','<li><b>Scansione in diretta (modalità codici)</b>: inquadra il codice facendo coincidere la linea rossa, a 10-15 cm, senza riflessi. Legge GS1 (Werfen, lotto e scadenza) e i codici con “240” (Maglumi). Se il codice articolo è nel catalogo compila nome, strumento e tipologia e si ferma. Funziona solo nella versione online.</li><li><b>Scansiona Nome da Testo</b>: per i kit senza codice. Ferma lo scanner e legge il testo nel rettangolo rosso, una volta al secondo; appena trova un nome lo scrive nel campo e si spegne. Il nome resta modificabile. <b>Torna ai codici</b> riparte con i codici.</li><li><b>Ripristina Scanner</b>: azzera i campi (tiene il reparto) e riavvia la fotocamera in modalità codici.</li><li><b>Flash</b>: se il telefono lo permette compare il pulsante per accendere la torcia (su iPhone con Safari di solito non è disponibile).</li><li><b>Scatta foto</b>: legge il codice; se manca, legge il testo di lotto e scadenza.</li><li><b>Registra in Bolla</b>: salva in “Archivio storico consegne” (scheda Bolle) tutto ciò che c’è nei campi, anche per i kit non a catalogo: bastano il reparto e il nome o il codice.</li><li><b>Kit non a catalogo</b>: il codice resta in “Codice articolo”, il nome si scrive a mano oppure si usa “Scansiona Nome da Testo”.</li><li><b>Catalogo interno</b>: se il codice articolo (REF) è nell’elenco dei kit del laboratorio, l’app compila da sola nome, strumento e tipologia e il campo nome si illumina di verde. Il codice a barre GS1 contiene un altro numero (GTIN): il catalogo si aggancia al codice articolo, che si legge dal testo, dal codice (240) quando c’è, o si scrive a mano. Se non c’è: “Kit non a catalogo”.</li><li><b>Nome del kit</b>: la prima volta lo scrivi o scegli un suggerimento; “Fotografa il nome” legge solo la scritta. Poi l’app lo ricorda.</li><li><b>Soglia minima</b>: sotto questa quantità arriva l’avviso di scorta.</li><li><b>Richiede calibrazione</b>: attivala per i kit da calibrare al cambio lotto.</li>'],
+['carico','Nuovo kit (carico)','<li><b>Scansione in diretta (modalità codici)</b>: inquadra il codice facendo coincidere la linea rossa, a 10-15 cm, senza riflessi. Legge GS1 (Werfen, lotto e scadenza) e i codici con “240” (Maglumi). Se il codice articolo è nel catalogo compila nome, strumento e tipologia e si ferma. Funziona solo nella versione online.</li><li><b>Scansiona Nome da Testo</b>: per i kit senza codice. Ferma lo scanner e legge il testo nel rettangolo rosso, una volta al secondo; appena trova un nome lo scrive nel campo e si spegne. Il nome resta modificabile. <b>Torna ai codici</b> riparte con i codici.</li><li><b>Ripristina Scanner</b>: azzera i campi (tiene il reparto) e riavvia la fotocamera in modalità codici.</li><li><b>Flash</b>: se il telefono lo permette compare il pulsante per accendere la torcia (su iPhone con Safari di solito non è disponibile).</li><li><b>Scatta foto</b>: legge il codice; se manca, legge il testo di lotto e scadenza.</li><li><b>Registra in Bolla</b>: salva in “Archivio storico consegne” (scheda Bolle) tutto ciò che c’è nei campi, anche per i kit non a catalogo: bastano il reparto e il nome o il codice.</li><li><b>Kit non a catalogo</b>: il codice resta in “Codice articolo”, il nome si scrive a mano oppure si usa “Scansiona Nome da Testo”.</li><li><b>Catalogo interno</b>: se il codice articolo (REF) è nell’elenco dei kit del laboratorio, l’app compila da sola nome, strumento e tipologia e il campo nome si illumina di verde. Il catalogo riconosce sia il codice articolo (REF) sia il codice a barre globale (GTIN): se il kit ha entrambi, basta scansionare il codice e l’app scrive da sola il REF ufficiale. Per gli altri kit il GTIN viene imparato la prima volta che salvi il kit con il REF del catalogo. Se non c’è: “Kit non a catalogo”.</li><li><b>Nome del kit</b>: la prima volta lo scrivi o scegli un suggerimento; “Fotografa il nome” legge solo la scritta. Poi l’app lo ricorda.</li><li><b>Soglia minima</b>: sotto questa quantità arriva l’avviso di scorta.</li><li><b>Richiede calibrazione</b>: attivala per i kit da calibrare al cambio lotto.</li>'],
 ['scarico','Scarico','<li>Scansiona il kit che stai per <b>aprire</b>, non quello finito.</li><li>L’app ti avvisa se non è il lotto che scade prima, o se è scaduto.</li><li>Se il lotto in uso cambia, compare l’avviso e, se prevista, la calibrazione da registrare.</li><li>Errore? Usa <b>Annulla ultimo scarico</b>.</li><li>Per kit senza lotto nel codice usa il tasto − nella scheda Scorte.</li>'],
 ['scorte','Scorte e modifiche','<li>Quantità per lotto, “usa per primo”, consumo medio e durata stimata (servono almeno 3 scarichi in 90 giorni).</li><li><b>Modifica prodotto e lotti</b>: cambia nome, soglia, lotto, scadenza e quantità, oppure elimina.</li><li><b>Calibrazione</b>: registri quella del nuovo lotto o una nuova sullo stesso lotto, e vedi l’ultima.</li><li><b>Codice articolo</b>: la casella sotto il nome del prodotto.</li>'],
 ['bolle','Archivio bolle','<li><b>Registra una bolla</b>: numero, data, reparto, fornitore o corriere e kit in arrivo.</li><li>I kit si aggiungono con <b>Scansiona un kit</b> (compila codice, lotto e scadenza) o a mano con <b>Aggiungi riga a mano</b>.</li><li>Spunta <b>Carica questi kit anche nelle Scorte</b> per caricarli subito a magazzino nel reparto scelto (solo le righe con lotto e scadenza).</li><li><b>Archivio storico consegne</b>: tabella dei kit registrati con “Registra in Bolla”, filtrabile per reparto.</li><li><b>Storico</b>: filtra per reparto; tocca una bolla per vedere i kit.</li><li><b>Gestisci reparti</b>: aggiungi o rimuovi reparti. L’elenco è lo stesso dei settori. Un reparto con kit in magazzino non si può rimuovere.</li><li>Eliminare una bolla non toglie i kit dalle Scorte.</li>'],
@@ -447,7 +450,7 @@ function fill(t){var r=parseCode(t),ng=r.g||(r.ref?'':r.raw);
 if(F.dba&&F.lastg&&F.lastg!==(ng||r.ref)){F.n='';F.ks='';F.kt='';if(F.r===F.dbr)F.r='';F.dba=false}
 F.g=ng;F.lastg=ng||r.ref;if(r.lot)F.l=r.lot;if(r.exp)F.e=r.exp;if(r.ref)F.r=r.ref;if(!r.gs&&!r.ref)F.r=ng;
 var it=F.g?S.items[(F.sc||S.cur||'')+'|'+F.g]:null,o2=null;if(it){F.n=it.name;F.m=it.min;F.r=it.ref||F.r||'';F.cal=!!it.cal;F.ks=it.str||'';F.kt=it.tip||''}else if(F.g){o2=byGtin(F.g);if(o2){F.n=o2.name;F.r=o2.ref||F.r||'';F.cal=!!o2.cal;F.ks=o2.str||'';F.kt=o2.tip||''}}
-var kn=it||o2,ke=dbApply();F.unk=!ke&&!kn;render();document.getElementById('st').textContent=ke?'✔ Kit a catalogo: '+ke.nome+' ('+ke.strumento+'). Controlla lotto e scadenza.':kn?'Codice letto. Controlla i dati.':'Kit non a catalogo. Completa l’inserimento a mano.';if(ke)flashOk()}
+var kn=it||o2,ke=dbApply();F.unk=!ke&&!kn;render();document.getElementById('st').textContent=ke?'✔ Kit a catalogo: '+ke.nome+' ('+ke.strumento+'). Controlla lotto e scadenza.':kn?'Codice letto. Controlla i dati.':'Kit non a catalogo. Completa l’inserimento a mano.';var s0=document.getElementById('st');s0.style.cssText=ke?'color:var(--acc);font-weight:700':'';if(ke)flashOk()}
 var PP=document.permissionsPolicy||document.featurePolicy;
 var LIVE_OK=!!(window.isSecureContext&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&!(PP&&PP.allowsFeature&&!PP.allowsFeature('camera')));
 var MON={JAN:1,GEN:1,FEB:2,MAR:3,APR:4,MAY:5,MAG:5,JUN:6,GIU:6,JUL:7,LUG:7,AUG:8,AGO:8,SEP:9,SET:9,OCT:10,OTT:10,NOV:11,DEC:12,DIC:12},TWp=null,WARM=false;
@@ -603,7 +606,7 @@ it.name=n;it.gtin=g;it.ref=(F.r||'').trim();it.str=(F.ks||'').trim();it.tip=(F.k
 var ex=it.lots.filter(function(x){return x.lot===l})[0];
 if(ex){ex.qty+=q;ex.exp=F.e}else{if(it.lots.length){var p=it.lots[it.lots.length-1].lot;S.log.push({date:today().getFullYear()+'-'+pad(today().getMonth()+1)+'-'+pad(today().getDate()),name:n,sec:sec,from:p,to:l})}
 it.lots.push({lot:l,exp:F.e,qty:q})}
-it.lots.sort(function(a,b){return a.exp<b.exp?-1:1});save();F={};view='scorte';render()}}
+it.lots.sort(function(a,b){return a.exp<b.exp?-1:1});var de=cercaKit(it.ref,true);if(de&&g){S.gmap=S.gmap||{};S.gmap[nk(g)]=de.codice}save();F={};view='scorte';render()}}
 document.querySelector('nav').onclick=function(e){var b=e.target.closest('button');if(b){view=b.dataset.v;EK=null;BK=null;BMSG='';RM='';BDEL=null;CDEL=null;render()}};
 document.getElementById('v').onclick=function(e){var b=e.target.closest('button[data-q]');if(!b)return;
 var it=S.items[b.dataset.k],l=it.lots[+b.dataset.i];l.qty+=+b.dataset.q;
