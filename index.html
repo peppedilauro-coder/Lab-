@@ -57,7 +57,7 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" style="text-align:center;margin-top:24px">Versione 04/11/2026 - c</p>
+<p class="sub" style="text-align:center;margin-top:24px">Versione 04/11/2026 - d</p>
 <nav>
 <button data-v="avvisi">Avvisi</button>
 <button data-v="scorte">Scorte</button>
@@ -104,7 +104,7 @@ if(view==='avvisi'){h=al.length?al.map(function(x){return'<div class="row '+x.c+
 if(view==='scorte'){var ks=Object.keys(S.items).filter(function(k){return!S.cur||S.items[k].sec===S.cur}).sort(function(a,b){var x=S.items[a],y=S.items[b],p=(x.sec||'')+x.name,q=(y.sec||'')+y.name;return p<q?-1:p>q?1:0});h=ks.length?ks.map(function(k){if(EK===k)return editHtml(k);var it=S.items[k],t=total(it);
 return'<div class="prod"><header><b>'+esc(it.name)+'</b><span class="tot'+(it.min>0&&t<=it.min?' low':'')+'">'+t+' pz</span></header><small class="sub">'+(it.sec?esc(it.sec)+' · ':'')+(it.gtin?'Codice '+esc(it.gtin)+' · ':'')+'soglia minima '+(it.min||0)+(it.used?' · lotto in uso '+esc(it.used):'')+'</small><input type="text" class="rf" data-k="'+esc(k)+'" placeholder="Codice articolo" aria-label="Codice articolo" value="'+esc(it.ref||'')+'" style="margin:6px 0">'+estHtml(k)+calHtml(k)+
 it.lots.map(function(l,i){var d=days(l.exp);return'<div class="lot"><span>Lotto '+esc(l.lot)+'<br><small>scade '+fmt(l.exp)+(d<0?' <b class="x">scaduto</b>':'')+(firstLot(it)===i?' <b class="first">usa per primo</b>':'')+'</small></span><button data-k="'+esc(k)+'" data-i="'+i+'" data-q="-1" aria-label="Usa un kit">−</button><b>'+l.qty+'</b><button data-k="'+esc(k)+'" data-i="'+i+'" data-q="1" aria-label="Aggiungi un kit">+</button></div>'}).join('')+'<button class="ed" data-a="edit" data-k="'+esc(k)+'">Modifica prodotto e lotti</button></div>'}).join(''):'<p class="empty">Nessun kit registrato.</p>'}
-if(view==='nuovo'){h=(LIVE_OK?'<button class="cta" id="lv" type="button" style="margin:0 0 10px">Scansione in diretta</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph">Scatta foto (codice o testo)</label><p id="st"></p>'+
+if(view==='nuovo'){h=(LIVE_OK?'<button class="cta" id="lv" type="button" style="margin:0 0 10px">Scansione in diretta</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph">Scatta foto (codice o testo)</label><p id="st"></p><details style="margin-top:10px"><summary>Testo con la fotocamera dell’iPhone (più preciso)</summary><p class="sub" style="margin:8px 0">Tocca il campo, poi l’icona con la fotocamera (“Scansiona testo”) o tieni premuto e scegli “Scansiona testo”. Inquadra lotto e scadenza e tocca Inserisci: l’app compila i campi.</p><textarea id="lt" rows="2" placeholder="Tocca qui e scansiona il testo" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--ink);font:inherit"></textarea></details>'+
 '<label for="sc">Settore</label><select id="sc"><option value="">Scegli il settore</option>'+SECT.map(function(s){return'<option'+((F.sc||S.cur)===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select>'+
 '<label for="n">Nome del kit</label><input type="text" id="n" value="'+esc(F.n)+'">'+nameTools()+
 '<label for="g">Codice prodotto (GTIN)</label><input type="text" id="g" inputmode="numeric" value="'+esc(F.g)+'">'+
@@ -245,7 +245,7 @@ else if(fl&&fl!==l){c='warn';de.push('Era disponibile un lotto che scade prima: 
 if(it.min>0&&total(it)<=it.min){if(c==='info')c='warn';de.push('Scorta sotto la soglia minima ('+it.min+' pz)')}}}
 render();document.getElementById('rs').innerHTML='<div class="row '+c+'"><b>'+esc(ti)+'</b>'+de.map(function(x){return'<small>'+esc(x)+'</small><br>'}).join('')+'</div>'+(it&&it.calPending&&ck.length===1?'<button class="ed" data-a="cal1" data-k="'+esc(ck[0])+'">Registra calibrazione eseguita oggi</button>':'')}
 var LV=null;
-function stopLive(){if(LV){LV.on=false;LV.s.getTracks().forEach(function(t){t.stop()});try{LV.v.pause();LV.v.srcObject=null}catch(e){}try{if(LV.w)LV.w.terminate()}catch(e){}LV=null}var b=document.getElementById('lw');if(b)b.remove()}
+function stopLive(){if(LV){LV.on=false;LV.s.getTracks().forEach(function(t){t.stop()});try{LV.v.pause();LV.v.srcObject=null}catch(e){}LV=null}var b=document.getElementById('lw');if(b)b.remove()}
 function fill(t){var o=gs1(t);F.g=o['01'];if(o['10'])F.l=o['10'];if(o['17'])F.e=d6(o['17']);var it=S.items[(F.sc||S.cur||'')+'|'+F.g];if(it){F.n=it.name;F.m=it.min;F.r=it.ref||'';F.cal=!!it.cal}else{var o2=byGtin(F.g);if(o2){F.n=o2.name;F.r=o2.ref||'';F.cal=!!o2.cal}}render();document.getElementById('st').textContent='Codice letto. Controlla i dati e completa il nome.';lookupName(F.g)}
 var PP=document.permissionsPolicy||document.featurePolicy;
 var LIVE_OK=!!(window.isSecureContext&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&!(PP&&PP.allowsFeature&&!PP.allowsFeature('camera')));
@@ -255,6 +255,21 @@ var rs=await q.w.recognize(binarize(c)),p=parseTxt(rs.data.text);if(LV!==q)retur
 if(p.lot&&p.exp){var key=p.lot+'|'+p.exp;if(q.prev===key){stopLive();fillTxt(p);return}q.prev=key}else q.prev=null}catch(e){}
 if(LV===q)q.busy=false}
 function fillTxt(p){F.l=p.lot;F.e=p.exp;if(p.gtin&&!F.g)F.g=p.gtin;render();document.getElementById('st').textContent='Testo letto: CONTROLLA lotto e scadenza prima di salvare, la lettura del testo può sbagliare.'+(F.g?'':' Codice prodotto non letto: inquadra anche il codice.')}
+var MON={JAN:1,GEN:1,FEB:2,MAR:3,APR:4,MAY:5,MAG:5,JUN:6,GIU:6,JUL:7,LUG:7,AUG:8,AGO:8,SEP:9,SET:9,OCT:10,OTT:10,NOV:11,DEC:12,DIC:12},TWp=null,WARM=false;
+function mk(y,m,d){y=+y;m=+m;d=d?+d:new Date(y,m,0).getDate();if(y<100)y+=2000;if(!m||m<1||m>12||d<1||d>31||y<2000||y>2100)return null;return y+'-'+pad(m)+'-'+pad(d)}
+function allDates(tx){var U=String(tx).toUpperCase().replace(/[|]/g,'1'),r=[],m,re;
+re=/\b(20\d{2})[-\/.](0?[1-9]|1[0-2])(?:[-\/.](0?[1-9]|[12]\d|3[01]))?\b/g;while((m=re.exec(U)))r.push({i:m.index,d:mk(m[1],m[2],m[3])});
+re=/\b(0?[1-9]|[12]\d|3[01])[-\/. ](0?[1-9]|1[0-2])[-\/. ](20\d{2})\b/g;while((m=re.exec(U)))r.push({i:m.index,d:mk(m[3],m[2],m[1])});
+re=/\b(0?[1-9]|1[0-2])[-\/.](20\d{2})\b/g;while((m=re.exec(U)))r.push({i:m.index,d:mk(m[2],m[1])});
+re=/\b(?:(\d{1,2})[ .-])?(JAN|GEN|FEB|MAR|APR|MAY|MAG|JUN|GIU|JUL|LUG|AUG|AGO|SEP|SET|OCT|OTT|NOV|DEC|DIC)[A-Z]*[ .\/,-]*(20\d{2})\b/g;while((m=re.exec(U)))r.push({i:m.index,d:mk(m[3],MON[m[2]],m[1])});
+return r.filter(function(x){return x.d})}
+function bestExp(tx){var U=String(tx).toUpperCase(),D=allDates(tx);if(!D.length)return null;var lab=/(?:EXP(?:IRY|IRATION)?|USE\s*BY|SCAD(?:ENZA)?|VERW|VERFALL|PÉREMPTION|PEREMPTION|CAD(?:UCIDAD)?)\W{0,6}$/;
+for(var i=0;i<D.length;i++){if(lab.test(U.slice(Math.max(0,D[i].i-22),D[i].i)))return D[i].d}
+var now=isod(today()),fut=D.filter(function(x){return x.d>=now}),pool=fut.length?fut:D;return pool.reduce(function(a,x){return x.d>a?x.d:a},pool[0].d)}
+function getTW(){if(!TWp){TWp=loadTess().then(function(){return Tesseract.createWorker('eng')}).then(function(w){return w.setParameters({tessedit_pageseg_mode:'6'}).then(function(){return w})});TWp.catch(function(){TWp=null})}return TWp}
+function useText(t){if(!t||String(t).length<4)return;read();var p=parseTxt(t),n=0,st;
+if(p.gtin&&!F.g){F.g=p.gtin;n++}if(p.lot){F.l=p.lot;n++}if(p.exp){F.e=p.exp;n++}if(p.name&&!F.n){F.n=fuzzyName(p.name);n++}if(p.ref&&!F.r){F.r=p.ref;n++}F.cand=p.cands||[];
+render();st=document.getElementById('st');if(st)st.textContent=n?'Testo letto: CONTROLLA lotto e scadenza prima di salvare.':'Non ho trovato lotto o scadenza: inquadra solo quelle righe e riprova.'}
 function nameCands(tx){var bad=/\b(LOT|EXP|REF|IVD|CE|UDI|STORE|MADE|WWW|COM|STREET|USA|ITALY|SPAIN|GMBH|INC|LTD|SRL)\b/i,ls=String(tx).split(/\r?\n/).map(function(s){return s.replace(/[^A-Za-z0-9 .()\/+&-]/g,' ').replace(/\s+/g,' ').trim()}).filter(function(s){return s});
 function ok(s){var dg=(s.match(/\d/g)||[]).length;return s.length>=4&&s.length<=60&&dg/s.length<.25&&/[A-Za-z]{3}/.test(s)&&!bad.test(s)}
 var ai=-1,i,best='',ref='';for(i=0;i<ls.length;i++)if(/^\d{8,12}$/.test(ls[i].replace(/ /g,''))){ai=i;break}
@@ -278,9 +293,10 @@ function parseTxt(tx){var T=String(tx).replace(/\|/g,'1'),o={},d=T.match(/\b(20\
 if(d)o.exp=d[1]+'-'+d[2]+'-'+d[3];
 else if((d=T.match(/\b(0[1-9]|[12]\d|3[01])[-\/.](0[1-9]|1[0-2])[-\/.](20\d{2})\b/)))o.exp=d[3]+'-'+d[2]+'-'+d[1];
 else if((d=T.match(/\b(0[1-9]|1[0-2])[-\/.](20\d{2})\b/)))o.exp=d[2]+'-'+d[1]+'-'+pad(new Date(+d[2],+d[1],0).getDate());
-var L=T.match(/(?:LOT|LOTTO|LOTE)\s*[:.]?\s*([A-Z0-9][A-Z0-9-]{4,})/i);
+var L=T.match(/(?:LOT|LOTTO|LOTE|BATCH|CHARGE)\s*(?:NO\.?|N°|NR\.?|#)?\s*[:.]?\s*([A-Z0-9][A-Z0-9\/-]{3,19})/i);
 if(L&&/\d/.test(L[1]))o.lot=L[1].toUpperCase();
 else{var c=T.split(/\s+/).filter(function(w){return/^[A-Z0-9-]{6,14}$/.test(w)&&/\d/.test(w)&&/[A-Z]/.test(w)});if(c.length)o.lot=c[0]}
+var be=bestExp(tx);if(be)o.exp=be;
 var gm=T.match(/\(\s*[0O]1\s*\)\s*([0-9OIl ]{14,20})/);if(gm){var gd=gm[1].replace(/[Oo]/g,'0').replace(/[Il]/g,'1').replace(/ /g,'');if(/^\d{14}/.test(gd))o.gtin=gd.slice(0,14)}
 var lm=T.match(/\(\s*10\s*\)\s*([A-Z0-9]{3,20})/i);if(lm)o.lot=lm[1].toUpperCase();
 var em=T.match(/\(\s*17\s*\)\s*(\d{6})/);if(em)o.exp=d6(em[1]);
@@ -292,7 +308,7 @@ var o={},u=f?URL.createObjectURL(f):'',img=src||new Image();
 try{if(!src){img.src=u;await img.decode()}var x=await toBlob(img),sm=null;
 try{sm=window.claude?await window.claude.use('sample'):null}catch(e){}
 if(sm){var r=await sm.json('Leggi l\u2019etichetta di questo kit di laboratorio. Rispondi solo con un oggetto JSON con le chiavi name, article, lot, expiry (formato AAAA-MM-GG), gtin. Usa null per ci\u00f2 che non leggi con certezza. Non inventare nulla.',{images:x.b});o={n:r.name,r:r.article,l:r.lot,e:r.expiry,g:r.gtin}}
-else{await loadTess();var w=await Tesseract.createWorker('eng');await w.setParameters({tessedit_pageseg_mode:'6'});var rs=await w.recognize(binarize(x.c));await w.terminate();var p=parseTxt(rs.data.text);o={l:p.lot,e:p.exp,n:p.name,r:p.ref,c:p.cands,g:p.gtin}}
+else{await loadTess();var w=await getTW(),rs=await w.recognize(binarize(x.c));var p=parseTxt(rs.data.text);o={l:p.lot,e:p.exp,n:p.name,r:p.ref,c:p.cands,g:p.gtin}}
 }catch(e){if(u)URL.revokeObjectURL(u);if(!nameOnly)st.textContent='Lettura del testo non riuscita o non disponibile: compila a mano.';return}
 if(u)URL.revokeObjectURL(u);var n=0;if(nameOnly)o={n:o.n,r:o.r,c:o.c};F.cand=o.c||[];
 if(o.n&&!F.n){F.n=fuzzyName(String(o.n));n++}if(o.r&&!F.r){F.r=String(o.r);n++}if(o.g&&!F.g){F.g=String(o.g);n++}if(o.l){F.l=String(o.l).toUpperCase();n++}if(o.e&&/^\d{4}-\d{2}-\d{2}$/.test(o.e)){F.e=o.e;n++}
@@ -313,14 +329,14 @@ async function startLive(cb,bid){cb=cb||fill;var txt=cb===fill;bid=bid||'lv';var
 if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){st.textContent='Fotocamera non disponibile qui: usa la foto o compila a mano.';return}
 var s=await openCam(st);if(!s)return;
 var w=document.createElement('div');w.id='lw';w.innerHTML='<video playsinline muted></video><button class="cta" type="button">Chiudi fotocamera</button>';
-document.getElementById(bid).after(w);var v=w.querySelector('video');v.muted=true;v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.srcObject=s;LV={on:true,s:s,v:v,t0:Date.now(),last:0,prev:null};var me=LV;if(txt)loadTess().then(function(){return Tesseract.createWorker('eng')}).then(function(wk){if(LV===me){me.w=wk;wk.setParameters({tessedit_pageseg_mode:'6'})}else wk.terminate()}).catch(function(){});
+document.getElementById(bid).after(w);var v=w.querySelector('video');v.muted=true;v.setAttribute('playsinline','');v.setAttribute('autoplay','');v.srcObject=s;LV={on:true,s:s,v:v,t0:Date.now(),last:0,prev:null};var me=LV;if(txt)getTW().then(function(wk){if(LV===me)me.w=wk}).catch(function(){});
 w.querySelector('button').onclick=function(){stopLive();st.textContent=''};
 try{await v.play()}catch(e){st.textContent='Tocca il video per avviare la fotocamera.';v.onclick=function(){v.play()}}
 var fc=document.createElement('canvas'),i=0,L=[[[0,0,1,1],1000,0],[[0,0,1,1],1000,90],[[.2,.2,.6,.6],1000,0],[[.2,.2,.6,.6],1000,90],[[0,0,1,1],1000,270],[[0,0,1,1],1000,180],[[.2,.2,.6,.6],1000,270],[[.2,.2,.6,.6],1000,180]];
 st.textContent=(txt?'Inquadra il codice oppure, se manca, il testo con lotto e scadenza: a 10-15 cm, senza riflessi':'Inquadra il codice del kit, a 10-15 cm, senza riflessi')+'…';
 (function tick(){if(!LV||!LV.on)return;if(v.videoWidth){fc.width=v.videoWidth;fc.height=v.videoHeight;fc.getContext('2d').drawImage(v,0,0);fc.naturalWidth=fc.width;fc.naturalHeight=fc.height;var t=dec(fc,L[i++%L.length]);if(t&&gs1(t)['01']){stopLive();cb(t);if(txt&&!F.n)readText(null,true,fc);return}if(txt)ocrStep(fc);}setTimeout(tick,60)})()}
 function read(){var ce=document.getElementById('cal');if(ce)F.cal=ce.checked;['n','g','l','e','q','m','r','sc'].forEach(function(k){var el=document.getElementById(k);if(el)F[k]=el.value})}
-function bind(){
+function bind(){var lt=document.getElementById('lt');if(lt){var tm;lt.oninput=function(){clearTimeout(tm);tm=setTimeout(function(){useText(lt.value)},800)}}if(!window.claude&&!WARM){WARM=true;setTimeout(function(){getTW().catch(function(){})},1500)}
 document.getElementById('ph').onchange=function(ev){var f=ev.target.files[0],st=document.getElementById('st');if(!f)return;read();st.textContent='Lettura in corso…';
 var img=new Image();img.onload=function(){try{
 scan(img).then(function(t){if(!t){readText(f);return}
