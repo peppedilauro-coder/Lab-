@@ -68,7 +68,7 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" style="text-align:center;margin-top:24px">Versione 06/11/2026 - m</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 06/11/2026 - n</p>
 <nav>
 <button data-v="avvisi">Avvisi</button>
 <button data-v="scorte">Scorte</button>
@@ -571,9 +571,15 @@ document.getElementById('hb').onclick=function(){openGuide(GM[view]||'primi')};
 document.getElementById('v').addEventListener('click',function(e){var b=e.target.closest('button[data-a]');if(b)act(b)});
 document.addEventListener('visibilitychange',function(){if(document.hidden)stopLive()});window.addEventListener('pagehide',stopLive);
 var onScanSuccess=fill;
+function parseCat(t){
+try{return JSON.parse(t)}catch(e){}
+var o=[],m=String(t).match(/\{[^{}]*\}/g)||[];
+m.forEach(function(s){try{o.push(JSON.parse(s))}catch(e){}});
+return o}
 document.addEventListener('DOMContentLoaded',function(){
+var vr=document.getElementById('ver'),V='Versione 06/11/2026 - m';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
-fetch('catalogo_kit.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(view==='nuovo'&&!LV){read();render()}}).catch(function(){var s=document.getElementById('st');if(s&&!DATABASE_KIT.length)s.textContent='Catalogo non caricato: controlla la connessione.'})});
+fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
 </script>
 </body>
