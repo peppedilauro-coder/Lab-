@@ -394,7 +394,7 @@ function readB(){if(!BD)return;var g=function(i){var e=document.getElementById(i
 var c=document.getElementById('b_stock');if(c)BD.stock=c.checked;
 BD.righe.forEach(function(r,i){var a=g('b_n'+i);if(a!==null){r.n=a;r.lot=g('b_l'+i);r.exp=g('b_e'+i);r.qty=g('b_q'+i)}})}
 function bFormHtml(){var B=BD;return'<div class="prod"><b>Nuova bolla di consegna</b>'+
-'<label for="b_num">Numero bolla</label><input type="text" id="b_num" value="'+esc(B.num)+'">'+
+'<label for="b_num">Numero bolla</label><div id="b_numrow" style="display:flex;gap:8px"><input type="text" id="b_num" value="'+esc(B.num)+'" style="flex:1"><button class="ed" data-a="bnumscan" type="button" aria-label="Scansiona Codice Bolla" title="Scansiona Codice Bolla" style="margin:0;display:flex;align-items:center;gap:6px"><svg width="22" height="16" viewBox="0 0 22 16" fill="currentColor" aria-hidden="true"><rect x="0" width="2" height="16"/><rect x="4" width="1" height="16"/><rect x="7" width="3" height="16"/><rect x="12" width="1" height="16"/><rect x="15" width="2" height="16"/><rect x="19" width="3" height="16"/></svg>Scansiona</button></div>'+
 '<div class="grid"><div><label for="b_date">Data</label><input type="date" id="b_date" value="'+esc(B.date)+'"></div><div><label for="b_rep">Reparto</label><select id="b_rep"><option value="">Scegli</option>'+SECT.map(function(s){return'<option'+(B.rep===s?' selected':'')+'>'+esc(s)+'</option>'}).join('')+'</select></div></div>'+
 '<label for="b_forn">Fornitore / corriere (facoltativo)</label><input type="text" id="b_forn" value="'+esc(B.forn)+'">'+
 '<label for="b_note">Note (facoltative)</label><input type="text" id="b_note" value="'+esc(B.note)+'">'+
@@ -433,6 +433,7 @@ if(ex)ex.qty=(parseInt(ex.qty,10)||1)+1;else BD.righe.push({n:it?it.name:(cercaK
 render();var s=document.getElementById('st');if(s)s.textContent=(ex?'Stesso kit e lotto: quantità aumentata.':'Kit aggiunto'+(it?'.':': scrivi il nome.'))+' Controlla lotto e scadenza, poi scansiona il prossimo.'}
 function bAct(a,b){
 if(a==='bnew'){BD=newB();BN=true;BMSG='';render();return true}
+if(a==='bnumscan'){readB();startBollaScan();return true}
 if(a==='bcancel'){BN=false;BD=null;render();return true}
 if(a==='brow'){readB();BD.righe.push({n:'',g:'',lot:'',exp:'',qty:1});render();return true}
 if(a==='brm'){readB();BD.righe.splice(+b.dataset.i,1);render();return true}
@@ -600,6 +601,32 @@ var rs=await wk.recognize(binarize(c,MD[n++%3]));if(LV!==q)return;
 var r=nameFromLines(rs.data.lines);
 if(r.best&&r.conf>=60&&/[A-Za-z]{4}/.test(r.best)&&!/^[\d\s.\/-]+$/.test(r.best))textDone(r.best)}catch(e){}
 busy=false},1000)}
+	/* scanner del numero bolla: solo Code 128, Code 39 e QR, mirino stretto e lungo */
+async function startBollaScan(){
+var ac=null;try{ac=new (window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}
+var st=document.getElementById('st'),row=document.getElementById('b_numrow');stopLive();
+if(!row)return;
+if(!window.isSecureContext||!window.Html5Qrcode){st.textContent='Fotocamera non disponibile: scrivi il numero a mano.';return}
+var w=document.createElement('div');w.id='lw';
+w.innerHTML='<div id="qr-box"><div id="qr-reader"></div><div class="aim"></div></div><button class="cta" id="cb" type="button" style="margin-top:8px">Chiudi fotocamera</button>';
+row.after(w);
+var fm=window.Html5QrcodeSupportedFormats,cc={useBarCodeDetectorIfSupported:true,verbose:false},sc;
+if(fm)cc.formatsToSupport=[fm.CODE_128,fm.CODE_39,fm.QR_CODE];
+try{sc=new Html5Qrcode('qr-reader',cc)}catch(e){stopLive();st.textContent='Fotocamera non avviabile: scrivi il numero a mano.';return}
+var me=LV={on:true,h:sc,iv:0,done:false};
+w.querySelector('#cb').onclick=function(){stopLive();st.textContent=''};
+function beep(){try{var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=1000;g.gain.value=.2;o.connect(g);g.connect(ac.destination);o.start();setTimeout(function(){o.stop()},180)}catch(e){}try{navigator.vibrate&&navigator.vibrate(120)}catch(e){}}
+function got(t){if(LV!==me||me.done||!t)return;me.done=true;
+var v=String(t).replace(/[\x00-\x1f]/g,'').trim();stopLive();beep();
+var i=document.getElementById('b_num'),s=document.getElementById('st');
+if(i){i.value=v;i.classList.add('okf');setTimeout(function(){i.classList.remove('okf')},2500)}
+if(s){s.style.cssText='color:var(--acc);font-weight:700';s.textContent='✔ Numero bolla acquisito: '+v}}
+var cfg={fps:25,disableFlip:true,qrbox:function(vw){return{width:Math.max(50,Math.floor(vw*.92)),height:Math.max(50,Math.floor(vw*.2))}}},ok=false;
+st.style.cssText='';st.textContent='Inquadra solo il codice a barre in cima al foglio, a 10-15 cm…';
+try{await sc.start({facingMode:'environment'},Object.assign({videoConstraints:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080}}},cfg),got,function(){});ok=true}catch(e){}
+if(!ok&&LV===me){try{await sc.start({facingMode:'environment'},cfg,got,function(){});ok=true}catch(e){}}
+if(!ok){if(LV===me){stopLive();st.textContent='Fotocamera non concessa o non disponibile: scrivi il numero a mano.'}return}
+if(LV!==me){try{await sc.stop();sc.clear()}catch(e){}}}
 function read(){var ce=document.getElementById('cal');if(ce)F.cal=ce.checked;['n','g','l','e','q','m','r','sc','ks','kt'].forEach(function(k){var el=document.getElementById(k);if(el)F[k]=el.value})}
 function bind(){
 document.getElementById('ph').onchange=function(ev){var f=ev.target.files[0],st=document.getElementById('st');if(!f)return;read();st.textContent='Lettura in corso…';
