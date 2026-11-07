@@ -68,6 +68,12 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 .fun p{margin:0}.fun small{color:var(--mut)}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--acc);color:var(--onacc);font-weight:800;padding:10px 18px;border-radius:999px;z-index:50}
 .stat{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat div{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;font-size:.85rem;color:var(--mut)}.stat b{display:block;font-size:1.4rem;color:var(--ink)}
+nav button{display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;padding:6px 2px}
+.ni{font-style:normal;font-size:1.2rem;line-height:1}nav.serio .ni{display:none}
+.bdg{position:absolute;top:0;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;font-size:.68rem;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px;font-style:normal}.bdg[hidden]{display:none}
+.sem{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;margin:2px 0 4px;color:var(--ink)}
+.sem i{width:12px;height:12px;border-radius:50%;display:inline-block;background:var(--mut)}.sem.g i{background:#2f9e6b}.sem.y i{background:#d9a200}.sem.r i{background:var(--bad)}
+.swc{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);padding:0}.swc[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:2px}.swn[aria-pressed=true]{border-color:var(--ink)}
 </style>
 </head>
 <body>
@@ -75,14 +81,14 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 07/11/2026 - s</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 07/11/2026 - t</p>
 <nav>
-<button data-v="avvisi">Avvisi</button>
-<button data-v="scorte">Scorte</button>
-<button data-v="scarico">Scarico</button>
-<button data-v="nuovo">Nuovo kit</button>
-<button data-v="bolle">Bolle</button>
-<button data-v="riepilogo">Riepilogo</button>
+<button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
+<button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
+<button data-v="scarico"><i class="ni" aria-hidden="true">➖</i><span>Scarico</span></button>
+<button data-v="nuovo"><i class="ni" aria-hidden="true">➕</i><span>Nuovo kit</span></button>
+<button data-v="bolle"><i class="ni" aria-hidden="true">🧾</i><span>Bolle</span></button>
+<button data-v="riepilogo"><i class="ni" aria-hidden="true">📊</i><span>Riepilogo</span></button>
 </nav>
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -177,12 +183,12 @@ S.log.forEach(function(g){var u=g.k==='uso';if(-days(g.date)<=(u?14:30)&&(!S.cur
 return a.sort(function(x,y){return x.o-y.o})}
 function render(){stopLive();applyLook();
 var al=alerts(),b=document.querySelectorAll('nav button');
-b.forEach(function(x){x.setAttribute('aria-current',x.dataset.v===view);if(x.dataset.v==='avvisi')x.textContent='Avvisi'+(al.length?' ('+al.length+')':'')});
+b.forEach(function(x){x.setAttribute('aria-current',x.dataset.v===view);if(x.dataset.v==='avvisi'){var nr=al.filter(function(y){return y.c==='bad'}).length,nw=al.filter(function(y){return y.c==='warn'}).length,n9=nr||nw,g=x.querySelector('.bdg');if(g){g.hidden=!n9;g.textContent=n9;g.style.background=nr?'var(--bad)':'var(--warn)';g.style.color=nr?'var(--badbg)':'var(--warnbg)'}x.setAttribute('aria-label','Avvisi'+(nr?', '+nr+' rossi':nw?', '+nw+' da controllare':''))}});document.querySelector('nav').classList.toggle('serio',serio());
 var h='',v=document.getElementById('v');
 document.getElementById('s').textContent=view==='avvisi'?'Scadenze, scorte basse e cambi lotto':view==='scorte'?'Quantità per prodotto e lotto':view==='scarico'?'Inquadra il kit che stai per usare':view==='guida'?'Guida e suggerimenti':view==='bolle'?'Archivio bolle di consegna, per reparto':view==='riepilogo'?'Kit scaricati nel mese, pronti da stampare':'Fotografa l’etichetta o compila a mano';
 if(view==='avvisi'){h=al.length?al.map(function(x){return'<div class="row '+x.c+'"><b>'+ico(x.c)+esc(x.t)+'</b><small>'+esc(x.d)+'</small></div>'}).join(''):'<p class="empty">Nessun avviso. Aggiungi il primo kit dalla scheda “Nuovo kit”.</p>'}
 if(view==='scorte'){var ks=Object.keys(S.items).filter(function(k){return!S.cur||S.items[k].sec===S.cur}).sort(function(a,b){var x=S.items[a],y=S.items[b],p=(x.sec||'')+x.name,q=(y.sec||'')+y.name;return p<q?-1:p>q?1:0});h=ks.length?ks.map(function(k){if(EK===k)return editHtml(k);var it=S.items[k],t=total(it);
-return'<div class="prod"><header><b>'+esc(it.name)+'</b><span class="tot'+(it.min>0&&t<=it.min?' low':'')+'">'+t+' pz</span></header><small class="sub">'+(it.sec?esc(it.sec)+' · ':'')+(it.str?esc(it.str)+' · ':'')+(it.tip?esc(it.tip)+' · ':'')+(it.gtin?'Codice '+esc(it.gtin)+' · ':'')+'soglia minima '+(it.min||0)+(it.used?' · lotto in uso '+esc(it.used):'')+'</small><input type="text" class="rf" data-k="'+esc(k)+'" placeholder="Codice articolo" aria-label="Codice articolo" value="'+esc(it.ref||'')+'" style="margin:6px 0">'+estHtml(k)+calHtml(k)+
+return'<div class="prod"'+rcs(it.sec)+'><header><b>'+esc(it.name)+'</b><span class="tot'+(it.min>0&&t<=it.min?' low':'')+'">'+t+' pz</span></header>'+sem(it)+'<small class="sub">'+(it.sec?esc(it.sec)+' · ':'')+(it.str?esc(it.str)+' · ':'')+(it.tip?esc(it.tip)+' · ':'')+(it.gtin?'Codice '+esc(it.gtin)+' · ':'')+'soglia minima '+(it.min||0)+(it.used?' · lotto in uso '+esc(it.used):'')+'</small><input type="text" class="rf" data-k="'+esc(k)+'" placeholder="Codice articolo" aria-label="Codice articolo" value="'+esc(it.ref||'')+'" style="margin:6px 0">'+estHtml(k)+calHtml(k)+
 it.lots.map(function(l,i){var d=days(l.exp);return'<div class="lot"><span>Lotto '+esc(l.lot)+'<br><small>scade '+fmt(l.exp)+(d<0?' <b class="x">scaduto</b>':'')+(firstLot(it)===i?' <b class="first">usa per primo</b>':'')+'</small></span><button data-k="'+esc(k)+'" data-i="'+i+'" data-q="-1" aria-label="Usa un kit">−</button><b>'+l.qty+'</b><button data-k="'+esc(k)+'" data-i="'+i+'" data-q="1" aria-label="Aggiungi un kit">+</button></div>'}).join('')+'<button class="ed" data-a="edit" data-k="'+esc(k)+'">Modifica prodotto e lotti</button></div>'}).join(''):'<p class="empty">Nessun kit registrato.</p>'}
 if(view==='nuovo'){h=(LIVE_OK?'<button class="cta" id="lv" type="button" style="margin:0 0 10px">Scansione in diretta</button>':'')+'<button class="ed" id="rst" type="button" style="margin:0 0 10px">Ripristina Scanner</button>'+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph">Scatta foto (codice o testo)</label><p id="st"></p>'+
 '<label for="cq">Cerca nel catalogo</label><input type="text" id="cq" placeholder="Nome, codice o GTIN" autocomplete="off"><div id="cres"></div>'+
@@ -194,11 +200,11 @@ unkHtml()+'<label for="n">Nome del kit</label><input type="text" id="n" list="dn
 '<div><label for="q">Quantità ricevuta</label><input type="number" id="q" min="1" value="'+esc(F.q||1)+'"></div><div><label for="m">Soglia minima</label><input type="number" id="m" min="0" value="'+esc(F.m||0)+'"></div></div>'+
 '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="cal"'+(F.cal?' checked':'')+' style="width:auto"> Richiede calibrazione al cambio lotto</label>'+
 '<button class="cta" id="sv">Salva kit</button><button class="cta" id="rb" type="button" style="background:var(--surf);color:var(--acc);border:2px solid var(--acc)">Registra in Bolla</button><p id="st3" class="sub" style="margin-top:8px"></p>'}
-if(view==='riepilogo')h=repHtml()+statHtml()+qualHtml()+funHtml()+lookHtml()+bkHtml();
+if(view==='riepilogo')h=repHtml()+statHtml()+qualHtml()+funHtml()+lookHtml()+repColHtml()+bkHtml();
 if(view==='guida')h=guideHtml();
 if(view==='bolle')h=bolleHtml();
 if(view==='scarico')h=(LIVE_OK?'<button class="cta" id="lv2" type="button" style="margin:0 0 10px">Scansiona il kit da usare</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph2">Scatta foto del codice</label><div id="rs"></div><p id="st"></p>'+undoBtn();
-if(view==='avvisi')h=funTop(al)+h+ro2Html();
+if(view==='avvisi')h=funTop(al)+scaricaBtn()+searchHtml()+h+ro2Html();if(view==='scorte')h=searchHtml()+h;
 if(view!=='nuovo'&&view!=='guida'&&view!=='bolle')h=secBar()+h;
 if(view!=='guida')h=tipHtml()+h;
 v.innerHTML=h;if(view==='nuovo')bind();if(view==='scarico'){var b2=document.getElementById('lv2');if(b2)b2.onclick=function(){startLive(use,'lv2')};document.getElementById('ph2').onchange=function(e){var f=e.target.files[0];e.target.value='';readPhoto(f,document.getElementById('st'),use)}};if(view==='riepilogo')bindRep()}
@@ -646,13 +652,24 @@ function funHtml(){return'<h2>Parte simpatica</h2><label style="display:flex;gap
 function cq(v){v=String(v==null?'':v);return/[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 async function csvOut(rows,name){var t='\ufeff'+rows.map(function(r){return r.map(cq).join(';')}).join('\r\n'),st=document.getElementById('qst');try{await dlSave(name,new Blob([t],{type:'text/csv'}));if(st)st.textContent='File '+name+' pronto.'}catch(e){if(st)st.textContent='Salvataggio non riuscito.'}}
 function qAct(a,b){
+if(a==='goscarico'){view='scarico';EK=null;BK=null;render();var b2=document.getElementById('lv2');if(b2)b2.click();return true}
+if(a==='rcol'){var nm=SECT[+b.dataset.i];if(!nm)return true;S.rcol=S.rcol||{};if(b.dataset.v)S.rcol[nm]=b.dataset.v;else delete S.rcol[nm];save();render();return true}
 if(a==='ncsave'){var s=document.getElementById('nck'),x=s?NCO[+s.value]:null,it=x?S.items[x.k]:null;if(!it)return true;S.nc=S.nc||[];S.nc.push({id:Date.now(),d:isod(today()),name:it.name,sec:it.sec||'',lot:x.lot,why:document.getElementById('ncw').value,note:document.getElementById('ncn').value.trim(),op:S.op||''});var rm=document.getElementById('ncr').checked;if(rm)it.lots=it.lots.filter(function(l){return l.lot!==x.lot});save();NCM='Non conformità registrata'+(rm?' e lotto tolto dalle scorte':'')+'.';render();return true}
 if(a==='csv1'){var r=[['Reparto','Kit','REF','GTIN','Lotto','Scadenza','Giorni','Quantità','Stato']];Object.keys(S.items).forEach(function(k){var it=S.items[k];it.lots.forEach(function(l){var d=days(l.exp);r.push([it.sec||'',it.name,it.ref||'',it.gtin||'',l.lot,fmt(l.exp),d,l.qty,d<0?'Scaduto':d<=DAYS?'In scadenza':'Ok'])})});csvOut(r,'scorte-kit-'+isod(today())+'.csv');return true}
 if(a==='csv2'){var r2=[['Data','Tipo','Reparto','Kit','Lotto','Scadenza','Operatore','Note']];(S.hist||[]).forEach(function(x){r2.push([fmt(x.d),'Scarico',x.sec||'',x.name,x.lot||'',x.exp?fmt(x.exp):'',x.op||'',''])});(S.nc||[]).forEach(function(x){r2.push([fmt(x.d),'Non conformità',x.sec||'',x.name,x.lot||'','',x.op||'',x.why+(x.note?' - '+x.note:'')])});r2.sort(function(p,q){var a1=p[0].split('/').reverse().join(''),b1=q[0].split('/').reverse().join('');return a1<b1?1:-1});csvOut(r2,'registro-kit-'+isod(today())+'.csv');return true}
 return false}
 document.getElementById('v').addEventListener('change',function(e){var i=e.target;if(i.id==='op'){S.op=i.value.trim();save()}else if(i.id==='nome'){S.nome=i.value.trim();save()}else if(i.id==='serio'){S.serio=i.checked;save();render()}});
+/* ====== VERSIONE t: scarico rapido, ricerca, semaforo, colori reparto ====== */
+var GQ='',RCOL={blu:['Blu','#3b7dd8'],viola:['Viola','#8a5bd0'],rosa:['Rosa','#d6559b'],arancio:['Arancio','#e0832a'],giallo:['Giallo','#c9a100'],verde:['Verde','#2f9e6b'],turchese:['Turchese','#1a9fb4'],grigio:['Grigio','#7b8a86']};
+function rcs(sec){var c=(S.rcol||{})[sec];return c&&RCOL[c]?' style="border-left:6px solid '+RCOL[c][1]+'"':''}
+function sem(it){var t=total(it),lo=it.min>0&&t<=it.min,r=false,ye=false;it.lots.forEach(function(l){if(l.qty<=0)return;var d=days(l.exp);if(d<0)r=true;else if(d<=DAYS)ye=true});var c=r?'r':(ye||lo)?'y':t>0?'g':'n',tx=r?'Scaduto':ye?'In scadenza':lo?'Scorta bassa':t>0?'Ok':'Esaurito';return'<div><span class="sem '+c+'"><i></i>'+tx+'</span></div>'}
+function scaricaBtn(){return'<button class="cta" data-a="goscarico" type="button" style="margin:0 0 12px">'+(serio()?'':'📷 ')+'Scarica un kit</button>'}
+function gsRes(q){q=String(q||'').trim().toLowerCase();if(q.length<2)return'<small class="sub">Scrivi almeno 2 lettere: nome, codice articolo, GTIN o lotto.</small>';var r=[];Object.keys(S.items).forEach(function(k){var it=S.items[k],hay=(it.name+' '+(it.ref||'')+' '+(it.gtin||'')+' '+it.lots.map(function(l){return l.lot}).join(' ')).toLowerCase();if(q.split(/\s+/).every(function(w){return hay.indexOf(w)>-1}))r.push(k)});if(!r.length)return'<p class="empty">Nessun kit trovato nelle scorte.</p>';return r.slice(0,8).map(function(k){var it=S.items[k];return'<div class="prod"'+rcs(it.sec)+'><header><b>'+esc(it.name)+'</b><span class="tot">'+total(it)+' pz</span></header>'+sem(it)+'<small class="sub">'+(it.sec?esc(it.sec):'')+(it.ref?' · REF '+esc(it.ref):'')+'</small>'+it.lots.map(function(l,i){var d=days(l.exp);return'<div class="lot"><span>Lotto '+esc(l.lot)+'<br><small>scade '+fmt(l.exp)+(d<0?' <b class="x">scaduto</b>':'')+(firstLot(it)===i?' <b class="first">usa per primo</b>':'')+'</small></span><b>'+l.qty+' pz</b></div>'}).join('')+'</div>'}).join('')}
+function searchHtml(){return'<label for="gqi" style="margin-top:0">Cerca un kit in magazzino</label><input type="text" id="gqi" value="'+esc(GQ)+'" placeholder="Nome, codice, GTIN o lotto" autocomplete="off"><div id="gres" style="margin:8px 0 12px">'+(GQ.trim()?gsRes(GQ):'')+'</div>'}
+function repColHtml(){var h='<h2>Colori dei reparti</h2><p class="sub">Scegli un colore per ogni reparto: compare come fascia sulle schede delle scorte. Non cambia i colori dell’app scelti in Aspetto.</p>';SECT.forEach(function(s,i){var cur=(S.rcol||{})[s]||'';h+='<div style="margin:10px 0 2px"><b>'+esc(s)+'</b></div><div class="lvb">'+Object.keys(RCOL).map(function(k){return'<button type="button" class="swc" data-a="rcol" data-i="'+i+'" data-v="'+k+'" aria-label="'+RCOL[k][0]+'" aria-pressed="'+(cur===k)+'" style="background:'+RCOL[k][1]+'"></button>'}).join('')+'<button type="button" class="ed swn" data-a="rcol" data-i="'+i+'" data-v="" aria-pressed="'+(!cur)+'" style="margin:0">Nessuno</button></div>'});return h}
+document.getElementById('v').addEventListener('input',function(e){if(e.target.id==='gqi'){GQ=e.target.value;var r=document.getElementById('gres');if(r)r.innerHTML=GQ.trim()?gsRes(GQ):''}});
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 07/11/2026 - s';
+var vr=document.getElementById('ver'),V='Versione 07/11/2026 - t';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();

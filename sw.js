@@ -1,5 +1,5 @@
 /* Funzionamento offline: prima la rete, se manca si usa l'ultima copia salvata */
-var C='kit-lab-s';
+var C='kit-lab-t';
 self.addEventListener('install',function(){self.skipWaiting()});
 self.addEventListener('activate',function(e){e.waitUntil(caches.keys().then(function(k){return Promise.all(k.filter(function(n){return n!==C}).map(function(n){return caches.delete(n)}))}).then(function(){return self.clients.claim()}))});
 self.addEventListener('fetch',function(e){
