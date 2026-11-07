@@ -71,7 +71,7 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 07/11/2026 - q</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 07/11/2026 - r</p>
 <nav>
 <button data-v="avvisi">Avvisi</button>
 <button data-v="scorte">Scorte</button>
@@ -86,6 +86,20 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <script>
 /* ====== DATABASE INTERNO DEI KIT (catalogo) ====== */
 /* se lo stesso kit compare due volte nel JSON (stesso REF o stesso GTIN) le righe si fondono: i campi pieni vincono su quelli vuoti */
+/* ====== ASPETTO: colore, tema e dimensione del testo ====== */
+var LOOK_PAL={verde:['Verde','#0e6b5b','#fff','#4cc2ab','#06201a'],blu:['Blu','#1d4f91','#fff','#8fb8f0','#0a1a33'],viola:['Viola','#6b3fa0','#fff','#c7a6f2','#1c0b33'],arancio:['Arancio','#a84d00','#fff','#f5a25d','#2b1300'],rosso:['Rosso','#a8231b','#fff','#ff9d94','#3b0a07'],grafite:['Grafite','#3d4a46','#fff','#b9c7c2','#0f1816']};
+function lookOf(){var l=(typeof S!=='undefined'&&S.look)||{};return{acc:LOOK_PAL[l.acc]?l.acc:'verde',mode:(l.mode==='light'||l.mode==='dark')?l.mode:'auto',size:[16,18,20].indexOf(l.size)>-1?l.size:16}}
+function applyLook(){var l=lookOf(),r=document.documentElement,mq=false;try{mq=window.matchMedia('(prefers-color-scheme: dark)').matches}catch(e){}
+var dk=l.mode==='dark'||(l.mode==='auto'&&mq),p=LOOK_PAL[l.acc];
+if(l.mode==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',l.mode);
+r.style.setProperty('--acc',dk?p[3]:p[1]);r.style.setProperty('--onacc',dk?p[4]:p[2]);
+r.style.fontSize=l.size+'px';if(document.body)document.body.style.fontSize=l.size+'px';
+var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',p[1])}
+function lookHtml(){var l=lookOf();
+var sw=Object.keys(LOOK_PAL).map(function(k){var p=LOOK_PAL[k],on=l.acc===k;return'<button type="button" data-a="lookacc" data-v="'+k+'" aria-label="'+p[0]+'" aria-pressed="'+on+'" style="width:44px;height:44px;border-radius:50%;margin:0 8px 8px 0;border:'+(on?'4px solid var(--ink)':'2px solid var(--line)')+';background:'+p[1]+'"></button>'}).join('');
+function seg(a,o,cur){return o.map(function(x){var on=cur===x[0];return'<button type="button" class="ed" data-a="'+a+'" data-v="'+x[0]+'" aria-pressed="'+on+'" style="margin:0 6px 6px 0;'+(on?'background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:800':'')+'">'+x[1]+'</button>'}).join('')}
+return'<h2>Aspetto</h2><p class="sub">Colore principale, tema e dimensione del testo. Le scelte restano salvate su questo telefono.</p><label style="margin-top:0">Colore</label><div>'+sw+'</div><label>Tema</label><div>'+seg('lookmode',[['auto','Automatico'],['light','Chiaro'],['dark','Scuro']],l.mode)+'</div><label>Testo</label><div>'+seg('looksz',[['16','Normale'],['18','Grande'],['20','Molto grande']],String(l.size))+'</div><button class="ed" data-a="lookrst" type="button">Ripristina aspetto</button>'}
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){applyLook()})}catch(e){}
 function gOk(x){x=String(x||'').replace(/\s/g,'');return/^\d{8,14}$/.test(x)?x:''}
 function mergeDup(A){var out=[],ix={};A.forEach(function(k){var kr=nk(k.codice),kg=nk(k.codiceBarre),p=kr?ix['r'+kr]:undefined;if(p===undefined&&kg)p=ix['g'+kg];
 if(p!==undefined){var ge=nk(out[p].codiceBarre);if(kg&&ge&&kg!==ge)p=undefined}
@@ -157,7 +171,7 @@ else if(d<=DAYS)a.push({c:'warn',o:1,t:NM+' in scadenza',d:'Lotto '+l.lot+' · '
 if(it.cal&&it.calPending)a.push({c:'warn',o:1,t:NM+': calibrazione da registrare',d:'Cambio al lotto '+it.calPending+'. Registrala dalla scheda Scorte.'});var E=est(k);if(E&&total(it)>0&&E.d<=14&&!(it.min>0&&total(it)<=it.min))a.push({c:'warn',o:2,t:NM+': scorta per circa '+E.d+' giorni',d:'Consumo medio circa '+E.m+' kit/mese'});if(it.min>0&&total(it)<=it.min)a.push({c:'bad',o:2,t:NM+': scorta in esaurimento',d:total(it)+' pz in magazzino, soglia minima '+it.min})});
 S.log.forEach(function(g){var u=g.k==='uso';if(-days(g.date)<=(u?14:30)&&(!S.cur||(g.sec||'')===S.cur))a.push({c:u?'warn':'info',o:u?2:3,t:g.name+(g.sec&&!S.cur?' ('+g.sec+')':'')+(u?': cambio lotto in uso':': nuovo lotto in arrivo'),d:'Da '+g.from+' a '+g.to+' il '+fmt(g.date)})});
 return a.sort(function(x,y){return x.o-y.o})}
-function render(){stopLive();
+function render(){stopLive();applyLook();
 var al=alerts(),b=document.querySelectorAll('nav button');
 b.forEach(function(x){x.setAttribute('aria-current',x.dataset.v===view);if(x.dataset.v==='avvisi')x.textContent='Avvisi'+(al.length?' ('+al.length+')':'')});
 var h='',v=document.getElementById('v');
@@ -176,7 +190,7 @@ unkHtml()+'<label for="n">Nome del kit</label><input type="text" id="n" list="dn
 '<div><label for="q">Quantità ricevuta</label><input type="number" id="q" min="1" value="'+esc(F.q||1)+'"></div><div><label for="m">Soglia minima</label><input type="number" id="m" min="0" value="'+esc(F.m||0)+'"></div></div>'+
 '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="cal"'+(F.cal?' checked':'')+' style="width:auto"> Richiede calibrazione al cambio lotto</label>'+
 '<button class="cta" id="sv">Salva kit</button><button class="cta" id="rb" type="button" style="background:var(--surf);color:var(--acc);border:2px solid var(--acc)">Registra in Bolla</button><p id="st3" class="sub" style="margin-top:8px"></p>'}
-if(view==='riepilogo')h=repHtml()+bkHtml();
+if(view==='riepilogo')h=repHtml()+lookHtml()+bkHtml();
 if(view==='guida')h=guideHtml();
 if(view==='bolle')h=bolleHtml();
 if(view==='scarico')h=(LIVE_OK?'<button class="cta" id="lv2" type="button" style="margin:0 0 10px">Scansiona il kit da usare</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph2">Scatta foto del codice</label><div id="rs"></div><p id="st"></p>'+undoBtn();
@@ -264,7 +278,7 @@ function guideHtml(){var G=[
 ['scorte','Scorte e modifiche','<li>Quantità per lotto, “usa per primo”, consumo medio e durata stimata (servono almeno 3 scarichi in 90 giorni).</li><li><b>Modifica prodotto e lotti</b>: cambia nome, soglia, lotto, scadenza e quantità, oppure elimina.</li><li><b>Calibrazione</b>: registri quella del nuovo lotto o una nuova sullo stesso lotto, e vedi l’ultima.</li><li><b>Codice articolo</b>: la casella sotto il nome del prodotto.</li>'],
 ['bolle','Archivio bolle','<li><b>Registra una bolla</b>: numero, data, reparto, fornitore o corriere e kit in arrivo.</li><li>I kit si aggiungono con <b>Scansiona un kit</b> (compila codice, lotto e scadenza) o a mano con <b>Aggiungi riga a mano</b>.</li><li>Spunta <b>Carica questi kit anche nelle Scorte</b> per caricarli subito a magazzino nel reparto scelto (solo le righe con lotto e scadenza).</li><li><b>Archivio storico consegne</b>: tabella dei kit registrati con “Registra in Bolla”, filtrabile per reparto.</li><li><b>Storico</b>: filtra per reparto; tocca una bolla per vedere i kit.</li><li><b>Gestisci reparti</b>: aggiungi o rimuovi reparti. L’elenco è lo stesso dei settori. Un reparto con kit in magazzino non si può rimuovere.</li><li>Eliminare una bolla non toglie i kit dalle Scorte.</li>'],
 ['avvisi','Avvisi e riordino','<li>Avvisi: scaduti, in scadenza (60 giorni), scorta sotto soglia o per pochi giorni, nuovo lotto in arrivo, cambio lotto in uso, calibrazione da registrare, backup.</li><li><b>Lista di riordino</b>: quantità suggerite dal consumo medio per i mesi di scorta scelti, modificabili. Puoi scaricare il PDF, copiare il testo o inviarlo su WhatsApp.</li>'],
-['riepilogo','Riepilogo e backup','<li>Scegli il mese e scarica il <b>PDF dei kit scaricati</b>.</li><li><b>Backup</b>: salva tutti i dati (anche le bolle) in un file. <b>Ripristina</b> sostituisce i dati attuali.</li><li>Fai un backup prima di cambiare telefono, rimuovere l’icona o cancellare i dati di Safari.</li>'],
+['riepilogo','Riepilogo e backup','<li>Scegli il mese e scarica il <b>PDF dei kit scaricati</b>.</li><li><b>Aspetto</b>: scegli il colore principale, il tema (automatico, chiaro o scuro) e la dimensione del testo. “Ripristina aspetto” torna alle impostazioni iniziali.</li><li><b>Backup</b>: salva tutti i dati (anche le bolle) in un file. <b>Ripristina</b> sostituisce i dati attuali.</li><li>Fai un backup prima di cambiare telefono, rimuovere l’icona o cancellare i dati di Safari.</li>'],
 ['problemi','Problemi comuni','<li><b>La fotocamera non parte</b>: consentila in Impostazioni, Safari, Fotocamera. Se resta bloccata usa “Scatta foto”. Se la pagina è dentro un’altra app, aprila in Safari.</li><li><b>Codice non letto</b>: avvicinati, usa più luce, evita i riflessi, oppure compila a mano.</li><li><b>Nome sbagliato</b>: scegli un suggerimento, usa “Fotografa il nome” o scrivilo: la volta dopo l’app lo ricorda.</li><li><b>Dati che sembrano spariti</b>: l’app dalla Home e Safari hanno dati separati. Usa sempre la stessa e ripristina dal backup.</li><li><b>Versione</b>: la trovi in fondo alla pagina.</li>'],
 ['limiti','Limiti e privacy','<li>I dati stanno solo su questo telefono, non vengono condivisi.</li><li>Non inserire dati dei pazienti.</li><li>L’app non sostituisce procedure e registri del laboratorio: controlla sempre lotto e scadenza.</li><li>La ricerca online del nome invia soltanto il codice prodotto.</li>'],
 ['installa','Icona sulla Home','<li>In Safari tocca Condividi e poi <b>Aggiungi a Home</b>, e usa sempre quell’icona.</li><li>Per aggiornare l’app chiudila e riaprila.</li><li>Prima di rimuovere l’icona fai un backup: i dati sono dentro l’app.</li>']];
@@ -387,6 +401,7 @@ if(!n)RM='Scrivi il nome del reparto.';else if(SECT.some(function(s){return s.to
 if(a==='rdel'){readB();var nm=SECT[+b.dataset.i];
 if(Object.keys(S.items).some(function(k){return S.items[k].sec===nm}))RM='Non puoi rimuovere '+nm+': ha ancora kit in magazzino.';
 else{S.reps.splice(+b.dataset.i,1);SECT=S.reps;if(S.cur===nm)S.cur='';if(BV===nm)BV='';save();RM='Reparto rimosso (le bolle già registrate restano nello storico).'}render();return true}
+if(a==='lookacc'||a==='lookmode'||a==='looksz'||a==='lookrst'){S.look=S.look||{};if(a==='lookacc')S.look.acc=b.dataset.v;else if(a==='lookmode')S.look.mode=b.dataset.v;else if(a==='looksz')S.look.size=+b.dataset.v;else S.look={};save();render();return true}
 if(a==='cpick'){pickCat(+b.dataset.i);return true}
 if(a==='gmx'){GX=!GX;render();return true}
 if(a==='gmcopy'){var ta=document.getElementById('gmt'),mm=document.getElementById('gmst');try{navigator.clipboard.writeText(ta.value).then(function(){mm.textContent='Elenco copiato.'},function(){ta.select();mm.textContent='Seleziona e copia a mano.'})}catch(e){ta.select();mm.textContent='Seleziona e copia a mano.'}return true}
@@ -614,7 +629,7 @@ var o=[],m=String(t).match(/\{[^{}]*\}/g)||[];
 m.forEach(function(s){try{o.push(JSON.parse(s))}catch(e){}});
 return o}
 document.addEventListener('DOMContentLoaded',function(){
-var vr=document.getElementById('ver'),V='Versione 07/11/2026 - q';
+var vr=document.getElementById('ver'),V='Versione 07/11/2026 - r';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
