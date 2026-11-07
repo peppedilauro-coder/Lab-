@@ -71,7 +71,7 @@ details{background:var(--surf);border:1px solid var(--line);border-radius:10px;p
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 07/11/2026 - p</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 07/11/2026 - q</p>
 <nav>
 <button data-v="avvisi">Avvisi</button>
 <button data-v="scorte">Scorte</button>
@@ -104,7 +104,7 @@ function cercaKit(c,exact){var k=nk(c);if(!k)return null;if(KIT_IDX[k])return KI
 function nomeKit(n){n=String(n||'').trim().toLowerCase();if(!n)return null;var m=DATABASE_KIT.filter(function(k){return k.nome.toLowerCase()===n});return m.length===1?m[0]:null}
 /* cerca nel testo dell'etichetta un REF del catalogo (o, in mancanza, un nome del catalogo) */
 function matchDbFromText(tx){var D=String(tx||'').toUpperCase().replace(/[^0-9A-Z]/g,''),Dn=D.replace(/O/g,'0').replace(/[IL]/g,'1'),best=null,bl=0,i,k,c,v;
-for(i=0;i<DATABASE_KIT.length;i++){k=DATABASE_KIT[i];c=k.codice.toUpperCase().replace(/[^0-9A-Z]/g,'');if(c.length<7)continue;v=[c];if(/^0\d{9,}$/.test(c))v.push(c.slice(1));
+for(i=0;i<DATABASE_KIT.length;i++){k=DATABASE_KIT[i];c=k.codice.toUpperCase().replace(/[^0-9A-Z]/g,'');if(c.length<5)continue;if(c.length<7){if(D.indexOf('REF'+c)>-1)return k;continue}v=[c];if(/^0\d{9,}$/.test(c))v.push(c.slice(1));
 if(v.some(function(x){return(/^\d+$/.test(x)?Dn:D).indexOf(x)>-1}))return k}
 for(i=0;i<DATABASE_KIT.length;i++){k=DATABASE_KIT[i];c=k.nome.toUpperCase().replace(/[^0-9A-Z]/g,'');if(c.length>=8&&D.indexOf(c)>-1&&c.length>bl){best=k;bl=c.length}}
 return best}
@@ -614,7 +614,7 @@ var o=[],m=String(t).match(/\{[^{}]*\}/g)||[];
 m.forEach(function(s){try{o.push(JSON.parse(s))}catch(e){}});
 return o}
 document.addEventListener('DOMContentLoaded',function(){
-var vr=document.getElementById('ver'),V='Versione 07/11/2026 - p';
+var vr=document.getElementById('ver'),V='Versione 07/11/2026 - q';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
