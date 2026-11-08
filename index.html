@@ -74,6 +74,30 @@ nav button{display:flex;flex-direction:column;align-items:center;gap:2px;positio
 .sem{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;margin:2px 0 4px;color:var(--ink)}
 .sem i{width:12px;height:12px;border-radius:50%;display:inline-block;background:var(--mut)}.sem.g i{background:#2f9e6b}.sem.y i{background:#d9a200}.sem.r i{background:var(--bad)}
 .swc{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);padding:0}.swc[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:2px}.swn[aria-pressed=true]{border-color:var(--ink)}
+
+/* ===== RESTYLING LABORATORIO AZZURRO: solo presentazione visiva ===== */
+:root{--bg:#e8f6ff;--ink:#123653;--mut:#52758d;--line:#c5e2f4;--surf:#ffffff;--acc:#087eb5;--onacc:#ffffff;--warn:#986000;--warnbg:#fff3d7;--bad:#ad3541;--badbg:#ffe9eb;--info:#176ba2;--infobg:#e4f4ff;color-scheme:light}
+:root[data-theme="dark"]{--bg:#102b40;--ink:#e8f6ff;--mut:#a8c7dc;--line:#31536a;--surf:#193a52;--acc:#55b9e9;--onacc:#06283d;--warn:#ffd27a;--warnbg:#49391c;--bad:#ff9ba5;--badbg:#48242d;--info:#91d5ff;--infobg:#1c4059}
+body{max-width:760px;background:radial-gradient(ellipse at 8% 5%,rgba(107,202,255,.30),transparent 30%),radial-gradient(ellipse at 95% 30%,rgba(85,184,235,.20),transparent 28%),linear-gradient(155deg,var(--bg),#f7fcff 58%,#e1f3ff);padding-top:22px}
+#t{color:#075b8d;letter-spacing:-.035em;font-size:1.72rem;text-shadow:0 2px 0 rgba(255,255,255,.85)}
+.sub{color:var(--mut)}
+.row,.prod,.fun,details,.stat div,.tip{border-radius:16px;box-shadow:0 5px 16px rgba(26,105,151,.08)}
+.row{border-left-width:5px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.prod{border:1px solid #b9def3;padding:14px;box-shadow:0 7px 20px rgba(31,119,166,.10)}
+.cta{border-radius:14px;background:linear-gradient(135deg,#087eb5,#075e91);box-shadow:0 5px 12px rgba(4,103,157,.2);letter-spacing:.01em}
+.ed,select,input[type=text],input[type=date],input[type=number],input[type=month]{border-radius:12px;border-color:var(--line)}
+.lot button,.help{border-radius:13px}
+.help{box-shadow:0 3px 12px rgba(21,107,155,.12)}
+nav{z-index:10!important;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid #b8dff4;box-shadow:0 -5px 20px rgba(21,102,150,.10)}
+nav button{border-radius:12px}
+nav button[aria-current=true]{background:#e0f3ff}
+.scan{border-radius:16px;background:rgba(224,244,255,.65)}
+#qr-box{border:3px solid #8bcdf0;border-radius:18px}
+#toast{box-shadow:0 6px 20px rgba(0,74,117,.25)}
+.stat div{border-color:var(--line)}
+@media(min-width:520px){body{padding-left:22px;padding-right:22px}.prod{padding:16px}}
+@media(prefers-reduced-motion:no-preference){.cta,.prod,.row{transition:box-shadow .18s ease,transform .18s ease}.prod:active,.row:active{transform:scale(.995)}}
+
 </style>
 </head>
 <body>
