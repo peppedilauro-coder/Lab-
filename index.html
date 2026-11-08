@@ -75,95 +75,30 @@ nav button{display:flex;flex-direction:column;align-items:center;gap:2px;positio
 .sem i{width:12px;height:12px;border-radius:50%;display:inline-block;background:var(--mut)}.sem.g i{background:#2f9e6b}.sem.y i{background:#d9a200}.sem.r i{background:var(--bad)}
 .swc{width:40px;height:40px;border-radius:50%;border:2px solid var(--line);padding:0}.swc[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:2px}.swn[aria-pressed=true]{border-color:var(--ink)}
 
-/* ===== KIT LAB: restyling esclusivamente CSS, senza overlay interattivi ===== */
-:root{
- --bg:#eaf7ff!important;--ink:#123b59!important;--mut:#587d94!important;
- --line:#c7e5f5!important;--surf:#ffffff!important;--acc:#087fb5!important;
- --onacc:#ffffff!important;--warn:#966000!important;--warnbg:#fff2d6!important;
- --bad:#b33442!important;--badbg:#ffebee!important;--info:#176b9c!important;
- --infobg:#e3f4ff!important;color-scheme:light!important;
-}
-:root[data-theme="dark"]{
- --bg:#eaf7ff!important;--ink:#123b59!important;--mut:#587d94!important;
- --line:#c7e5f5!important;--surf:#ffffff!important;--acc:#087fb5!important;
- --onacc:#ffffff!important;--warn:#966000!important;--warnbg:#fff2d6!important;
- --bad:#b33442!important;--badbg:#ffebee!important;--info:#176b9c!important;
- --infobg:#e3f4ff!important;color-scheme:light!important;
-}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
- --bg:#eaf7ff!important;--ink:#123b59!important;--mut:#587d94!important;
- --line:#c7e5f5!important;--surf:#ffffff!important;--acc:#087fb5!important;
- --onacc:#ffffff!important;--warn:#966000!important;--warnbg:#fff2d6!important;
- --bad:#b33442!important;--badbg:#ffebee!important;--info:#176b9c!important;
- --infobg:#e3f4ff!important;color-scheme:light!important;
-}}
-html{background:#eaf7ff!important}
-body{
- position:relative;background-color:#eaf7ff!important;color:#123b59!important;
- background-image:
-  radial-gradient(circle at 8% 7%,rgba(65,178,235,.22) 0 3px,transparent 4px),
-  radial-gradient(circle at 91% 21%,rgba(65,178,235,.18) 0 5px,transparent 6px),
-  radial-gradient(ellipse at 0% 0%,rgba(112,207,248,.28),transparent 38%),
-  radial-gradient(ellipse at 100% 55%,rgba(112,207,248,.22),transparent 35%),
-  linear-gradient(155deg,#dff3ff 0%,#f7fcff 48%,#e5f5ff 100%)!important;
-}
-/* Decorazioni di sfondo non interattive: restano dietro a tutti i controlli. */
-body::before{
- content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.32;
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='300' viewBox='0 0 250 300'%3E%3Cg fill='none' stroke='%230b91cc' stroke-width='3' opacity='.55'%3E%3Cpath d='M22 5 C95 55 95 95 22 145 M22 5 C-50 55 -50 95 22 145 M22 5 L22 145 M22 5 L10 20 M22 5 L34 20 M22 145 L10 130 M22 145 L34 130'/%3E%3Cpath d='M190 30 L220 55 L190 80 L160 55 Z M190 80 L220 105 L190 130 L160 105 Z'/%3E%3Cpath d='M190 30 L190 130 M160 55 L220 55 M160 105 L220 105'/%3E%3C/g%3E%3Cg fill='%230b91cc' opacity='.35'%3E%3Ccircle cx='190' cy='30' r='6'/%3E%3Ccircle cx='220' cy='55' r='6'/%3E%3Ccircle cx='160' cy='55' r='6'/%3E%3Ccircle cx='190' cy='130' r='6'/%3E%3C/g%3E%3C/svg%3E");
- background-size:250px 300px;background-position:left top; background-repeat:repeat;
-}
-h1#t{color:#075b8d!important;letter-spacing:-.035em;text-shadow:0 2px 0 rgba(255,255,255,.9)}
-h1#t::before{content:"🧬  ";font-size:.82em}
-.sub{color:#587d94!important}
-.row,.prod,.fun,details,.tip,.stat div{
- border-radius:16px!important;box-shadow:0 5px 18px rgba(24,105,150,.10)!important;
-}
-.row{background:#fff!important;border-top:1px solid #c7e5f5!important;border-right:1px solid #c7e5f5!important;border-bottom:1px solid #c7e5f5!important}
-.row.bad{background:#ffebee!important}.row.warn{background:#fff2d6!important}.row.info{background:#e3f4ff!important}
-.prod,.fun,details,.stat div{background:rgba(255,255,255,.96)!important;border:1px solid #c7e5f5!important}
-.tip{background:#e3f4ff!important;border-color:#42a5d5!important}
-.cta{background:linear-gradient(135deg,#0789c5,#08669b)!important;color:#fff!important;border-radius:14px!important;box-shadow:0 5px 14px rgba(4,103,157,.2)!important}
-input[type=text],input[type=date],input[type=number],input[type=month],select,.ed,.lot button,.help{
- background:#fff!important;color:#123b59!important;border-color:#c7e5f5!important;border-radius:12px!important;
-}
-.help{box-shadow:0 3px 12px rgba(21,107,155,.12)!important}
-nav{z-index:20;background:rgba(255,255,255,.97)!important;backdrop-filter:blur(12px);border-top:1px solid #b8dff4!important;box-shadow:0 -5px 20px rgba(21,102,150,.10)!important}
-nav button{border-radius:12px!important}nav button[aria-current=true]{background:#e0f3ff!important;color:#087fb5!important}
-.scan{background:rgba(224,244,255,.7)!important;border-color:#168bc3!important}
-#qr-box{border:3px solid #8bcdf0!important;border-radius:18px!important}
-#toast{box-shadow:0 6px 20px rgba(0,74,117,.25)!important}
-/* Icone decorative solo accanto al titolo, nessun elemento sopra i pulsanti. */
-@media(min-width:520px){body{padding-left:22px;padding-right:22px}.prod{padding:16px}}
-
-
-/* ===== DECORAZIONI KIT LAB: solo estetica, mai sopra i controlli ===== */
-body{overflow-x:hidden!important}
-main#v{position:relative;isolation:isolate;}
-main#v::before,main#v::after{content:"";position:absolute;z-index:-1;pointer-events:none;background-repeat:no-repeat;background-size:contain;}
-/* DNA laterale, molecole e provette: decorazioni leggere ai margini */
-main#v::before{
- top:8px;right:-7px;width:min(31vw,150px);height:290px;opacity:.23;
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 290'%3E%3Cg fill='none' stroke='%230b86bd' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M25 5 C125 45 125 95 25 140 C-25 165 -5 225 85 285'/%3E%3Cpath d='M85 5 C-15 45 -15 95 85 140 C135 165 115 225 25 285'/%3E%3C/g%3E%3Cg stroke='%230b86bd' stroke-width='3' opacity='.9'%3E%3Cpath d='M35 12L75 12 M20 40L90 40 M15 70L95 70 M25 100L85 100 M35 130L75 130 M48 165L105 165 M35 195L95 195 M22 225L75 225 M25 255L55 255'/%3E%3C/g%3E%3C/svg%3E");
-}
-main#v::after{
- left:-10px;bottom:4px;width:min(34vw,165px);height:190px;opacity:.19;
- background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 165 190'%3E%3Cg fill='none' stroke='%230b86bd' stroke-width='4'%3E%3Cpath d='M25 30L70 55L115 30L140 75L95 105L50 90Z'/%3E%3Cpath d='M70 55L95 105L85 155'/%3E%3C/g%3E%3Cg fill='%2347b8e8' stroke='%230b86bd' stroke-width='3'%3E%3Ccircle cx='25' cy='30' r='9'/%3E%3Ccircle cx='70' cy='55' r='9'/%3E%3Ccircle cx='115' cy='30' r='9'/%3E%3Ccircle cx='140' cy='75' r='9'/%3E%3Ccircle cx='95' cy='105' r='9'/%3E%3Ccircle cx='50' cy='90' r='9'/%3E%3Ccircle cx='85' cy='155' r='9'/%3E%3C/g%3E%3C/svg%3E");
-}
-/* Piccoli richiami di laboratorio, inseriti nei titoli e nelle schede esistenti. */
-h1#t::after{content:"  🧪";font-size:.72em;vertical-align:middle;text-shadow:none}
-.fun{position:relative;overflow:hidden}
-.fun::after{content:"🧬";position:absolute;right:12px;bottom:2px;font-size:2.2rem;opacity:.13;pointer-events:none;transform:rotate(18deg)}
-.tip{background-image:radial-gradient(circle at 96% 12%,rgba(45,166,220,.13) 0 4px,transparent 5px)!important}
-/* Badge illustrativi in fondo al contenuto, senza aggiungere nodi o intercettare tocchi. */
-#ver{position:relative}
-#ver::before{content:"🔬  🧫  🚑";display:block;margin:10px auto 0;font-size:1.25rem;letter-spacing:.45rem;opacity:.58;pointer-events:none}
-@media(max-width:520px){
- main#v::before{right:-16px;width:105px;height:225px;opacity:.17}
- main#v::after{left:-18px;width:118px;height:145px;opacity:.15}
- .fun::after{font-size:1.7rem;right:8px}
-}
-@media(prefers-reduced-motion:reduce){main#v::before,main#v::after{animation:none}}
+/* ===== Kit Lab: tema illustrato azzurro (solo presentazione) ===== */
+:root{--bg:#eaf7ff!important;--ink:#153b59!important;--mut:#5d7f95!important;--line:#c5e2f1!important;--surf:#ffffff!important;--acc:#087eae!important;--onacc:#ffffff!important;--warn:#a86100!important;--warnbg:#fff2d6!important;--bad:#c33142!important;--badbg:#ffe7e9!important;--info:#126ca5!important;--infobg:#e1f3ff!important}
+body{background:linear-gradient(145deg,#d8f1ff 0%,#f4fbff 48%,#e3f5ff 100%)!important;color:#153b59!important;position:relative;isolation:isolate}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22760%22%20height%3D%221250%22%20viewBox%3D%220%200%20760%201250%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22b%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23dff4ff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23f4fbff%22%2F%3E%3C%2FlinearGradient%3E%3ClinearGradient%20id%3D%22tube%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23fff%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238be2ed%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22760%22%20height%3D%221250%22%20fill%3D%22url%28%23b%29%22%2F%3E%3Cg%20opacity%3D%22.48%22%20fill%3D%22none%22%20stroke%3D%22%2338a9e8%22%20stroke-width%3D%225%22%3E%3Cpath%20d%3D%22M45%200%20C155%2065%20155%20135%2045%20200%20S-65%20335%2045%20400%20S155%20535%2045%20600%20S-65%20735%2045%20800%22%2F%3E%3Cpath%20d%3D%22M45%200%20C-65%2065%20-65%20135%2045%20200%20S155%20335%2045%20400%20S-65%20535%2045%20600%20S155%20735%2045%20800%22%2F%3E%3Cpath%20d%3D%22M18%2045h54%20M4%2095h82%20M4%20145h82%20M18%20195h54%20M18%20245h54%20M4%20295h82%20M4%20345h82%20M18%20395h54%20M18%20445h54%20M4%20495h82%20M4%20545h82%20M18%20595h54%20M18%20645h54%20M4%20695h82%20M4%20745h82%22%2F%3E%3Cpath%20d%3D%22M700%2090l-45%2045%2045%2045%2045-45z%20M700%2090l45%2045-45%2045-45-45z%22%2F%3E%3C%2Fg%3E%3Cg%20opacity%3D%22.55%22%20stroke%3D%22%231689c8%22%20stroke-width%3D%225%22%20fill%3D%22%238bd8f4%22%3E%3Cpath%20d%3D%22M620%20400l42-35%2045%2030-7%2055-48%2013z%22%2F%3E%3Cpath%20d%3D%22M662%20365l-4-42m49%2072%2038-9m-93%2077-15%2038%22%20fill%3D%22none%22%2F%3E%3Ccircle%20cx%3D%22658%22%20cy%3D%22323%22%20r%3D%2212%22%2F%3E%3Ccircle%20cx%3D%22745%22%20cy%3D%22386%22%20r%3D%2212%22%2F%3E%3Ccircle%20cx%3D%22632%22%20cy%3D%22501%22%20r%3D%2212%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28560%20880%29%22%20opacity%3D%22.72%22%3E%3Crect%20x%3D%220%22%20y%3D%2235%22%20width%3D%22150%22%20height%3D%2272%22%20rx%3D%2216%22%20fill%3D%22%23fff%22%20stroke%3D%22%231689c8%22%20stroke-width%3D%225%22%2F%3E%3Cpath%20d%3D%22M90%2035V8h34l24%2027%22%20fill%3D%22%23d8f2ff%22%20stroke%3D%22%231689c8%22%20stroke-width%3D%225%22%2F%3E%3Crect%20x%3D%2216%22%20y%3D%2251%22%20width%3D%2243%22%20height%3D%2228%22%20rx%3D%225%22%20fill%3D%22%239fe3ff%22%2F%3E%3Crect%20x%3D%2270%22%20y%3D%2251%22%20width%3D%2232%22%20height%3D%2228%22%20rx%3D%224%22%20fill%3D%22%239fe3ff%22%2F%3E%3Cpath%20d%3D%22M108%2057h25m-12-12v25%22%20stroke%3D%22%23e94c58%22%20stroke-width%3D%228%22%2F%3E%3Ccircle%20cx%3D%2235%22%20cy%3D%22110%22%20r%3D%2215%22%20fill%3D%22%2328506b%22%2F%3E%3Ccircle%20cx%3D%22118%22%20cy%3D%22110%22%20r%3D%2215%22%20fill%3D%22%2328506b%22%2F%3E%3Crect%20x%3D%2255%22%20y%3D%2218%22%20width%3D%2230%22%20height%3D%2212%22%20rx%3D%225%22%20fill%3D%22%23f04d5b%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%2895%20930%29%22%20opacity%3D%22.5%22%3E%3Cpath%20d%3D%22M10%2015h48v14H10z%20M17%2029v100q0%2012%2012%2012h10q12%200%2012-12V29%22%20fill%3D%22%23fff%22%20stroke%3D%22%231689c8%22%20stroke-width%3D%225%22%2F%3E%3Cpath%20d%3D%22M20%2095h28v34q0%209-9%209h-10q-9%200-9-9z%22%20fill%3D%22%2342c5df%22%2F%3E%3Cpath%20d%3D%22M24%200h20v15H24z%22%20fill%3D%22%231689c8%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%236cc7ed%22%20opacity%3D%22.35%22%3E%3Ccircle%20cx%3D%22130%22%20cy%3D%22270%22%20r%3D%2216%22%2F%3E%3Ccircle%20cx%3D%22610%22%20cy%3D%22600%22%20r%3D%2224%22%2F%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%22700%22%20r%3D%2210%22%2F%3E%3Ccircle%20cx%3D%22680%22%20cy%3D%22760%22%20r%3D%2212%22%2F%3E%3Ccircle%20cx%3D%22350%22%20cy%3D%221150%22%20r%3D%2220%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");background-size:cover;background-position:center top;background-repeat:no-repeat;opacity:.42}
+#t{color:#075f91!important;text-shadow:0 2px 0 #fff;font-size:1.7rem;letter-spacing:-.035em}
+#t::before{content:"🧬 ";font-size:.9em}
+.sub{color:#5d7f95!important}
+nav{background:rgba(255,255,255,.96)!important;border-top:2px solid #b9e3f7!important;box-shadow:0 -6px 22px rgba(20,111,158,.10)}
+nav button[aria-current=true]{background:#dff3ff!important;color:#087eae!important}
+button,.cta,.ed,select,input[type=text],input[type=date],input[type=number],input[type=month]{border-radius:15px!important}
+.cta{background:linear-gradient(110deg,#0797c9,#086b9f)!important;color:#fff!important;box-shadow:0 5px 14px rgba(0,112,164,.18)}
+.prod,.fun,.tip,details,.row,.stat div{border-radius:18px!important;border:1px solid #c7e5f4!important;box-shadow:0 4px 14px rgba(35,123,164,.07)}
+.fun{background:linear-gradient(110deg,#fff,#effaff)!important}
+.row{border-left-width:5px!important}
+input,select{background:#fff!important;color:#153b59!important;border-color:#c5e2f1!important}
+.help{background:#fff!important;color:#087eae!important;border-radius:14px!important;box-shadow:0 3px 12px rgba(20,111,158,.12)}
+.lot button{background:#eaf7ff!important;border-radius:50%!important;border-color:#b9deef!important}
+.scan{background:#f0faff!important;border-color:#168fc1!important}
+#qr-box{border:3px solid #b9e3f7}
+/* decorazioni non interattive: non intercettano mai i tocchi */
+#v{position:relative}
+#v::after{content:"🧪   🧬   🔬";display:block;text-align:center;letter-spacing:.55em;font-size:1.05rem;opacity:.48;padding:10px 0 2px;pointer-events:none}
+@media (max-width:420px){body::before{background-size:auto 100%;opacity:.30}#t{font-size:1.55rem}}
+@media (prefers-reduced-motion:no-preference){.cta{transition:filter .18s ease,transform .18s ease}.cta:active{filter:brightness(.96);transform:translateY(1px)}}
 
 </style>
 </head>
