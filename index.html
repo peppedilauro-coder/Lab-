@@ -186,6 +186,63 @@ main:has(#b_ord) details{background-color:#fbfeff}
   .row{padding-right:42px}
 }
 
+
+/* Rifinitura visiva delle sezioni: nessuna regola di interazione o logica */
+.stat{gap:10px}
+.stat div{
+  min-height:104px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(145deg,#fff 0%,#f1faff 100%);
+  border:1px solid #c8e7f5;
+  box-shadow:0 5px 16px rgba(30,120,165,.09);
+}
+.stat b{color:#164b70}
+details{
+  background:linear-gradient(135deg,#fff 0%,#f6fcff 100%);
+  border:1px solid #c9e6f3;
+  border-radius:16px;
+  padding:12px 14px;
+  margin:0 0 10px;
+  box-shadow:0 4px 13px rgba(35,123,164,.07);
+}
+details>summary{
+  color:#164b70;
+  font-weight:700;
+  cursor:pointer;
+  padding:2px 22px 2px 0;
+}
+details[open]>summary{margin-bottom:8px}
+details .lot{background:rgba(225,245,253,.42);padding:9px 8px;border-radius:9px}
+#v div[style*="overflow-x:auto"]{
+  max-width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  background:rgba(255,255,255,.76);
+  border:1px solid #c9e6f3;
+  border-radius:14px;
+  padding:5px;
+  box-shadow:0 4px 14px rgba(35,123,164,.06);
+}
+#v div[style*="overflow-x:auto"] table{
+  background:#fff;
+  border-radius:10px;
+}
+#v div[style*="overflow-x:auto"] th{
+  background:#e9f7ff;
+  color:#164b70;
+  position:sticky;
+  top:0;
+}
+#v div[style*="overflow-x:auto"] td{color:#24445a}
+#v div[style*="overflow-x:auto"] tr:nth-child(even) td{background:#f7fcff}
+@media(max-width:420px){
+  .stat div{min-height:96px;padding:9px 6px}
+  #v div[style*="overflow-x:auto"]{margin-left:-2px;margin-right:-2px}
+}
+
 </style>
 </head>
 <body>
