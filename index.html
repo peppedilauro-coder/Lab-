@@ -234,7 +234,8 @@ body:after{
  background-position:right 10px top 31%,left 4px top 53%,right 8px top 73%,left 5px bottom 16%,right 5px bottom 7%,right 6px top 87%;
 }
 /* Mantieni gli strumenti lontani dalle aree cliccabili e dai testi */
-#v,nav,.fun,.prod,.row,details,.stat{position:relative}
+#v,.fun,.prod,.row,details,.stat{position:relative}
+nav{position:fixed!important;z-index:20}
 #v{z-index:0}
 nav,.fun,.prod,.row,details,.stat{z-index:1}
 @media(max-width:420px){
@@ -245,9 +246,13 @@ nav,.fun,.prod,.row,details,.stat{z-index:1}
  }
 }
 
+#bk{position:fixed;z-index:30;top:calc(10px + env(safe-area-inset-top,0px));left:max(16px,calc(50vw - 304px));width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:#fff;color:#087eae;font:inherit;font-weight:800;font-size:1.4rem;line-height:1;box-shadow:0 3px 12px rgba(20,111,158,.18)}
+#bk[hidden]{display:none}
+body.hasbk #t,body.hasbk #s{padding-left:54px}
 </style>
 </head>
 <body>
+<button id="bk" type="button" aria-label="Indietro" hidden>←</button>
 <button class="help" id="hb" type="button" aria-label="Guida">?</button>
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
@@ -353,7 +358,9 @@ if(it.cal&&it.calPending)a.push({c:'warn',o:1,t:NM+': calibrazione da registrare
 S.log.forEach(function(g){var u=g.k==='uso';if(-days(g.date)<=(u?14:30)&&(!S.cur||(g.sec||'')===S.cur))a.push({s:g.sec,c:u?'warn':'info',o:u?2:3,t:g.name+(g.sec&&!S.cur?' ('+g.sec+')':'')+(u?': cambio lotto in uso':': nuovo lotto in arrivo'),d:'Da '+g.from+' a '+g.to+' il '+fmt(g.date)})});
 ords().forEach(function(o){if(!ordAperto(o)||(S.cur&&o.rep!==S.cur))return;var gg=-days(o.d);if(gg>=(S.ordDays||7))a.push({s:o.rep,c:'warn',o:1,t:'Ordine in attesa: '+(o.forn||'senza fornitore'),d:'Ordinato il '+fmt(o.d)+' · '+gg+' giorni fa · '+ordStato(o).t})});
 return a.sort(function(x,y){return x.o-y.o})}
-function render(){if(view==='ordini')readO();stopLive();applyLook();
+var zbHist=[],zbLast=null,zbGo=false;
+function zbTrack(){if(zbLast===null)zbLast=view;if(view!==zbLast){if(!zbGo){zbHist.push(zbLast);if(zbHist.length>30)zbHist.shift()}zbLast=view}zbGo=false;var b=document.getElementById('bk');if(b){var sh=zbHist.length>0||view!=='avvisi';b.hidden=!sh;document.body.classList.toggle('hasbk',sh)}}
+function render(){zbTrack();if(view==='ordini')readO();stopLive();applyLook();
 var al=alerts(),b=document.querySelectorAll('nav button');
 b.forEach(function(x){x.setAttribute('aria-current',x.dataset.v===(view==='ordini'?'bolle':view));if(x.dataset.v==='avvisi'){var nr=al.filter(function(y){return y.c==='bad'}).length,nw=al.filter(function(y){return y.c==='warn'}).length,n9=nr||nw,g=x.querySelector('.bdg');if(g){g.hidden=!n9;g.textContent=n9;g.style.background=nr?'var(--bad)':'var(--warn)';g.style.color=nr?'var(--badbg)':'var(--warnbg)'}x.setAttribute('aria-label','Avvisi'+(nr?', '+nr+' rossi':nw?', '+nw+' da controllare':''))}});document.querySelector('nav').classList.toggle('serio',serio());
 var h='',v=document.getElementById('v');
@@ -799,6 +806,7 @@ if(ex){ex.qty+=q;ex.exp=F.e}else{if(it.lots.length){var p=it.lots[it.lots.length
 it.lots.push({lot:l,exp:F.e,qty:q})}
 it.lots.sort(function(a,b){return a.exp<b.exp?-1:1});var de=cercaKit(it.ref,true);if(de&&g){S.gmap=S.gmap||{};S.gmap[nk(g)]=de.codice||de.codiceBarre}save();F={};view='scorte';render()}}
 document.querySelector('nav').onclick=function(e){var b=e.target.closest('button');if(b){view=b.dataset.v;EK=null;BK=null;BMSG='';RM='';BDEL=null;CDEL=null;GMC=false;render()}};
+document.getElementById('bk').onclick=function(){var p=zbHist.length?zbHist.pop():'avvisi';zbGo=true;view=p;EK=null;BK=null;BMSG='';RM='';BDEL=null;CDEL=null;GMC=false;render();window.scrollTo(0,0)};
 document.getElementById('v').onclick=function(e){var b=e.target.closest('button[data-q]');if(!b)return;
 var it=S.items[b.dataset.k],l=it.lots[+b.dataset.i],dq=+b.dataset.q,dd=isod(today());
 if(dq<0){S.hist=S.hist||[];S.hist.push({d:dd,name:it.name,gtin:it.gtin||'',k:b.dataset.k,sec:it.sec||'',lot:l.lot,exp:l.exp,pu:it.used||'',lg:false,pc:it.calPending||'',op:S.op||'',man:true})}
