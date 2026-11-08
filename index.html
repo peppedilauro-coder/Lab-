@@ -136,6 +136,35 @@ nav button{border-radius:12px!important}nav button[aria-current=true]{background
 /* Icone decorative solo accanto al titolo, nessun elemento sopra i pulsanti. */
 @media(min-width:520px){body{padding-left:22px;padding-right:22px}.prod{padding:16px}}
 
+
+/* ===== DECORAZIONI KIT LAB: solo estetica, mai sopra i controlli ===== */
+body{overflow-x:hidden!important}
+main#v{position:relative;isolation:isolate;}
+main#v::before,main#v::after{content:"";position:absolute;z-index:-1;pointer-events:none;background-repeat:no-repeat;background-size:contain;}
+/* DNA laterale, molecole e provette: decorazioni leggere ai margini */
+main#v::before{
+ top:8px;right:-7px;width:min(31vw,150px);height:290px;opacity:.23;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 290'%3E%3Cg fill='none' stroke='%230b86bd' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M25 5 C125 45 125 95 25 140 C-25 165 -5 225 85 285'/%3E%3Cpath d='M85 5 C-15 45 -15 95 85 140 C135 165 115 225 25 285'/%3E%3C/g%3E%3Cg stroke='%230b86bd' stroke-width='3' opacity='.9'%3E%3Cpath d='M35 12L75 12 M20 40L90 40 M15 70L95 70 M25 100L85 100 M35 130L75 130 M48 165L105 165 M35 195L95 195 M22 225L75 225 M25 255L55 255'/%3E%3C/g%3E%3C/svg%3E");
+}
+main#v::after{
+ left:-10px;bottom:4px;width:min(34vw,165px);height:190px;opacity:.19;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 165 190'%3E%3Cg fill='none' stroke='%230b86bd' stroke-width='4'%3E%3Cpath d='M25 30L70 55L115 30L140 75L95 105L50 90Z'/%3E%3Cpath d='M70 55L95 105L85 155'/%3E%3C/g%3E%3Cg fill='%2347b8e8' stroke='%230b86bd' stroke-width='3'%3E%3Ccircle cx='25' cy='30' r='9'/%3E%3Ccircle cx='70' cy='55' r='9'/%3E%3Ccircle cx='115' cy='30' r='9'/%3E%3Ccircle cx='140' cy='75' r='9'/%3E%3Ccircle cx='95' cy='105' r='9'/%3E%3Ccircle cx='50' cy='90' r='9'/%3E%3Ccircle cx='85' cy='155' r='9'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Piccoli richiami di laboratorio, inseriti nei titoli e nelle schede esistenti. */
+h1#t::after{content:"  🧪";font-size:.72em;vertical-align:middle;text-shadow:none}
+.fun{position:relative;overflow:hidden}
+.fun::after{content:"🧬";position:absolute;right:12px;bottom:2px;font-size:2.2rem;opacity:.13;pointer-events:none;transform:rotate(18deg)}
+.tip{background-image:radial-gradient(circle at 96% 12%,rgba(45,166,220,.13) 0 4px,transparent 5px)!important}
+/* Badge illustrativi in fondo al contenuto, senza aggiungere nodi o intercettare tocchi. */
+#ver{position:relative}
+#ver::before{content:"🔬  🧫  🚑";display:block;margin:10px auto 0;font-size:1.25rem;letter-spacing:.45rem;opacity:.58;pointer-events:none}
+@media(max-width:520px){
+ main#v::before{right:-16px;width:105px;height:225px;opacity:.17}
+ main#v::after{left:-18px;width:118px;height:145px;opacity:.15}
+ .fun::after{font-size:1.7rem;right:8px}
+}
+@media(prefers-reduced-motion:reduce){main#v::before,main#v::after{animation:none}}
+
 </style>
 </head>
 <body>
