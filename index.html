@@ -249,6 +249,53 @@ nav,.fun,.prod,.row,details,.stat{z-index:1}
 #bk{position:fixed;z-index:30;top:calc(10px + env(safe-area-inset-top,0px));left:max(16px,calc(50vw - 304px));width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:#fff;color:#087eae;font:inherit;font-weight:800;font-size:1.4rem;line-height:1;box-shadow:0 3px 12px rgba(20,111,158,.18)}
 #bk[hidden]{display:none}
 body.hasbk #t,body.hasbk #s{padding-left:54px}
+
+/* Animazione mascotte Kit Lab: solo presentazione, nessuna modifica alla logica */
+.fun{isolation:isolate}
+.fun::after{
+  transform-origin:50% 82%;
+  animation:kitLabTeamBob 3.8s ease-in-out infinite;
+  will-change:transform;
+}
+.fun::before{
+  content:"✦  ·  ✧";
+  position:absolute;
+  right:112px;
+  top:12px;
+  z-index:1;
+  color:#28a5d4;
+  font-size:20px;
+  letter-spacing:8px;
+  pointer-events:none;
+  animation:kitLabSparkle 2.6s ease-in-out infinite;
+}
+.fun p:first-child b{
+  display:inline-block;
+  animation:kitLabGreeting 4.8s ease-in-out infinite;
+}
+@keyframes kitLabTeamBob{
+  0%,100%{transform:translateY(-50%) rotate(0deg) scale(1)}
+  25%{transform:translateY(calc(-50% - 3px)) rotate(-1deg) scale(1.008)}
+  50%{transform:translateY(-50%) rotate(0deg) scale(1)}
+  75%{transform:translateY(calc(-50% - 2px)) rotate(1deg) scale(1.006)}
+}
+@keyframes kitLabSparkle{
+  0%,100%{opacity:.25;transform:translateY(2px) scale(.88)}
+  50%{opacity:.9;transform:translateY(-4px) scale(1.08)}
+}
+@keyframes kitLabGreeting{
+  0%,82%,100%{transform:translateY(0)}
+  87%{transform:translateY(-2px) rotate(-1deg)}
+  92%{transform:translateY(0) rotate(1deg)}
+  97%{transform:translateY(0)}
+}
+@media(max-width:380px){
+  .fun::before{right:96px;top:8px;font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){
+  .fun::after,.fun::before,.fun p:first-child b{animation:none!important;will-change:auto}
+}
+
 </style>
 </head>
 <body>
