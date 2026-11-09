@@ -257,7 +257,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 09/11/2026 - z5</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 09/11/2026 - z6</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -529,7 +529,7 @@ function newB(){return{num:'',date:isod(today()),forn:'',rep:S.cur||'',note:'',s
 function readB(){if(!BD)return;var g=function(i){var e=document.getElementById(i);return e?e.value:null},v;
 ['num','date','forn','rep','note','ord'].forEach(function(k){v=g('b_'+k);if(v!==null)BD[k]=v});
 var c=document.getElementById('b_stock');if(c)BD.stock=c.checked;
-BD.righe.forEach(function(r,i){var a=g('b_n'+i);if(a!==null){r.n=a;r.lot=g('b_l'+i);r.exp=g('b_e'+i);r.qty=g('b_q'+i)}})}
+BD.righe.forEach(function(r,i){var a=g('b_n'+i);if(a!==null){r.n=a;r.c=g('b_c'+i)||'';r.lot=g('b_l'+i);r.exp=g('b_e'+i);r.qty=g('b_q'+i)}})}
 function catBuild(){var A=DATABASE_KIT.map(function(k){return{codice:k.codice,codiceBarre:k.codiceBarre,nome:k.nome,strumento:k.strumento,tipologia:k.tipologia}}),ch=0,ixr={},ixg={};
 function g14(x){x=String(x||'').replace(/\s/g,'');return/^\d{8,14}$/.test(x)?('00000000000000'+x).slice(-14):''}
 function reix(){ixr={};ixg={};A.forEach(function(k,i){var r=nk(k.codice),g=nk(k.codiceBarre);if(r&&ixr[r]===undefined)ixr[r]=i;if(g&&ixg[g]===undefined)ixg[g]=i})}
@@ -553,7 +553,7 @@ function bFormHtml(){var B=BD;return'<div class="prod"><b>Nuova bolla di consegn
 '<label for="b_forn">Fornitore / corriere (facoltativo)</label><input type="text" id="b_forn" value="'+esc(B.forn)+'">'+
 '<label for="b_note">Note (facoltative)</label><input type="text" id="b_note" value="'+esc(B.note)+'">'+
 '<h2>Kit in arrivo ('+B.righe.length+')</h2>'+
-B.righe.map(function(r,i){return'<div class="row"><label for="b_n'+i+'" style="margin-top:0">Nome kit</label><input type="text" id="b_n'+i+'" value="'+esc(r.n)+'">'+(r.g?'<small>Codice '+esc(r.g)+'</small>':'')+'<div class="grid"><div><label for="b_l'+i+'">Lotto</label><input type="text" id="b_l'+i+'" value="'+esc(r.lot)+'"></div><div><label for="b_e'+i+'">Scadenza</label><input type="date" id="b_e'+i+'" value="'+esc(r.exp)+'"></div><div><label for="b_q'+i+'">Quantità</label><input type="number" id="b_q'+i+'" min="1" value="'+esc(r.qty)+'"></div><div><label>&nbsp;</label><button class="ed" style="margin:0" data-a="brm" data-i="'+i+'" type="button">Togli</button></div></div></div>'}).join('')+
+B.righe.map(function(r,i){return'<div class="row"><label for="b_n'+i+'" style="margin-top:0">Nome kit</label><input type="text" id="b_n'+i+'" value="'+esc(r.n)+'"><label for="b_c'+i+'">Ref (codice prodotto)</label><input type="text" id="b_c'+i+'" value="'+esc(r.c||'')+'">'+(r.g?'<small>Codice a barre '+esc(r.g)+'</small>':'')+'<div class="grid"><div><label for="b_l'+i+'">Lotto</label><input type="text" id="b_l'+i+'" value="'+esc(r.lot)+'"></div><div><label for="b_e'+i+'">Scadenza</label><input type="date" id="b_e'+i+'" value="'+esc(r.exp)+'"></div><div><label for="b_q'+i+'">Quantità</label><input type="number" id="b_q'+i+'" min="1" value="'+esc(r.qty)+'"></div><div><label>&nbsp;</label><button class="ed" style="margin:0" data-a="brm" data-i="'+i+'" type="button">Togli</button></div></div></div>'}).join('')+
 (LIVE_OK?'<button class="cta" id="bscan" data-a="bscan" type="button" style="margin-top:8px">Scansiona un kit</button>':'')+
 '<button class="ed" data-a="brow" type="button">Aggiungi riga a mano</button><p id="st"></p>'+
 ordSel(B)+'<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="b_stock"'+(B.stock?' checked':'')+' style="width:auto"> Carica questi kit anche nelle Scorte del reparto</label>'+
@@ -565,10 +565,10 @@ var L=S.bolle.filter(function(b){return!BV||b.rep===BV}).slice().sort(function(a
 h+='<h2>Storico bolle</h2><label for="bfil" style="margin-top:0">Reparto</label><select id="bfil"><option value=""'+(BV?'':' selected')+'>Tutti i reparti</option>'+SECT.map(function(s){return'<option'+(BV===s?' selected':'')+'>'+esc(s)+'</option>'}).join('')+'</select>';
 h+='<p class="sub" style="margin-top:10px">'+L.length+(L.length===1?' bolla':' bolle')+(BV?' · '+esc(BV):'')+'</p>';
 h+=L.length?L.map(function(b){var R=b.righe||[],n=R.reduce(function(a,r){return a+(+r.qty||0)},0);
-return'<details'+(BDEL===b.id?' open':'')+'><summary>Bolla '+esc(b.num)+' · '+fmt(b.date)+'<br><small class="sub">'+rdot(b.rep)+esc(b.rep)+(b.forn?' · '+esc(b.forn):'')+' · '+n+' kit</small></summary><p class="sub" style="margin:8px 0">'+(b.note?esc(b.note)+'<br>':'')+(b.stock?'Caricata anche nelle Scorte.':'Non caricata nelle Scorte.')+'</p>'+(R.length?'<ul>'+R.map(function(r){return'<li>'+esc(r.n||'Kit')+' · lotto '+esc(r.lot||'-')+' · scad. '+(r.exp?fmt(r.exp):'-')+' · '+r.qty+' pz</li>'}).join('')+'</ul>':'<p class="sub">Nessun kit elencato.</p>')+'<button class="ed'+(BDEL===b.id?' bad':'')+'" data-a="bdel" data-id="'+b.id+'" type="button">'+(BDEL===b.id?'Conferma: elimina la bolla':'Elimina bolla')+'</button></details>'}).join(''):'<p class="empty">Nessuna bolla registrata'+(BV?' per questo reparto':'')+'.</p>';
+return'<details'+(BDEL===b.id?' open':'')+'><summary>Bolla '+esc(b.num)+' · '+fmt(b.date)+'<br><small class="sub">'+rdot(b.rep)+esc(b.rep)+(b.forn?' · '+esc(b.forn):'')+' · '+n+' kit</small></summary><p class="sub" style="margin:8px 0">'+(b.note?esc(b.note)+'<br>':'')+(b.stock?'Caricata anche nelle Scorte.':'Non caricata nelle Scorte.')+'</p>'+(R.length?'<ul>'+R.map(function(r){return'<li>'+esc(r.n||'Kit')+(r.c?' · Ref '+esc(r.c):'')+' · lotto '+esc(r.lot||'-')+' · scad. '+(r.exp?fmt(r.exp):'-')+' · '+r.qty+' pz</li>'}).join('')+'</ul>':'<p class="sub">Nessun kit elencato.</p>')+'<button class="ed'+(BDEL===b.id?' bad':'')+'" data-a="bdel" data-id="'+b.id+'" type="button">'+(BDEL===b.id?'Conferma: elimina la bolla':'Elimina bolla')+'</button></details>'}).join(''):'<p class="empty">Nessuna bolla registrata'+(BV?' per questo reparto':'')+'.</p>';
 h+=consHtml();h+='<details style="margin-top:12px"'+(RM?' open':'')+'><summary>Gestisci reparti</summary><ul style="list-style:none;padding:0">'+SECT.map(function(s,i){return'<li style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>'+esc(s)+'</span><button class="ed" style="margin:0" data-a="rdel" data-i="'+i+'" type="button">Rimuovi</button></li>'}).join('')+'</ul><label for="rnew">Nuovo reparto</label><input type="text" id="rnew" placeholder="Es. Sierologia"><button class="ed" data-a="radd" type="button">Aggiungi reparto</button><p class="sub" style="margin-top:8px">'+esc(RM)+'</p><p class="sub">L’elenco dei reparti è lo stesso dei settori.</p></details>';
 return h}
-function addStock(sec,n,g,l,e,q){var k=sec+'|'+(g||'n:'+n.toLowerCase()),it=S.items[k]||(S.items[k]={name:n,gtin:g,sec:sec,min:0,lots:[]}),ex=it.lots.filter(function(x){return x.lot===l})[0];
+function addStock(sec,n,g,l,e,q,c){var k=sec+'|'+(g||'n:'+n.toLowerCase()),it=S.items[k]||(S.items[k]={name:n,gtin:g,sec:sec,min:0,lots:[]}),ex=it.lots.filter(function(x){return x.lot===l})[0];if(c&&!it.ref)it.ref=c;
 if(ex){ex.qty+=q;ex.exp=e}else{if(it.lots.length)S.log.push({date:isod(today()),name:it.name,sec:sec,from:it.lots[it.lots.length-1].lot,to:l});it.lots.push({lot:l,exp:e,qty:q})}
 it.lots.sort(function(a,b){return a.exp<b.exp?-1:1})}
 function bSave(){readB();var B=BD,st=document.getElementById('st'),num=(B.num||'').trim(),rep=B.rep||'',forn=(B.forn||'').trim();
@@ -577,19 +577,19 @@ if(!num){er('Scrivi il numero della bolla.');return}
 if(!rep){er('Scegli il reparto.');return}
 if(!B.date){er('Scegli la data.');return}
 if(S.bolle.some(function(x){return x.num===num&&x.rep===rep&&(x.forn||'')===forn&&x.date===B.date})){er('Questa bolla risulta già registrata.');return}
-var R=B.righe.filter(function(r){return(r.n||'').trim()||(r.lot||'').trim()}).map(function(r){return{n:(r.n||'').trim()||('Kit '+(r.g||'')).trim(),g:r.g||'',lot:(r.lot||'').trim(),exp:r.exp||'',qty:Math.max(1,parseInt(r.qty,10)||1)}}),ld=0;
-if(B.stock)R.forEach(function(r){if(r.lot&&r.exp){addStock(rep,r.n,r.g,r.lot,r.exp,r.qty);ld++}});
+var R=B.righe.filter(function(r){return(r.n||'').trim()||(r.lot||'').trim()}).map(function(r){return{n:(r.n||'').trim()||('Kit '+(r.g||'')).trim(),g:r.g||'',c:(r.c||'').trim()||((r.g&&cercaKit(r.g))?String(cercaKit(r.g).codice||''):''),lot:(r.lot||'').trim(),exp:r.exp||'',qty:Math.max(1,parseInt(r.qty,10)||1)}}),ld=0;
+if(B.stock)R.forEach(function(r){if(r.lot&&r.exp){addStock(rep,r.n,r.g,r.lot,r.exp,r.qty,r.c);ld++}});
 S.bolle.push({id:Date.now(),num:num,date:B.date,forn:forn,rep:rep,note:(B.note||'').trim(),stock:!!B.stock,righe:R,ord:B.ord||''});var OM=ordApply(B.ord,R,num);
 save();BN=false;BD=null;BV='';
 BMSG='Bolla '+num+' salvata ('+rep+')'+(B.stock?': '+ld+' kit caricati nelle Scorte'+(ld<R.length?', '+(R.length-ld)+' senza lotto o scadenza non caricati':''):'')+'.'+OM;render()}
 function bcb(t){readB();var o=gs1(t),g=o['01']||String(t).replace(/[\x00-\x1f]/g,''),it=byGtin(g),lot=o['10']||'',ex=BD.righe.filter(function(r){return r.g===g&&r.lot===lot&&lot})[0];
-if(ex)ex.qty=(parseInt(ex.qty,10)||1)+1;else BD.righe.push({n:it?it.name:(cercaKit(g)?cercaKit(g).nome:''),g:g,lot:lot,exp:o['17']?d6(o['17']):'',qty:1});
+if(ex)ex.qty=(parseInt(ex.qty,10)||1)+1;else BD.righe.push({n:it?it.name:(cercaKit(g)?cercaKit(g).nome:''),c:(it&&it.ref)||(cercaKit(g)?cercaKit(g).codice:'')||'',g:g,lot:lot,exp:o['17']?d6(o['17']):'',qty:1});
 render();var s=document.getElementById('st');if(s)s.textContent=(ex?'Stesso kit e lotto: quantità aumentata.':'Kit aggiunto'+(it?'.':': scrivi il nome.'))+' Controlla lotto e scadenza, poi scansiona il prossimo.'}
 function bAct(a,b){if(qAct(a,b))return true;
 if(a==='bnew'){BD=newB();BN=true;BMSG='';render();return true}
 if(a==='bnumscan'){readB();startBollaScan();return true}
 if(a==='bcancel'){BN=false;BD=null;render();return true}
-if(a==='brow'){readB();BD.righe.push({n:'',g:'',lot:'',exp:'',qty:1});render();return true}
+if(a==='brow'){readB();BD.righe.push({n:'',c:'',g:'',lot:'',exp:'',qty:1});render();return true}
 if(a==='brm'){readB();BD.righe.splice(+b.dataset.i,1);render();return true}
 if(a==='bscan'){readB();startLive(bcb,'bscan');return true}
 if(a==='bsave'){bSave();return true}
@@ -870,7 +870,7 @@ function ordStato(o){var miss=false,over=false;o.righe.forEach(function(r){var q
 function ordN(){var n=ords().filter(ordAperto).length;return n?' ('+n+' aperti)':''}
 function ordMatch(x,codes,nm){return!!((x.c&&codes.indexOf(nk(x.c))>-1)||(nm&&onk(x.n)===nm))}
 function ordPend(it){var codes=[nk(it.ref),nk(it.gtin)].filter(Boolean),nm=onk(it.name);return ords().some(function(o){return ordAperto(o)&&o.righe.some(function(x){return(+x.rec||0)<(+x.qty||0)&&ordMatch(x,codes,nm)})})}
-function ordApply(id,R,num){if(!id)return'';var o=ords().filter(function(x){return String(x.id)===String(id)})[0];if(!o)return'';var nf=0;R.forEach(function(r){var rr=r.g?cercaKit(r.g,true):null,codes=[nk(r.g),rr?nk(rr.codice):'',rr?nk(rr.codiceBarre):''].filter(Boolean),nm=onk(r.n),m=o.righe.filter(function(x){return ordMatch(x,codes,nm)})[0];if(m)m.rec=(+m.rec||0)+r.qty;else nf++});o.bolle=(o.bolle||[]).concat([num]);save();return' Ordine '+(o.num||fmt(o.d))+': '+ordStato(o).t+(nf?' ('+nf+' righe non presenti nell’ordine)':'')+'.'}
+function ordApply(id,R,num){if(!id)return'';var o=ords().filter(function(x){return String(x.id)===String(id)})[0];if(!o)return'';var nf=0;R.forEach(function(r){var rr=r.g?cercaKit(r.g,true):null,codes=[nk(r.g),nk(r.c),rr?nk(rr.codice):'',rr?nk(rr.codiceBarre):''].filter(Boolean),nm=onk(r.n),m=o.righe.filter(function(x){return ordMatch(x,codes,nm)})[0];if(m)m.rec=(+m.rec||0)+r.qty;else nf++});o.bolle=(o.bolle||[]).concat([num]);save();return' Ordine '+(o.num||fmt(o.d))+': '+ordStato(o).t+(nf?' ('+nf+' righe non presenti nell’ordine)':'')+'.'}
 function ordSel(B){var L=ords().filter(ordAperto);if(!L.length)return'';L.sort(function(a,b){return a.d<b.d?1:-1});return'<label for="b_ord">Ordine collegato (facoltativo)</label><select id="b_ord"><option value="">Nessuno</option>'+L.map(function(o){return'<option value="'+o.id+'"'+(String(B.ord)===String(o.id)?' selected':'')+'>'+esc((o.forn||'?')+' · '+fmt(o.d)+(o.rep?' · '+o.rep:'')+' · '+ordStato(o).t)+'</option>'}).join('')+'</select>'}
 function newO(){return{forn:'',date:isod(today()),num:'',rep:S.cur||'',tipo:S.ordTipo||'canone',note:'',righe:[{n:'',c:'',qty:1}]}}
 function readO(){if(!OD)return;var g=function(i){var e=document.getElementById(i);return e?e.value:null},v;['forn','date','num','rep','tipo','note'].forEach(function(k){v=g('o_'+k);if(v!==null)OD[k]=v});OD.righe.forEach(function(r,i){var a=g('o_n'+i);if(a!==null){r.n=a;r.c=g('o_c'+i);r.qty=g('o_q'+i)}})}
@@ -1222,7 +1222,7 @@ if(a==='rosegna'){var ks=roKeys().filter(function(k){return roQ(k)>0});if(!ks.le
 return false}
 document.getElementById('v').addEventListener('change',function(e){var i=e.target;if(i.id==='o_fil'){OFIL=i.value;render()}else if(i.id==='o_days'){S.ordDays=Math.max(1,parseInt(i.value,10)||7);save();render()}else if(/^o_n\d+$/.test(i.id)){var en=nomeKit(i.value);if(en){i.value=en.nome;var c=document.getElementById('o_c'+i.id.slice(3));if(c&&!c.value)c.value=en.codice||en.codiceBarre||''}}});
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 09/11/2026 - z5';
+var vr=document.getElementById('ver'),V='Versione 09/11/2026 - z6';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
