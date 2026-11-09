@@ -1339,6 +1339,8 @@ document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' i
 var vr=document.getElementById('ver'),V='Versione 09/11/2026 - z6';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
+/* Ripristina una volta i suggerimenti contestuali per sezione dopo l'aggiornamento grafico */
+try{if(localStorage.getItem('kitLabTipsRestore_2026')!=='1'){S.notips=false;save();localStorage.setItem('kitLabTipsRestore_2026','1')}}catch(e){S.notips=false;save()}
 render();
 </script>
 </body>
