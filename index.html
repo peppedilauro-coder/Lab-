@@ -445,7 +445,7 @@ var KIT_INTRO_INFO={
 };
 function showSectionIntro(){
  var key=view,info=KIT_INTRO_INFO[key];if(!info)return;
- var seen='kitLabIntroSeen_'+key;
+ var seen='kitLabIntroSeen_v2_'+key;
  try{if(localStorage.getItem(seen)==='1')return}catch(e){}
  if(document.querySelector('.kit-intro-shade'))return;
  var shade=document.createElement('div');shade.className='kit-intro-shade';shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');shade.setAttribute('aria-label',info.title);
