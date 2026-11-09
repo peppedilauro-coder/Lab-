@@ -249,53 +249,6 @@ nav,.fun,.prod,.row,details,.stat{z-index:1}
 #bk{position:fixed;z-index:30;top:calc(10px + env(safe-area-inset-top,0px));left:max(16px,calc(50vw - 304px));width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:#fff;color:#087eae;font:inherit;font-weight:800;font-size:1.4rem;line-height:1;box-shadow:0 3px 12px rgba(20,111,158,.18)}
 #bk[hidden]{display:none}
 body.hasbk #t,body.hasbk #s{padding-left:54px}
-
-/* Animazione mascotte Kit Lab: solo presentazione, nessuna modifica alla logica */
-.fun{isolation:isolate}
-.fun::after{
-  transform-origin:50% 82%;
-  animation:kitLabTeamBob 3.8s ease-in-out infinite;
-  will-change:transform;
-}
-.fun::before{
-  content:"✦  ·  ✧";
-  position:absolute;
-  right:112px;
-  top:12px;
-  z-index:1;
-  color:#28a5d4;
-  font-size:20px;
-  letter-spacing:8px;
-  pointer-events:none;
-  animation:kitLabSparkle 2.6s ease-in-out infinite;
-}
-.fun p:first-child b{
-  display:inline-block;
-  animation:kitLabGreeting 4.8s ease-in-out infinite;
-}
-@keyframes kitLabTeamBob{
-  0%,100%{transform:translateY(-50%) rotate(0deg) scale(1)}
-  25%{transform:translateY(calc(-50% - 3px)) rotate(-1deg) scale(1.008)}
-  50%{transform:translateY(-50%) rotate(0deg) scale(1)}
-  75%{transform:translateY(calc(-50% - 2px)) rotate(1deg) scale(1.006)}
-}
-@keyframes kitLabSparkle{
-  0%,100%{opacity:.25;transform:translateY(2px) scale(.88)}
-  50%{opacity:.9;transform:translateY(-4px) scale(1.08)}
-}
-@keyframes kitLabGreeting{
-  0%,82%,100%{transform:translateY(0)}
-  87%{transform:translateY(-2px) rotate(-1deg)}
-  92%{transform:translateY(0) rotate(1deg)}
-  97%{transform:translateY(0)}
-}
-@media(max-width:380px){
-  .fun::before{right:96px;top:8px;font-size:17px}
-}
-@media(prefers-reduced-motion:reduce){
-  .fun::after,.fun::before,.fun p:first-child b{animation:none!important;will-change:auto}
-}
-
 </style>
 </head>
 <body>
@@ -304,7 +257,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 08/11/2026 - y</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 09/11/2026 - z3</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -409,9 +362,9 @@ var zbHist=[],zbLast=null,zbGo=false;
 function zbTrack(){if(zbLast===null)zbLast=view;if(view!==zbLast){if(!zbGo){zbHist.push(zbLast);if(zbHist.length>30)zbHist.shift()}zbLast=view}zbGo=false;var b=document.getElementById('bk');if(b){var sh=zbHist.length>0||view!=='avvisi';b.hidden=!sh;document.body.classList.toggle('hasbk',sh)}}
 function render(){zbTrack();if(view==='ordini')readO();stopLive();applyLook();
 var al=alerts(),b=document.querySelectorAll('nav button');
-b.forEach(function(x){x.setAttribute('aria-current',x.dataset.v===(view==='ordini'?'bolle':view==='veq'?'riepilogo':view));if(x.dataset.v==='avvisi'){var nr=al.filter(function(y){return y.c==='bad'}).length,nw=al.filter(function(y){return y.c==='warn'}).length,n9=nr||nw,g=x.querySelector('.bdg');if(g){g.hidden=!n9;g.textContent=n9;g.style.background=nr?'var(--bad)':'var(--warn)';g.style.color=nr?'var(--badbg)':'var(--warnbg)'}x.setAttribute('aria-label','Avvisi'+(nr?', '+nr+' rossi':nw?', '+nw+' da controllare':''))}});document.querySelector('nav').classList.toggle('serio',serio());
+b.forEach(function(x){x.setAttribute('aria-current',x.dataset.v===(view==='ordini'?'bolle':(view==='veq'||view==='esami')?'riepilogo':view));if(x.dataset.v==='avvisi'){var nr=al.filter(function(y){return y.c==='bad'}).length,nw=al.filter(function(y){return y.c==='warn'}).length,n9=nr||nw,g=x.querySelector('.bdg');if(g){g.hidden=!n9;g.textContent=n9;g.style.background=nr?'var(--bad)':'var(--warn)';g.style.color=nr?'var(--badbg)':'var(--warnbg)'}x.setAttribute('aria-label','Avvisi'+(nr?', '+nr+' rossi':nw?', '+nw+' da controllare':''))}});document.querySelector('nav').classList.toggle('serio',serio());
 var h='',v=document.getElementById('v');
-document.getElementById('s').textContent=view==='avvisi'?'Scadenze, scorte basse e cambi lotto':view==='scorte'?'Quantità per prodotto e lotto':view==='scarico'?'Inquadra il kit che stai per usare':view==='guida'?'Guida e suggerimenti':view==='bolle'?'Archivio bolle di consegna, per reparto':view==='ordini'?'Ordini ai fornitori e controllo alla consegna':view==='veq'?'Controlli esterni di qualità (VEQ)':view==='riepilogo'?'Kit scaricati nel mese, pronti da stampare':'Fotografa l’etichetta o compila a mano';
+document.getElementById('s').textContent=view==='avvisi'?'Scadenze, scorte basse e cambi lotto':view==='scorte'?'Quantità per prodotto e lotto':view==='scarico'?'Inquadra il kit che stai per usare':view==='guida'?'Guida e suggerimenti':view==='bolle'?'Archivio bolle di consegna, per reparto':view==='ordini'?'Ordini ai fornitori e controllo alla consegna':view==='veq'?'Controlli esterni di qualità (VEQ)':view==='esami'?'Provette e raccolta dei campioni':view==='riepilogo'?'Kit scaricati nel mese, pronti da stampare':'Fotografa l’etichetta o compila a mano';
 if(view==='avvisi'){h=al.length?al.map(function(x){return'<div class="row '+x.c+'"><b>'+ico(x.c)+rdot(x.s)+esc(x.t)+'</b><small>'+esc(x.d)+'</small></div>'}).join(''):'<p class="empty">Nessun avviso. Aggiungi il primo kit dalla scheda “Nuovo kit”.</p>'}
 if(view==='scorte'){var ks=Object.keys(S.items).filter(function(k){return!S.cur||S.items[k].sec===S.cur}).sort(function(a,b){var x=S.items[a],y=S.items[b],p=(x.sec||'')+x.name,q=(y.sec||'')+y.name;return p<q?-1:p>q?1:0});h=ks.length?ks.map(function(k){if(EK===k)return editHtml(k);var it=S.items[k],t=total(it);
 return'<div class="prod"'+rcs(it.sec)+'><header><b>'+esc(it.name)+'</b><span class="tot'+(it.min>0&&t<=it.min?' low':'')+'">'+t+' pz</span></header>'+sem(it)+'<small class="sub">'+(it.sec?esc(it.sec)+' · ':'')+(it.str?esc(it.str)+' · ':'')+(it.tip?esc(it.tip)+' · ':'')+(it.gtin?'Codice '+esc(it.gtin)+' · ':'')+'soglia minima '+(it.min||0)+(it.used?' · lotto in uso '+esc(it.used):'')+'</small><input type="text" class="rf" data-k="'+esc(k)+'" placeholder="Codice articolo" aria-label="Codice articolo" value="'+esc(it.ref||'')+'" style="margin:6px 0">'+estHtml(k)+calHtml(k)+
@@ -427,12 +380,13 @@ unkHtml()+'<label for="n">Nome del kit</label><input type="text" id="n" list="dn
 '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="cal"'+(F.cal?' checked':'')+' style="width:auto"> Richiede calibrazione al cambio lotto</label>'+
 '<button class="cta" id="sv">Salva kit</button><button class="cta" id="rb" type="button" style="background:var(--surf);color:var(--acc);border:2px solid var(--acc)">Registra in Bolla</button><p id="st3" class="sub" style="margin-top:8px"></p>'}
 if(view==='veq')h=veqHtml();
-if(view==='riepilogo')h=veqBtn()+repHtml()+statHtml()+qualHtml()+funHtml()+lookHtml()+repColHtml()+bkHtml();
+if(view==='esami')h=esHtml();
+if(view==='riepilogo')h=veqBtn()+esBtn()+repHtml()+statHtml()+qualHtml()+funHtml()+lookHtml()+repColHtml()+bkHtml();
 if(view==='guida')h=guideHtml();if(view==='ordini')h=ordHtml();
 if(view==='bolle')h=bolleHtml();
 if(view==='scarico')h=(LIVE_OK?'<button class="cta" id="lv2" type="button" style="margin:0 0 10px">Scansiona il kit da usare</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph2">Scatta foto del codice</label><div id="rs"></div><p id="st"></p>'+undoBtn();
 if(view==='avvisi')h=funTop(al)+scaricaBtn()+searchHtml()+h+ro2Html();if(view==='scorte')h=searchHtml()+h;
-if(view!=='nuovo'&&view!=='guida'&&view!=='bolle')h=secBar()+h;
+if(view!=='nuovo'&&view!=='guida'&&view!=='bolle'&&view!=='esami')h=secBar()+h;
 if(view!=='guida')h=tipHtml()+h;
 v.innerHTML=h;if(view==='nuovo')bind();if(view==='scarico'){var b2=document.getElementById('lv2');if(b2)b2.onclick=function(){startLive(use,'lv2')};document.getElementById('ph2').onchange=function(e){var f=e.target.files[0];e.target.value='';readPhoto(f,document.getElementById('st'),use)}};if(view==='riepilogo')bindRep()}
 function attempts(){var L=[],cr=[[0,0,1,1],[0,0,.6,.6],[.4,0,.6,.6],[0,.4,.6,.6],[.4,.4,.6,.6]];cr.forEach(function(c){[1400,800].forEach(function(sz){[0,90,270,180].forEach(function(r){L.push([c,sz,r])})})});return L}
@@ -498,7 +452,7 @@ ks.forEach(function(k){var it=S.items[k],nm=doc.splitTextToSize(it.name,cols[0][
 doc.setFontSize(9);doc.text(nm,12,y);doc.text(fit(it.ref||'-',34),90,y);doc.text(fit(it.gtin||'-',36),124,y);doc.text(fit(it.sec||'-',40),160,y);doc.text(String(total(it)),200,y);doc.setFont('helvetica','bold');doc.text(String(roQ(k)),228,y);doc.setFont('helvetica','normal');y+=h;doc.setDrawColor(200);doc.line(M,y-3,285,y-3)});
 var n=doc.getNumberOfPages();for(var i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.text('Pagina '+i+' di '+n,285,205,{align:'right'})}
 try{await dlSave('ordine-kit-'+isod(d)+'.pdf',doc.output('blob'));m.textContent='PDF salvato.'}catch(e){m.textContent='Non sono riuscito a salvare il PDF.'}}
-var GU=null,PV='avvisi',GM={avvisi:'avvisi',scorte:'scorte',scarico:'scarico',nuovo:'carico',bolle:'bolle',riepilogo:'riepilogo',ordini:'ordini',veq:'veq',guida:'primi'};
+var GU=null,PV='avvisi',GM={avvisi:'avvisi',scorte:'scorte',scarico:'scarico',nuovo:'carico',bolle:'bolle',riepilogo:'riepilogo',ordini:'ordini',veq:'veq',esami:'esami',guida:'primi'};
 function openGuide(s){if(view!=='guida')PV=view;view='guida';GU=s||'primi';EK=null;BK=null;render();window.scrollTo(0,0);setTimeout(function(){var e=document.getElementById('g-'+GU);if(e&&e.scrollIntoView)e.scrollIntoView({block:'start'})},0)}
 function tipFor(){var n=Object.keys(S.items).length;
 if(view==='avvisi')return!n?'Benvenuto! Per iniziare: 1) scegli il settore; 2) tocca “Nuovo kit” e scansiona un kit; 3) quando ne apri uno, usa “Scarico”. Qui compariranno scadenze, scorte basse e cambi lotto.':(!S.hist.length?'Quando apri un kit, usa “Scarico”: così l’app impara i consumi, segna il lotto in uso e suggerisce i riordini.':'');
@@ -506,6 +460,7 @@ if(view==='scorte')return n?'Imposta la soglia minima di ogni prodotto: sotto qu
 if(view==='scarico')return'Inquadra il kit che stai per aprire (non quello finito). Se il lotto cambia, o non è quello che scade prima, l’app te lo segnala.';
 if(view==='nuovo')return'Inquadra il codice da solo, a 10-15 cm e senza riflessi. Se il codice manca, “Scatta foto” legge il testo. Controlla sempre lotto e scadenza prima di salvare.';
 if(view==='bolle')return'Registra qui ogni bolla del corriere: numero, data, reparto e kit in arrivo. Poi filtra lo storico per reparto.';
+if(view==='esami')return'Scrivi il nome dell’esame (o scegli dall’elenco che compare): vedi provetta, preparazione e accorgimenti.';
 if(view==='veq')return'Inserisci ogni controllo VEQ con la sua data: compare negli Avvisi 7 giorni prima. Quando lo esegui scegli l’esito; se si ripete, l’app crea il successivo.';
 if(view==='riepilogo')return'Scarica il PDF del mese per il registro. Fai ogni tanto un backup: i dati sono solo su questo telefono.';return''}
 function tipHtml(){if(S.notips)return'';var t=tipFor();if(!t)return'';return'<div class="tip">'+esc(t)+'<br><button class="ed" data-a="help" data-s="'+view+'" type="button" style="margin-top:6px">Apri la guida</button> <button class="ed" data-a="tipx" type="button" style="margin-top:6px">Nascondi suggerimenti</button></div>'}
@@ -521,6 +476,7 @@ function guideHtml(){var G=[
 ['simpatica','Parte simpatica e Modalità seria','<li>La provetta mascotte compare in Avvisi e diventa rossa se c’è qualcosa di scaduto.</li><li>Saluto per l’ora (con il tuo nome se lo scrivi), frase del giorno e messaggio “Tutto sotto controllo” quando non ci sono avvisi.</li><li>“Preso!” con vibrazione dopo un riconoscimento o uno scarico (la vibrazione funziona solo su Android).</li><li><b>Modalità seria</b> (in Riepilogo): spegne messaggi, emoji, mascotte e vibrazione. Il semaforo e i colori dei reparti restano.</li>'],
 ['ordini','Registro ordini','<li><b>Registro ordini</b> (scheda Bolle): salva gli ordini ai fornitori con data, reparto, tipo e kit ordinati.</li><li><b>Compreso nel canone</b> o <b>Fuori canone</b>: lo scegli a ogni ordine. In alto vedi quanti ordini fuori canone hai fatto negli ultimi 90 giorni per fornitore, utile per capire se il canone basta.</li><li><b>Da Avvisi</b>: nella lista di riordino, “Segna come ordinato” prepara l’ordine con i kit suggeriti, da controllare e salvare.</li><li><b>Alla consegna</b>: registrando una bolla scegli l’ordine collegato. L’app confronta i kit per codice o nome e aggiorna le quantità: Ordinato, Parziale o Completo.</li><li>Per ordini senza bolla usa “Arrivato tutto”; “Chiudi con differenze” chiude un ordine che non arriverà completo.</li><li>Un ordine aperto da troppo tempo compare in Avvisi (i giorni si scelgono nel registro).</li><li>I dati restano su questo telefono: un collega vede solo i propri ordini.</li>'],
 ['veq','Calendario VEQ','<li><b>Cos’è</b>: il calendario dei controlli esterni di qualità (VEQ), con le date entro cui eseguirli o inviare i risultati. Lo trovi in <b>Riepilogo</b>, con il pulsante <b>Calendario VEQ</b>.</li><li><b>Aggiungere un controllo</b>: tocca <b>Aggiungi un controllo VEQ</b>, scrivi il programma o l’ente, scegli il reparto, aggiungi se vuoi materiale o analiti e la data, poi <b>Salva nel calendario</b>.</li><li><b>Programmare in anticipo</b>: puoi inserire subito i controlli dei mesi futuri, ognuno con la sua data. Compaiono negli Avvisi solo quando mancano 7 giorni.</li><li><b>Si ripete</b>: usalo solo se l’intervallo è regolare. Inserisci la prima data e, quando la segni come eseguita, l’app crea la successiva. Se inserisci già tutte le date a mano, lascia <b>No, una volta sola</b>, così non hai controlli doppi.</li><li><b>Colori</b>: rosso se è in ritardo, giallo se mancano 7 giorni o meno, azzurro se è più avanti. Il pallino indica il reparto.</li><li><b>Eseguita</b>: scegli <b>conforme</b>, <b>non conforme</b> oppure <b>esito da ricevere</b>. In quest’ultimo caso registri l’esito più tardi, quando arriva il rapporto. Il controllo passa in <b>Eseguiti</b>.</li><li><b>Avvisi</b>: compaiono i controlli in ritardo, quelli in scadenza entro 7 giorni e gli esiti non conformi degli ultimi 30 giorni.</li><li><b>Correggere un errore</b>: non c’è la modifica. Elimina il controllo (chiede conferma) e inseriscilo di nuovo.</li><li><b>CSV</b>: esporta il calendario e si apre da Excel. L’app aiuta a ricordare le date, ma non sostituisce il rapporto ufficiale dell’ente.</li>'],
+['esami','Guida esami e provette','<li><b>Cos’è</b>: un elenco consultabile degli esami più comuni, con la provetta o il contenitore da usare, la preparazione del paziente e gli accorgimenti per il prelievo. Lo trovi in <b>Riepilogo</b>, con il pulsante <b>Guida esami e provette</b>.</li><li><b>Come cercare</b>: scrivi il nome o l’abbreviazione (per esempio “glicemia”, “PT”, “TSH”) e scegli dall’elenco che compare. Puoi restringere per <b>Settore</b>.</li><li><b>Attenzione</b>: le indicazioni sono generali, raccolte da procedure pubbliche di laboratori italiani. Colori dei tappi, tempi di consegna e preparazione possono cambiare tra produttori e laboratori, quindi per le regole del tuo laboratorio vale il manuale prelievi.</li><li><b>Se manca un esame</b>: dimmelo, oppure mandami il manuale prelievi del laboratorio per adattare l’elenco.</li>'],
 ['problemi','Problemi comuni','<li><b>La fotocamera non parte</b>: consentila in Impostazioni, Safari, Fotocamera. Se resta bloccata usa “Scatta foto”. Se la pagina è dentro un’altra app, aprila in Safari.</li><li><b>Codice non letto</b>: avvicinati, usa più luce, evita i riflessi, oppure compila a mano.</li><li><b>Nome sbagliato</b>: scegli un suggerimento, usa “Fotografa il nome” o scrivilo: la volta dopo l’app lo ricorda.</li><li><b>Dati che sembrano spariti</b>: l’app dalla Home e Safari hanno dati separati. Usa sempre la stessa e ripristina dal backup.</li><li><b>Versione</b>: la trovi in fondo alla pagina.</li>'],
 ['limiti','Limiti e privacy','<li>I dati stanno solo su questo telefono, non vengono condivisi.</li><li>Non inserire dati dei pazienti.</li><li>L’app non sostituisce procedure e registri del laboratorio: controlla sempre lotto e scadenza.</li><li>La ricerca online del nome invia soltanto il codice prodotto.</li>'],
 ['installa','Icona sulla Home','<li>In Safari tocca Condividi e poi <b>Aggiungi a Home</b>, e usa sempre quell’icona.</li><li>Per aggiornare l’app chiudila e riaprila.</li><li><b>Senza rete</b>: l’app si apre con l’ultima copia salvata, a patto che il file sw.js sia caricato accanto a index.html. Con la rete usa sempre la versione più recente.</li><li>Prima di rimuovere l’icona fai un backup: i dati sono dentro l’app.</li>']];
@@ -938,8 +894,150 @@ if(a==='vqes'){v.es=b.dataset.es;save();render();return true}
 if(a==='vqdel'){if(VQDEL===v.id){S.veq=veqs().filter(function(x){return x.id!==v.id});VQDEL=null}else VQDEL=v.id;save();render();return true}
 return false}
 function veqCsv(){var r=[['Data','Programma VEQ','Reparto','Materiale/analiti','Si ripete','Stato','Esito','Eseguita il','Note']];veqs().slice().sort(function(a,b){return a.d<b.d?-1:1}).forEach(function(v){r.push([fmt(v.d),v.nome,v.rep||'',v.an||'',v.ric||'',v.st==='fatto'?'Eseguita':'Da eseguire',v.st==='fatto'?(v.es==='ok'?'Conforme':v.es==='nc'?'Non conforme':'Da ricevere'):'',v.de?fmt(v.de):'',v.note||''])});csvOut(r,'calendario-veq-'+isod(today())+'.csv')}
+var ESSE=['Chimica clinica','Ematologia','Coagulazione','Ormoni e immunometria','Marcatori tumorali','Sierologia','Urine','Feci','Microbiologia','Farmaci','Genetica e biologia molecolare','Elementi in traccia'];
+var ESTB={R:'Siero · tappo rosso',V:'Sangue intero con EDTA · tappo viola',A:'Sodio citrato · tappo azzurro (riempire fino al segno)',N:'Tappo nero (VES)',G:'Fluoruro/ossalato · tappo grigio',H:'Eparina · tappo verde',B:'Tappo blu per elementi in traccia (non è la provetta azzurra del PT)',D:'Siero o plasma, secondo la procedura del laboratorio',S:'Siringa eparinata per emogasanalisi',U:'Provetta conica per urine (senza tappo)',UC:'Contenitore sterile per urinocoltura',U2:'Tanica per urine delle 24 ore',F:'Contenitore per feci',T:'Tampone con terreno di trasporto',X:'Contenitore sterile per liquido seminale',E:'Flaconi per emocoltura (aerobio e anaerobio)',Q:'Contenitore sterile',W:'Nastro adesivo trasparente su vetrino',Z:'Provetta o kit forniti dal laboratorio di riferimento'};
+var ESPR={d:'A digiuno da 8-12 ore (acqua consentita)',n:'Digiuno non indispensabile',m:'Al mattino e a digiuno'};
+var ESAMI=[
+['Glucosio','glicemia',0,'G','d','Se non si usa la provetta grigia, separare il siero entro 1 ora dal prelievo.'],
+['Curva da carico di glucosio','OGTT, curva glicemica',0,'G','Digiuno; carico di glucosio per bocca e prelievi ai tempi indicati dal laboratorio','Restare seduti e non fumare durante il test. In gravidanza il protocollo è diverso.'],
+['Emoglobina glicata','HbA1c',0,'V','n',''],
+['Creatinina','creatininemia',0,'R','n',''],
+['Azotemia','urea, BUN',0,'R','n',''],
+['Acido urico','uricemia',0,'R','n',''],
+['Sodio, potassio, cloro','elettroliti, Na K Cl',0,'R','n','Evitare emolisi (il potassio risulta falsamente alto) e laccio emostatico tenuto a lungo.'],
+['Calcio','calcemia',0,'R','n',''],
+['Fosforo','fosfato, fosforemia',0,'R','d',''],
+['Magnesio','magnesemia',0,'R','n',''],
+['Colesterolo totale, HDL, LDL','profilo lipidico',0,'R','d','Non cambiare dieta nei giorni precedenti ed evitare alcol nelle 24 ore prima.'],
+['Trigliceridi','',0,'R','Digiuno di 12 ore','Evitare alcol nelle 24 ore precedenti.'],
+['AST e ALT','GOT, GPT, transaminasi',0,'R','n','Evitare sforzi fisici intensi nelle 24 ore precedenti.'],
+['Gamma GT','GGT',0,'R','n',''],
+['Fosfatasi alcalina','ALP',0,'R','n',''],
+['Bilirubina totale e frazionata','',0,'R','d','Proteggere il campione dalla luce.'],
+['LDH','lattato deidrogenasi',0,'R','n','Evitare emolisi.'],
+['CK e CK-MB','creatinchinasi',0,'R','n','Evitare sforzi fisici intensi nelle 24 ore precedenti.'],
+['Amilasi','',0,'R','n',''],
+['Lipasi','',0,'R','n',''],
+['Proteine totali e albumina','',0,'R','n',''],
+['Elettroforesi proteica','proteine sieriche',0,'R','n',''],
+['Ferro','sideremia',0,'R','m','Il valore varia durante la giornata: meglio al mattino.'],
+['Ferritina','',0,'R','n',''],
+['Transferrina e capacità ferro-legante','TIBC, UIBC',0,'R','d',''],
+['Proteina C reattiva','PCR',0,'R','n',''],
+['Troponina','',0,'R','n','Segnare l’ora del prelievo.'],
+['Vitamina B12 e folati','acido folico',0,'R','d','Proteggere il campione dalla luce.'],
+['Vitamina D','25-OH vitamina D',0,'R','n',''],
+['Emogasanalisi','EGA, gas arteriosi',0,'S','Prelievo arterioso o capillare arterializzato','Senza bolle d’aria e da analizzare subito; indicare temperatura e ossigeno somministrato.'],
+['Ammoniemia','ammonio',0,'H','Subito, in ghiaccio, senza laccio prolungato','Consegnare in laboratorio entro pochi minuti. Alcuni laboratori usano EDTA.'],
+['Acido lattico','lattato',0,'G','Senza laccio prolungato, in ghiaccio','Consegnare subito in laboratorio.'],
+['Emocromo completo','formula leucocitaria, CBC',1,'V','n','Capovolgere delicatamente la provetta più volte.'],
+['Reticolociti','',1,'V','n',''],
+['VES','velocità di eritrosedimentazione',1,'N','n','Riempire fino al segno.'],
+['Gruppo sanguigno e Rh','gruppo ABO',1,'V','n',''],
+['Test di Coombs','Coombs diretto e indiretto',1,'V','n',''],
+['Striscio di sangue periferico','',1,'V','n',''],
+['Ricerca del plasmodio','malaria',1,'V','Con febbre in atto, se possibile','Esame urgente: avvisare il laboratorio.'],
+['PT / INR','tempo di protrombina',2,'A','n','Riempire esattamente fino al segno e capovolgere delicatamente. Eseguire entro 4 ore dal prelievo. Indicare se il paziente è in terapia anticoagulante.'],
+['aPTT','tempo di tromboplastina parziale',2,'A','n','Riempire esattamente fino al segno. Eseguire entro 4 ore. Indicare eventuale terapia con eparina.'],
+['Fibrinogeno','',2,'A','n','Riempire esattamente fino al segno. Eseguire entro 4 ore.'],
+['D-dimero','',2,'A','n','Riempire esattamente fino al segno. Eseguire entro 4 ore.'],
+['Antitrombina','AT III',2,'A','n','Riempire esattamente fino al segno. Eseguire entro 4 ore.'],
+['TSH','tireotropina',3,'R','n',''],
+['FT3 e FT4','ormoni tiroidei liberi',3,'R','n','Se si assume levotiroxina, seguire l’indicazione del medico sull’orario della dose.'],
+['Anti-TPO e anti-tireoglobulina','anticorpi tiroidei',3,'R','n',''],
+['Prolattina','PRL',3,'R','Al mattino, dopo 20-30 minuti di riposo','Evitare stress e sforzi prima del prelievo.'],
+['FSH e LH','gonadotropine',3,'R','n','Nelle donne in età fertile indicare il giorno del ciclo.'],
+['Estradiolo','E2',3,'R','n','Indicare il giorno del ciclo.'],
+['Progesterone','',3,'R','n','Indicare il giorno del ciclo.'],
+['Testosterone','',3,'R','Al mattino (circa 8-10), a digiuno',''],
+['Cortisolo','',3,'R','Al mattino (circa 8-9) o all’ora richiesta, dopo riposo','Indicare l’ora del prelievo.'],
+['ACTH','',3,'V','Al mattino, in ghiaccio','Consegnare subito: il campione si degrada rapidamente.'],
+['Insulina','insulinemia',3,'R','d',''],
+['PTH','paratormone',3,'D','m',''],
+['Beta-HCG','test di gravidanza su sangue',3,'R','n',''],
+['DHEA-S','',3,'R','n',''],
+['PSA totale e libero','antigene prostatico',4,'R','n','Evitare rapporti, bicicletta e visita prostatica nelle 48 ore prima.'],
+['CEA','',4,'R','n','Per i controlli nel tempo usare lo stesso laboratorio.'],
+['CA 125','',4,'R','n',''],
+['CA 15-3','',4,'R','n',''],
+['CA 19-9','',4,'R','n',''],
+['Alfafetoproteina','AFP',4,'R','n',''],
+['HIV 1/2','test HIV, Ag/Ab',5,'R','n',''],
+['HBsAg, anti-HBs, anti-HBc','epatite B',5,'R','n',''],
+['Anti-HCV','epatite C',5,'R','n',''],
+['Rosolia IgG e IgM','',5,'R','n',''],
+['Toxoplasma IgG e IgM','',5,'R','n',''],
+['Citomegalovirus IgG e IgM','CMV',5,'R','n',''],
+['Sifilide','TPHA, VDRL, RPR',5,'R','n',''],
+['Mononucleosi','EBV, Paul-Bunnell',5,'R','n',''],
+['Anticorpi anti-nucleo','ANA',5,'R','n',''],
+['Fattore reumatoide','Waaler-Rose',5,'R','n',''],
+['Anti-CCP','',5,'R','n',''],
+['Antistreptolisina O','TAS, ASO',5,'R','n',''],
+['Anti-transglutaminasi IgA','celiachia, IgA totali',5,'R','n','Non togliere il glutine dalla dieta prima dell’esame.'],
+['IgE totali','',5,'R','n',''],
+['Esame urine completo','chimico-fisico e sedimento',6,'U','Prima urina del mattino, mitto intermedio','Lavare i genitali. Evitare la raccolta durante il ciclo mestruale. Consegnare entro 2 ore.'],
+['Urinocoltura','urocoltura',6,'UC','Prima urina del mattino o almeno 3 ore dall’ultima minzione, mitto intermedio','Contenitore sterile e igiene accurata. Raccogliere prima di iniziare antibiotici. Consegnare entro 2 ore, altrimenti in frigorifero.'],
+['Urine delle 24 ore','proteinuria 24 ore, clearance',6,'U2','Raccolta di 24 ore','Al mattino scartare la prima urina, poi raccogliere tutte le successive fino alla stessa ora del giorno dopo, inclusa la prima del mattino. Tenere in frigorifero e annotare il volume.'],
+['Microalbuminuria','albuminuria',6,'U','Prima urina del mattino','Evitare sforzi fisici intensi il giorno prima.'],
+['Citologia urinaria','',6,'U','Seconde urine del mattino','Il numero di campioni dipende dalle istruzioni del laboratorio.'],
+['Test di gravidanza urinario','beta-HCG urine',6,'U','Prima urina del mattino',''],
+['Sangue occulto nelle feci','FIT, SOF',7,'F','Campione con l’apposita provetta con conservante','Seguire le istruzioni del kit (di norma da 1 a 3 campioni).'],
+['Coprocoltura','',7,'F','Feci fresche emesse spontaneamente','Consegnare entro 2 ore. Non raccogliere se si assumono antibiotici, lassativi o mezzi di contrasto con bario.'],
+['Parassiti nelle feci','esame coproparassitologico',7,'F','Più campioni in giorni diversi','Il numero di campioni e il conservante dipendono dal laboratorio.'],
+['Calprotectina fecale','',7,'F','Feci fresche','Conservare in frigorifero fino alla consegna.'],
+['Antigene di Helicobacter pylori nelle feci','HpSA',7,'F','Feci fresche','Per antibiotici e antiacidi seguire le indicazioni del medico.'],
+['Scotch test','ossiuri',7,'W','Al mattino appena svegli, prima di lavarsi','Premere il nastro sulla zona perianale e applicarlo sul vetrino.'],
+['Tampone faringeo','tampone della gola',8,'T','A digiuno, prima di lavarsi i denti e senza collutori','Prima di iniziare antibiotici.'],
+['Tampone vaginale e cervicale','',8,'T','Su appuntamento, lontano dal ciclo mestruale','Nessun rapporto per alcuni giorni (di norma 3-4), nessuna lavanda o terapia locale o sistemica.'],
+['Tampone uretrale','',8,'T','Non urinare nelle 3 ore precedenti','Su prenotazione.'],
+['Spermiocoltura','',8,'X','Raccolta in contenitore sterile dopo igiene','Astinenza sessuale di circa 3-5 giorni. Consegnare entro 1 ora, a temperatura corporea.'],
+['Spermiogramma','liquido seminale',8,'X','Raccolta in contenitore sterile','Astinenza sessuale di circa 3-5 giorni. Consegnare entro 1 ora, a temperatura corporea.'],
+['Emocoltura','',8,'E','Prima di iniziare antibiotici, con accurata disinfezione della cute','Di norma più prelievi da sedi diverse. Non mettere i flaconi in frigorifero.'],
+['Coltura dell’espettorato','espettorato',8,'Q','Al mattino, dopo aver sciacquato la bocca con acqua','Deve essere espettorato profondo, non saliva.'],
+['Digossina','digossinemia',9,'R','Almeno 6-8 ore dopo l’ultima dose','Seguire l’indicazione del medico sull’orario.'],
+['Litio','litiemia',9,'R','Circa 12 ore dopo l’ultima dose, prima della successiva','Non usare provette con litio-eparina.'],
+['Acido valproico','',9,'R','Prima della dose successiva (valle)',''],
+['Carbamazepina','',9,'R','Prima della dose successiva (valle)',''],
+['Ciclosporina','',9,'V','Prima della dose successiva (valle)','Sangue intero con EDTA.'],
+['Tacrolimus','FK506',9,'V','Prima della dose successiva (valle)','Sangue intero con EDTA.'],
+['Cariotipo costituzionale','cariotipo su sangue periferico',10,'H','n','Di norma almeno 5 ml di sangue intero. Non refrigerare né congelare: temperatura ambiente e consegna entro 12-24 ore. Indicare il quesito clinico; serve il consenso informato.'],
+['Analisi del DNA','genetica molecolare, estrazione DNA',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. Spesso serve il consenso informato.'],
+['Fibrosi cistica','CFTR, mutazioni CFTR',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. Serve il consenso informato.'],
+['Fattore V Leiden e protrombina G20210A','trombofilia genetica',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. '],
+['MTHFR','mutazioni MTHFR',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. '],
+['Emocromatosi','gene HFE',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. '],
+['Talassemie ed emoglobinopatie','analisi molecolare, globine',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. '],
+['HLA-B27','',10,'V','n','Sangue intero: seguire le istruzioni del laboratorio di riferimento per conservazione e invio.'],
+['HLA DQ2/DQ8','celiachia genetica',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. '],
+['Microdelezioni del cromosoma Y','infertilità maschile, AZF',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. Serve il consenso informato.'],
+['X fragile','FMR1',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. Serve il consenso informato.'],
+['BRCA1 e BRCA2','tumore mammella e ovaio, genetica',10,'V','n','Sangue per DNA: non centrifugare né congelare, mescolare per inversione, temperatura ambiente e consegna entro 24 ore. Servono consulenza genetica e consenso informato.'],
+['JAK2 V617F','mutazione JAK2',10,'V','n','Sangue intero con EDTA: seguire le istruzioni del laboratorio di riferimento.'],
+['BCR-ABL','t(9;22), cromosoma Philadelphia',10,'V','n','Sangue periferico con EDTA: volume e invio secondo il centro di riferimento.'],
+['PCR HPV','papillomavirus, HPV DNA',10,'T','Su appuntamento, lontano dal ciclo mestruale','Terreno o tampone dedicato forniti dal laboratorio. Nessun rapporto, lavanda o ovulo nei giorni precedenti.'],
+['PCR Chlamydia e gonococco','Chlamydia trachomatis, Neisseria gonorrhoeae',10,'T','Tampone (uretrale, vaginale o cervicale) oppure primo getto di urina','Per le urine: primo getto, ad almeno 1-2 ore dall’ultima minzione, nel contenitore del kit.'],
+['PCR SARS-CoV-2 e virus respiratori','Covid, influenza, VRS, tampone nasofaringeo',10,'T','Tampone nasofaringeo (o secondo il kit in uso)','Usare il terreno di trasporto virale indicato dal laboratorio.'],
+['HBV-DNA','carica virale epatite B',10,'V','n','Plasma: centrifugare e conservare a +4 °C; congelare se non eseguito entro 72 ore (o secondo la procedura interna).'],
+['HCV-RNA','carica virale epatite C',10,'V','n','Plasma: centrifugare e conservare a +4 °C; per il congelamento seguire la procedura interna.'],
+['HIV-RNA','carica virale HIV',10,'V','n','Plasma: centrifugare e conservare a +4 °C; congelare se non eseguito entro 24 ore.'],
+['Test prenatale non invasivo','NIPT, DNA fetale',10,'Z','n','Seguire le istruzioni del kit del laboratorio di riferimento.'],
+['Selenio','',11,'B','n','Non confondere con la provetta azzurra del PT (citrato). Usare materiale adatto agli elementi in traccia ed evitare contaminazioni.'],
+['Zinco','',11,'B','n','Di norma la stessa provetta del selenio: confermare con il laboratorio di riferimento.'],
+['Rame','',11,'B','n','Di norma la stessa provetta del selenio: confermare con il laboratorio di riferimento.'],
+['Piombo','piombemia',11,'H','n','Sangue intero. Alcuni laboratori usano EDTA o provette per elementi in traccia: confermare.']
+];
+function esList(q,s){q=String(q||'').trim().toLowerCase();var tk=q?q.split(/\s+/):[];return ESAMI.filter(function(e){if(!(s===''||String(e[2])===String(s)))return false;var h=(e[0]+' '+e[1]).toLowerCase(),w=h.split(/[\s,\/()\-’]+/);return tk.every(function(t){return w.some(function(x){return x.indexOf(t)===0})||(t.length>=4&&h.indexOf(t)>-1)})})}
+function esCard(e){return'<div class="row info"><b>'+esc(e[0])+'</b><small>'+esc(ESSE[e[2]])+(e[1]?' · '+esc(e[1]):'')+'</small><br><strong>Provetta o contenitore:</strong> '+esc(ESTB[e[3]]||e[3])+'<br><strong>Preparazione e prelievo:</strong> '+esc(ESPR[e[4]]||e[4])+(e[5]?'<br><strong>Attenzione:</strong> '+esc(e[5]):'')+'</div>'}
+function esResHtml(q,s){var r=esList(q,s||'');return r.length?r.slice(0,25).map(esCard).join('')+(r.length>25?'<p class="empty">Altri '+(r.length-25)+' esami: scrivi più lettere per restringere.</p>':''):'<p class="empty">Nessun esame trovato. Prova con un altro nome o un’abbreviazione.</p>'}
+function esRes(){var el=document.getElementById('es_res'),q=document.getElementById('es_q'),s=document.getElementById('es_s');if(el&&q&&s)el.innerHTML=esResHtml(q.value,s.value)}
+function esHtml(){return'<button class="ed" data-a="esback" type="button" style="margin:0 0 12px">‹ Torna al riepilogo</button><label for="es_q">Cerca un esame per nome o abbreviazione</label><input type="text" id="es_q" list="es_dl" placeholder="Per esempio: glicemia, PT, TSH" autocomplete="off"><datalist id="es_dl">'+ESAMI.map(function(e){return'<option value="'+esc(e[0])+'">'}).join('')+'</datalist><label for="es_s">Settore</label><select id="es_s"><option value="">Tutti i settori</option>'+ESSE.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join('')+'</select><p class="sub">Indicazioni generali tratte da procedure pubbliche di laboratori italiani. Colori dei tappi, tempi e preparazione possono cambiare tra produttori e laboratori: in caso di dubbio vale il manuale prelievi del tuo laboratorio.</p><div id="es_res">'+esResHtml('','')+'</div>'}
+function esAct(a){if(a==='esgo'){view='esami';render();return true}if(a==='esback'){view='riepilogo';render();return true}return false}
+function esBtn(){return'<button class="ed" data-a="esgo" type="button" style="margin:0 0 12px">🧪 Guida esami e provette</button>'}
+document.addEventListener('input',function(e){if(e.target&&(e.target.id==='es_q'||e.target.id==='es_s'))esRes()});
+document.addEventListener('change',function(e){if(e.target&&(e.target.id==='es_q'||e.target.id==='es_s'))esRes()});
 function oAct(a,b){
-if(veqAct(a,b))return true;if(a==='vqcsv'){veqCsv();return true}
+if(veqAct(a,b)||esAct(a))return true;if(a==='vqcsv'){veqCsv();return true}
 if(a==='bord'){view='ordini';OD=null;render();return true}
 if(a==='ordback'){view='bolle';OD=null;render();return true}
 if(a==='onew'){OD=newO();render();return true}
@@ -962,7 +1060,7 @@ if(a==='rosegna'){var ks=roKeys().filter(function(k){return roQ(k)>0});if(!ks.le
 return false}
 document.getElementById('v').addEventListener('change',function(e){var i=e.target;if(i.id==='o_fil'){OFIL=i.value;render()}else if(i.id==='o_days'){S.ordDays=Math.max(1,parseInt(i.value,10)||7);save();render()}else if(/^o_n\d+$/.test(i.id)){var en=nomeKit(i.value);if(en){i.value=en.nome;var c=document.getElementById('o_c'+i.id.slice(3));if(c&&!c.value)c.value=en.codice||en.codiceBarre||''}}});
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 08/11/2026 - y';
+var vr=document.getElementById('ver'),V='Versione 09/11/2026 - z3';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
