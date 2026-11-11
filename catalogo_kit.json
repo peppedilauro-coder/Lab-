@@ -47,7 +47,7 @@
   {"gtin":"","ref":"310810","nome":"LIAISON Cortisol","strumento":"LIAISON XL","tipologia":"Reagente"},
   {"gtin":"","ref":"313250","nome":"LIAISON Anti-HCV","strumento":"LIAISON XL","tipologia":"Reagente"},
   {"gtin":"","ref":"30450","nome":"VIDAS B•R•A•H•M•S PCT","strumento":"VIDAS","tipologia":"Reagente"},
-  {"gtin":"","ref":"415386","nome":"VIDAS High sensitive Troponin I","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026433147","ref":"415386","nome":"VIDAS High sensitive Troponin I","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"","ref":"30400","nome":"VIDAS TSH","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"","ref":"30402","nome":"VIDAS FT4","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"","ref":"00018250040","nome":"Albumina","strumento":"ILab Taurus","tipologia":"Reagente"},
@@ -119,5 +119,14 @@
   {"gtin":"03610520495728","ref":"TCS0803","nome":"Optical Flat 8-Cap Strips for 0.2 ml tube strips/plates","strumento":"CFX","tipologia":"Consumabili"},
   {"gtin":"03610520495780","ref":"TLS0851","nome":"Low-Profile PCR Tubes 8-tube strips, white","strumento":"CFX","tipologia":"Consumabili"},
   {"gtin":"","ref":"HCVD/ISEX/025","nome":"Hepatitis C Virus (HCV) Diagnostic GeneProof®","strumento":"ROTOR GENE","tipologia":"Reagente"},
-  {"gtin":"03573026415686","ref":"414320","nome":"VIDAS® TES2","strumento":"VIDAS","tipologia":"Reagente"}
+  {"gtin":"03573026415686","ref":"414320","nome":"VIDAS® TES2","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"","ref":"SD10320Z","nome":"Bacterial Vaginosis plus Assay","strumento":"CFX","tipologia":"Reagente"},
+  {"gtin":"03573026632465","ref":"424480","nome":"VIDAS® HIV","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026351274","ref":"30308","nome":"VIDAS® HCV","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026065065","ref":"30420","nome":"VIDAS® B2M","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026064556","ref":"30221","nome":"VIDAS® RBG","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026064488","ref":"30214","nome":"VIDAS® RBM","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026065317","ref":"30446","nome":"VIDAS® MYO","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026634902","ref":"424641","nome":"VIDAS® TXMN","strumento":"VIDAS","tipologia":"Reagente"},
+  {"gtin":"03573026064389","ref":"30204","nome":"VIDAS® CMVG","strumento":"VIDAS","tipologia":"Reagente"}
 ]
