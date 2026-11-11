@@ -340,7 +340,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 10/11/2026 - z7</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 11/11/2026 - z8</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -590,8 +590,8 @@ function ym(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)}
 function monthRows(mo,all){return(S.hist||[]).filter(function(x){return x.d.slice(0,7)===mo&&(all||!S.cur||(x.sec||'')===S.cur)}).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0})}
 function refOf(x){var it=S.items[x.k||('|'+x.gtin)];return(it&&it.ref)||''}
 function repHtml(){var mo=F.mo||ym(today()),r=monthRows(mo);
-return'<label for="mo">Mese</label><input type="month" id="mo" value="'+mo+'"><h2>'+r.length+' kit scaricati</h2>'+(r.length?r.map(function(x){return'<div class="row"><b>'+esc(x.name)+'</b><small>Codice articolo '+esc(refOf(x)||'-')+' · GTIN '+esc(x.gtin||'-')+(x.sec?' · '+esc(x.sec):'')+'<br>Lotto '+esc(x.lot)+' · scadenza '+fmt(x.exp)+' · scaricato il '+fmt(x.d)+'</small></div>'}).join(''):'<p class="empty">Nessuno scarico in questo mese.</p>')+'<button class="cta" id="pdf" type="button">Scarica PDF del mese</button>'+(S.cur?'<button class="ed" id="pdfall" type="button" style="margin-top:8px">PDF del mese: tutti i settori</button>':'')+'<p id="st"></p>'}
-function bindRep(){document.getElementById('mo').onchange=function(){F.mo=this.value||ym(today());render()};document.getElementById('pdf').onclick=function(){makePdf(false)};var pa=document.getElementById('pdfall');if(pa)pa.onclick=function(){makePdf(true)};document.getElementById('bkf').onchange=function(e){var f=e.target.files[0];e.target.value='';if(f)readBk(f)}}
+return'<label for="mo">Mese</label><input type="month" id="mo" value="'+mo+'"><h2>'+r.length+' kit scaricati</h2>'+(r.length?r.map(function(x){return'<div class="row"><b>'+esc(x.name)+'</b><small>Codice articolo '+esc(refOf(x)||'-')+' · GTIN '+esc(x.gtin||'-')+(x.sec?' · '+esc(x.sec):'')+'<br>Lotto '+esc(x.lot)+' · scadenza '+fmt(x.exp)+' · scaricato il '+fmt(x.d)+'</small></div>'}).join(''):'<p class="empty">Nessuno scarico in questo mese.</p>')+'<button class="cta" id="pdf" type="button">Scarica PDF del mese</button>'+(S.cur?'<button class="ed" id="pdfall" type="button" style="margin-top:8px">PDF del mese: tutti i settori</button>':'')+'<button class="ed" id="pdfsc" type="button" style="margin-top:8px">Scheda mensile (modello del laboratorio)</button><p id="st"></p>'}
+function bindRep(){var ps=document.getElementById('pdfsc');if(ps)ps.onclick=function(){makeScheda()};document.getElementById('mo').onchange=function(){F.mo=this.value||ym(today());render()};document.getElementById('pdf').onclick=function(){makePdf(false)};var pa=document.getElementById('pdfall');if(pa)pa.onclick=function(){makePdf(true)};document.getElementById('bkf').onchange=function(e){var f=e.target.files[0];e.target.value='';if(f)readBk(f)}}
 async function makePdf(all){all=all===true;var st=document.getElementById('st'),mo=F.mo||ym(today()),r=monthRows(mo,all);
 if(!r.length){st.textContent='Nessuno scarico da stampare in questo mese.';return}
 if(!window.jspdf){st.textContent='Generatore PDF non caricato: riprova tra poco.';return}
@@ -611,6 +611,26 @@ doc.setFontSize(9);doc.text(nm,cols[0][1],y);doc.text(fit(refOf(x)||'-',cols[1][
 y+=h;doc.setDrawColor(200);doc.line(M,y-3,285,y-3)});
 var n=doc.getNumberOfPages();for(var i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.text('Pagina '+i+' di '+n,285,205,{align:'right'})}
 try{await dl.save({filename:'riepilogo-kit-'+mo+'.pdf',data:doc.output('blob')});st.textContent='PDF salvato: aprilo e stampalo.'}catch(e){st.textContent=e&&e.code==='declined'?'Salvataggio annullato.':'Non sono riuscito a salvare il PDF.'}}
+async function makeScheda(){var st=document.getElementById('st'),mo=F.mo||ym(today()),r=monthRows(mo,false);
+if(!r.length){st.textContent='Nessuno scarico da stampare in questo mese.';return}
+if(!window.jspdf){st.textContent='Generatore PDF non caricato: riprova tra poco.';return}
+var dl=null;try{dl=window.claude?await window.claude.use('downloads'):null}catch(e){}
+if(!dl){dl={save:async function(o){var u=URL.createObjectURL(o.data),a=document.createElement('a');a.href=u;a.download=o.filename;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}}}
+var g={},rows=[];r.forEach(function(x){var k=[refOf(x)||x.gtin||x.name,x.lot,x.exp,x.d,x.sec||''].join('|');if(g[k])g[k].q++;else{g[k]={x:x,q:1};rows.push(g[k])}});
+var MESI=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'],M=12,y=0,tot=r.length,
+cols=[['Codice articolo',12,36],['Nome prodotto',50,110],['Lotto',162,34],['Scadenza',198,26],['Data di scarico',226,32],['Quantità',260,22]],
+doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+function fit(s,w){return doc.splitTextToSize(String(s),w-2)[0]||''}
+function head(){doc.setFont('helvetica','bold');doc.setFontSize(9);cols.forEach(function(c){doc.text(c[0],c[1],y)});y+=2;doc.setDrawColor(0);doc.line(M,y,285,y);y+=5;doc.setFont('helvetica','normal')}
+doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text('Scheda mensile kit scaricati',M,16);
+doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(MESI[+mo.slice(5)-1]+' '+mo.slice(0,4)+(S.cur?'  -  Settore '+S.cur:'  -  Tutti i settori')+'  -  '+tot+' kit scaricati',M,22);
+y=32;head();
+rows.forEach(function(e){var x=e.x,nm=doc.splitTextToSize(x.name,cols[1][2]-2),h=nm.length*4.2+2.5;
+if(y+h>196){doc.addPage();y=16;head()}
+doc.setFontSize(9);doc.text(fit(refOf(x)||'-',cols[0][2]),cols[0][1],y);doc.text(nm,cols[1][1],y);doc.text(fit(x.lot,cols[2][2]),cols[2][1],y);doc.text(fmt(x.exp),cols[3][1],y);doc.text(fmt(x.d),cols[4][1],y);doc.text(String(e.q),cols[5][1],y);
+y+=h;doc.setDrawColor(200);doc.line(M,y-3,285,y-3)});
+var n=doc.getNumberOfPages();for(var i=1;i<=n;i++){doc.setPage(i);doc.setFontSize(8);doc.text('Pagina '+i+' di '+n,285,205,{align:'right'})}
+try{await dl.save({filename:'scheda-mensile-kit-'+mo+'.pdf',data:doc.output('blob')});st.textContent='Scheda salvata: aprila e stampala.'}catch(e){st.textContent=e&&e.code==='declined'?'Salvataggio annullato.':'Non sono riuscito a salvare il PDF.'}}
 function firstLot(it){for(var i=0;i<it.lots.length;i++)if(it.lots[i].qty>0&&days(it.lots[i].exp)>=0)return i;return -1}
 function use(t){var o=gs1(t),g=o['01']||String(t).replace(/[\x00-\x1f]/g,''),lot=o['10']||'',c='warn',ti,de=[],ck=Object.keys(S.items).filter(function(k){var q=S.items[k];return q.gtin===g&&(!S.cur||q.sec===S.cur)}),it=ck.length===1?S.items[ck[0]]:null;
 if(ck.length>1){ti='Prodotto presente in più settori';de.push('Scegli il tuo settore in alto e scansiona di nuovo.')}
@@ -1344,7 +1364,7 @@ if(a==='rosegna'){var ks=roKeys().filter(function(k){return roQ(k)>0});if(!ks.le
 return false}
 document.getElementById('v').addEventListener('change',function(e){var i=e.target;if(i.id==='o_fil'){OFIL=i.value;render()}else if(i.id==='o_days'){S.ordDays=Math.max(1,parseInt(i.value,10)||7);save();render()}else if(/^o_n\d+$/.test(i.id)){var en=nomeKit(i.value);if(en){i.value=en.nome;var c=document.getElementById('o_c'+i.id.slice(3));if(c&&!c.value)c.value=en.codice||en.codiceBarre||''}}});
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 10/11/2026 - z7';
+var vr=document.getElementById('ver'),V='Versione 11/11/2026 - z8';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
