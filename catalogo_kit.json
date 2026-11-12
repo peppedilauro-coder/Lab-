@@ -131,5 +131,6 @@
   {"gtin":"03573026064389","ref":"30204","nome":"VIDAS® CMVG","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"08426950062295","ref":"0009757600","nome":"DILUENTE","strumento":"CELL DYN 3700","tipologia":"Reagente"},
   {"gtin":"","ref":"CD2042","nome":"DETERGENTE","strumento":"CELL DYN 3700","tipologia":"Reagente"},
-  {"gtin":"","ref":"03K111TA3.2106","nome":"CBC-3K","strumento":"CELL DYN 3700","tipologia":"Controllo"}
+  {"gtin":"","ref":"03K111TA3.2106","nome":"CBC-3K","strumento":"CELL DYN 3700","tipologia":"Controllo"},
+  {"gtin":"08426950479772","ref":"00029403501","nome":"CTS FILTER","strumento":"ACL TOP 500","tipologia":"Consumabili"}
 ]
