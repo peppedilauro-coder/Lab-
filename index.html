@@ -340,7 +340,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 16/11/2026 - z20</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 16/11/2026 - z21</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -418,7 +418,8 @@ var SECT0=['Batteriologia','Chimica clinica','Radioimmunologia','Ematologia','Co
 function initReps(){S.bolle=Array.isArray(S.bolle)?S.bolle:[];S.cons=Array.isArray(S.cons)?S.cons:[];S.reps=Array.isArray(S.reps)?S.reps:SECT0.slice();SECT=S.reps}
 initReps();
 S.cur=S.cur||'';Object.keys(S.items).forEach(function(k){if(k.indexOf('|')<0){var q=S.items[k];q.sec=q.sec||'';S.items['|'+k]=q;delete S.items[k]}});
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function saveRaw(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){saveRaw();if(typeof syKick==='function')syKick()}
 function esc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function pad(n){return(n<10?'0':'')+n}
 function today(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),d.getDate())}
@@ -434,7 +435,7 @@ var fx={'01':14,'02':14,'11':6,'13':6,'15':6,'17':6},i=0;
 while(i<s.length){if(s[i]==='\x1d'){i++;continue}var ai=s.substr(i,2);i+=2;if(ai==='24'){ai+=s.charAt(i);i+=1}
 if(fx[ai]){if(s.length-i<fx[ai])return{};o[ai]=s.substr(i,fx[ai]);i+=fx[ai]}else{var j=s.indexOf('\x1d',i);if(j<0)j=s.length;o[ai]=s.substring(i,j);i=j}}
 return o}
-function alerts(){var a=[];var nb=Object.keys(S.items).length;if(nb&&(!S.bk||-days(S.bk)>30))a.push({c:'info',o:4,t:'Fai un backup dei dati',d:'Ultimo backup: '+(S.bk?fmt(S.bk):'mai')+'. Dalla scheda Riepilogo puoi salvare un file.'});
+function alerts(){var a=[];var nb=Object.keys(S.items).length;if(nb&&(!S.bk||-days(S.bk)>30))a.push({c:'info',o:4,t:'Fai un backup dei dati',d:'Ultimo backup: '+(S.bk?fmt(S.bk):'mai')+'. Dalla scheda Riepilogo puoi salvare un file.'});if(typeof SY!=='undefined'&&SY.cfg){if(SY.choice)a.push({c:'warn',o:3,t:'Condivisione: scegli quali dati usare',d:'Apri Riepilogo e scegli se usare i dati condivisi o quelli di questo telefono.'});else if(SY.err)a.push({c:'info',o:4,t:'Condivisione online ferma',d:SY.err+' Le modifiche restano sul telefono.'})}
 Object.keys(S.items).forEach(function(k){var it=S.items[k];if(S.cur&&it.sec!==S.cur)return;var n0=a.length;var NM=it.name+(it.sec&&!S.cur?' ('+it.sec+')':'');
 it.lots.forEach(function(l){var d=days(l.exp);
 if(d<0)a.push({c:'bad',o:0,t:NM+' scaduto',d:'Lotto '+l.lot+' · '+l.qty+' pz · scaduto il '+fmt(l.exp)});
@@ -512,15 +513,16 @@ function pselUpd(){var n=pselN(),t=pKeys().length,bt=document.getElementById('pd
 function pBar(){var ks=pKeys(),h='';if(PMSG){h+='<div class="row info"><b>'+esc(PMSG)+'</b></div>';PMSG=''}if(!ks.length)return h;if(!PSM)return h+'<button class="ed" data-a="psm" type="button" style="margin:8px 0">Seleziona più prodotti</button>';var vk={};ks.forEach(function(k){vk[k]=1});Object.keys(PSEL).forEach(function(k){if(!vk[k])delete PSEL[k]});var n=Object.keys(PSEL).length;return h+'<div class="row warn"><small>Spunta i prodotti da eliminare con tutti i loro lotti. Lo storico degli scarichi resta.</small></div><div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0"><button class="ed" id="pallb" data-a="psall" type="button" style="margin:0">'+(n===ks.length?'Deseleziona tutti':'Seleziona tutti')+'</button><button class="ed'+(PDELM?' bad':'')+'" id="pdelsel" data-a="pdelsel" type="button" style="margin:0"'+(n?'':' disabled')+'>'+(PDELM?'Conferma: elimina '+n+(n===1?' prodotto':' prodotti'):'Elimina selezionati ('+n+')')+'</button><button class="ed" id="pno" data-a="pno" type="button" style="margin:0"'+(PDELM?'':' hidden')+'>Annulla</button><button class="ed" data-a="pfine" type="button" style="margin:0">Fine</button></div>'}
 function editHtml(k){var it=S.items[k];return'<div class="prod"><b>Modifica prodotto</b><label for="en">Nome</label><input type="text" id="en" value="'+esc(it.name)+'"><label for="er">Codice articolo (REF)</label><input type="text" id="er" value="'+esc(it.ref||'')+'"><label for="em">Soglia minima</label><input type="number" id="em" min="0" value="'+(it.min||0)+'"><label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="ecal"'+(it.cal?' checked':'')+' style="width:auto"> Richiede calibrazione al cambio lotto</label>'+it.lots.map(function(l,i){return'<div class="grid"><div><label>Lotto</label><input type="text" id="el'+i+'" value="'+esc(l.lot)+'"></div><div><label>Scadenza</label><input type="date" id="ee'+i+'" value="'+esc(l.exp)+'"'+(l.exp?'':' disabled')+'><label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:400"><input type="checkbox" id="ens'+i+'"'+(l.exp?'':' checked')+' style="width:auto" onchange="document.getElementById(\'ee'+i+'\').disabled=this.checked"> Senza scadenza</label></div><div><label>Quantità</label><input type="number" id="eq'+i+'" min="0" value="'+l.qty+'"></div><div><label>&nbsp;</label><button class="ed" data-a="edl" data-i="'+i+'" style="margin:0">Elimina lotto</button></div></div>'}).join('')+'<button class="cta" data-a="esv" type="button">Salva modifiche</button><button class="ed" data-a="eca" type="button">Annulla</button> <button class="ed bad" data-a="edp" type="button">'+(DP?'Conferma: elimina davvero':'Elimina prodotto')+'</button></div>'}
 function applyEdit(it){var n=document.getElementById('en').value.trim();if(n)it.name=n;var er=document.getElementById('er');if(er){var nr=er.value.trim();if(nr!==(it.ref||'')){it.ref=nr;it.rfix=true;if(it.gtin){S.gmap=S.gmap||{};var de2=nr?cercaKit(nr,true):null;if(de2)S.gmap[nk(it.gtin)]=de2.codice||de2.codiceBarre;else delete S.gmap[nk(it.gtin)]}}}it.min=parseInt(document.getElementById('em').value,10)||0;it.cal=document.getElementById('ecal').checked;if(!it.cal)it.calPending=undefined;it.lots.forEach(function(l,i){var lt=document.getElementById('el'+i),ex=document.getElementById('ee'+i),q=document.getElementById('eq'+i);if(!lt)return;if(lt.value.trim())l.lot=lt.value.trim();var nsx=document.getElementById('ens'+i);if(nsx&&nsx.checked)l.exp='';else if(ex.value)l.exp=ex.value;var v=parseInt(q.value,10);if(v>=0)l.qty=v})}
-function undoLast(){var x=S.hist[S.hist.length-1];if(!x)return null;var it=S.items[x.k||('|'+x.gtin)];if(it){var l=it.lots.filter(function(z){return z.lot===x.lot})[0];if(l)l.qty+=1;else it.lots.push({lot:x.lot,exp:x.exp,qty:1});it.lots.sort(function(p,q){return eo(p.exp)<eo(q.exp)?-1:1});if(x.pu!==undefined)it.used=x.pu;if(x.pc!==undefined)it.calPending=x.pc||undefined}if(x.lg&&S.log.length)S.log.pop();S.hist.pop();save();return x}
-function undoBtn(){var x=S.hist[S.hist.length-1];return x?'<button class="ed" data-a="undo" type="button">Annulla ultimo scarico: '+esc(x.name)+', lotto '+esc(x.lot)+'</button>':''}
+function undoMine(){for(var i=S.hist.length-1;i>=0;i--){var x=S.hist[i];if(!SY.cfg||!x.dv||x.dv===DEVID)return i}return -1}
+function undoLast(){var ui=undoMine(),x=S.hist[ui];if(!x)return null;var it=S.items[x.k||('|'+x.gtin)];if(it){var l=it.lots.filter(function(z){return z.lot===x.lot})[0];if(l)l.qty+=1;else it.lots.push({lot:x.lot,exp:x.exp,qty:1});it.lots.sort(function(p,q){return eo(p.exp)<eo(q.exp)?-1:1});if(x.pu!==undefined)it.used=x.pu;if(x.pc!==undefined)it.calPending=x.pc||undefined}if(x.lg&&S.log.length){var lj=-1;for(var lq=S.log.length-1;lq>=0;lq--){var ly=S.log[lq];if(ly.k==='uso'&&ly.name===x.name&&ly.to===x.lot){lj=lq;break}}if(lj<0)lj=S.log.length-1;S.log.splice(lj,1)}S.hist.splice(ui,1);save();return x}
+function undoBtn(){var x=S.hist[undoMine()];return x?'<button class="ed" data-a="undo" type="button">Annulla ultimo scarico: '+esc(x.name)+', lotto '+esc(x.lot)+'</button>':''}
 function roItems(){return Object.keys(S.items).filter(function(k){var it=S.items[k],e=est(k);return(!S.cur||it.sec===S.cur)&&((it.min>0&&total(it)<=it.min)||(e&&total(it)>0&&e.d<=14))}).map(function(k){var it=S.items[k];return{n:it.name,s:it.sec,r:it.ref||'',g:it.gtin||'',t:total(it),m:it.min,e:est(k)}})}
 function roText(L){var d=today();return'Riordino kit - '+pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()+(S.cur?' - '+S.cur:'')+'\n'+L.map(function(x){return'- '+x.n+(x.s&&!S.cur?' ('+x.s+')':'')+(x.r?' - cod. '+x.r:'')+(x.g?' - GTIN '+x.g:'')+' - in magazzino: '+x.t+' (soglia '+x.m+')'+(x.e?' - consumo circa '+x.e.m+'/mese':'')}).join('\n')}
-function bkHtml(){var gm=Object.keys(S.gmap||{}).length,cb=GX?catBuild():null,h='<h2>Associazioni GTIN apprese</h2><p class="sub">'+gm+' codici a barre associati al catalogo in automatico.</p>'+((gm||S.cons.length||DATABASE_KIT.length)?(gm?'<button class="ed" data-a="gmclr" type="button" style="margin-top:0">'+(GMC?'Conferma: azzera le associazioni':'Azzera associazioni')+'</button> ':'')+'<button class="ed" data-a="gmx" type="button" style="margin-top:0">'+(GX?'Nascondi elenco':'Catalogo aggiornato da incollare')+'</button>'+(GX?'<p class="sub" style="margin-top:8px">'+(cb.ch?cb.ch+' novità rispetto al catalogo caricato (kit nuovi, GTIN aggiunti o codici corretti). Tocca “Copia elenco”, apri catalogo_kit.json su GitHub, tocca la matita, seleziona tutto, incolla e fai Commit.':'Il catalogo contiene già tutto quello che hai scansionato: non serve incollare nulla.')+' Kit totali: '+cb.n+'.</p><textarea id="gmt" readonly rows="10" style="width:100%;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--ink);font:inherit">'+esc(cb.text)+'</textarea><button class="ed" data-a="gmcopy" type="button">Copia elenco</button><p id="gmst" class="sub"></p>'+ghHtml():''):'')+'<h2>Backup dei dati</h2><p class="sub">Ultimo backup: '+(S.bk?fmt(S.bk):'mai')+'. I dati (kit, storico e bolle) sono salvati solo su questo telefono: fai un backup prima di cambiare telefono o cancellare i dati di Safari.</p><button class="cta" data-a="bk" type="button" style="margin-top:0">Salva backup</button><label class="scan" style="margin:10px 0 0"><input type="file" accept=".json,application/json" id="bkf">Ripristina da backup</label><p id="bkst" class="sub"></p>';if(BK)h+='<div class="row warn"><b>Ripristinare questo backup?</b><small>Sostituisce tutti i dati attuali (kit, storico, bolle, avvisi). Contiene '+Object.keys(BK.items).length+' prodotti, '+(BK.hist||[]).length+' scarichi e '+(BK.bolle||[]).length+' bolle.</small></div><button class="cta" data-a="bkok" type="button">Sostituisci i dati attuali</button><button class="ed" data-a="bkno" type="button">Annulla</button>';return h}
+function bkHtml(){var gm=Object.keys(S.gmap||{}).length,cb=GX?catBuild():null,h='<h2>Associazioni GTIN apprese</h2><p class="sub">'+gm+' codici a barre associati al catalogo in automatico.</p>'+((gm||S.cons.length||DATABASE_KIT.length)?(gm?'<button class="ed" data-a="gmclr" type="button" style="margin-top:0">'+(GMC?'Conferma: azzera le associazioni':'Azzera associazioni')+'</button> ':'')+'<button class="ed" data-a="gmx" type="button" style="margin-top:0">'+(GX?'Nascondi elenco':'Catalogo aggiornato da incollare')+'</button>'+(GX?'<p class="sub" style="margin-top:8px">'+(cb.ch?cb.ch+' novità rispetto al catalogo caricato (kit nuovi, GTIN aggiunti o codici corretti). Tocca “Copia elenco”, apri catalogo_kit.json su GitHub, tocca la matita, seleziona tutto, incolla e fai Commit.':'Il catalogo contiene già tutto quello che hai scansionato: non serve incollare nulla.')+' Kit totali: '+cb.n+'.</p><textarea id="gmt" readonly rows="10" style="width:100%;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--ink);font:inherit">'+esc(cb.text)+'</textarea><button class="ed" data-a="gmcopy" type="button">Copia elenco</button><p id="gmst" class="sub"></p>'+ghHtml():''):'')+''+syHtml()+'<h2>Backup dei dati</h2><p class="sub">Ultimo backup: '+(S.bk?fmt(S.bk):'mai')+'. I dati (kit, storico e bolle) sono salvati solo su questo telefono: fai un backup prima di cambiare telefono o cancellare i dati di Safari.</p><button class="cta" data-a="bk" type="button" style="margin-top:0">Salva backup</button><label class="scan" style="margin:10px 0 0"><input type="file" accept=".json,application/json" id="bkf">Ripristina da backup</label><p id="bkst" class="sub"></p>';if(BK)h+='<div class="row warn"><b>Ripristinare questo backup?</b><small>Sostituisce tutti i dati attuali (kit, storico, bolle, avvisi). Contiene '+Object.keys(BK.items).length+' prodotti, '+(BK.hist||[]).length+' scarichi e '+(BK.bolle||[]).length+' bolle.</small></div><button class="cta" data-a="bkok" type="button">Sostituisci i dati attuali</button><button class="ed" data-a="bkno" type="button">Annulla</button>';return h}
 function readBk(f){var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result),s=o&&o.S;if(!s||typeof s.items!=='object')throw 0;BK=s;render()}catch(e){var m=document.getElementById('bkst');if(m)m.textContent='File non valido: non è un backup di Magazzino kit.'}};r.readAsText(f)}
 async function dlSave(name,blob){var dl=null;try{dl=window.claude?await window.claude.use('downloads'):null}catch(e){}if(dl)return dl.save({filename:name,data:blob});var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
 async function doBk(){var d=today();S.bk=ym(d)+'-'+pad(d.getDate());save();var b=new Blob([JSON.stringify({app:'magazzino-kit',v:1,date:S.bk,S:S})],{type:'application/json'}),ok=true;try{await dlSave('backup-magazzino-kit-'+S.bk+'.json',b)}catch(e){ok=false}render();var m=document.getElementById('bkst');if(m)m.textContent=ok?'Backup salvato: conservalo in un posto sicuro, ad esempio nell’app File.':'Non sono riuscito a salvare il backup.'}
-function act(b){var a=b.dataset.a,it=EK?S.items[EK]:null;
+function act(b){var a=b.dataset.a,it=EK?S.items[EK]:null;if(a.indexOf('sy')===0&&syAct(a))return;
 if(bAct(a,b))return;
 if(a==='help'){openGuide(GM[b.dataset.s]||'primi');return}
 if(a==='gclose'){view=PV||'avvisi';render();return}
@@ -542,7 +544,7 @@ if(a==='romail'){makeOrderPdf('mail');return}
 if(a==='nm'){F.n=(F.cand||[])[+b.dataset.i]||F.n;render();return}
 if(a==='bk'){doBk();return}
 if(a==='bkno'){BK=null;render();return}
-if(a==='bkok'){S=BK;BK=null;S.hist=S.hist||[];S.log=S.log||[];S.items=S.items||{};S.cur=S.cur||'';initReps();Object.keys(S.items).forEach(function(k){if(k.indexOf('|')<0){var q=S.items[k];q.sec=q.sec||'';S.items['|'+k]=q;delete S.items[k]}});save();render();return}
+if(a==='bkok'){S=BK;BK=null;syAfterRestore();S.hist=S.hist||[];S.log=S.log||[];S.items=S.items||{};S.cur=S.cur||'';initReps();Object.keys(S.items).forEach(function(k){if(k.indexOf('|')<0){var q=S.items[k];q.sec=q.sec||'';S.items['|'+k]=q;delete S.items[k]}});save();render();return}
 if(!it)return;
 if(a==='esv'){applyEdit(it);it.lots=it.lots.filter(function(l){return l.qty>0});it.lots.sort(function(p,q){return eo(p.exp)<eo(q.exp)?-1:1});save();EK=null;DP=false;render();return}
 if(a==='edl'){applyEdit(it);it.lots.splice(+b.dataset.i,1);save();render();return}
@@ -654,7 +656,7 @@ else if(!it){ti='Prodotto non registrato';de.push('Questo codice non è nel maga
 else{var l=it.lots.filter(function(x){return x.lot===lot})[0];
 if(!l){ti=it.name+': lotto '+lot+' non registrato';de.push('Registralo da “Nuovo kit” prima di scaricarlo.')}
 else{var fi=firstLot(it),fl=fi>=0?it.lots[fi]:null,ex=days(l.exp)<0;
-l.qty-=1;var left=l.qty;if(left<=0)it.lots.splice(it.lots.indexOf(l),1);var sw=it.used&&it.used!==lot?it.used:null;if(sw){var n=today();S.log.push({k:'uso',date:n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate()),name:it.name,sec:it.sec||'',from:sw,to:lot})}var nn=today();S.hist=S.hist||[];S.hist.push({d:nn.getFullYear()+'-'+pad(nn.getMonth()+1)+'-'+pad(nn.getDate()),name:it.name,gtin:it.gtin||'',k:ck[0],sec:it.sec||'',lot:lot,exp:l.exp,pu:it.used||'',lg:!!sw,pc:it.calPending||'',op:S.op||''});if(sw&&it.cal)it.calPending=lot;it.used=lot;save();
+l.qty-=1;var left=l.qty;if(left<=0)it.lots.splice(it.lots.indexOf(l),1);var sw=it.used&&it.used!==lot?it.used:null;if(sw){var n=today();S.log.push({k:'uso',date:n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate()),name:it.name,sec:it.sec||'',from:sw,to:lot})}var nn=today();S.hist=S.hist||[];S.hist.push({d:nn.getFullYear()+'-'+pad(nn.getMonth()+1)+'-'+pad(nn.getDate()),name:it.name,gtin:it.gtin||'',k:ck[0],sec:it.sec||'',lot:lot,exp:l.exp,pu:it.used||'',lg:!!sw,pc:it.calPending||'',op:S.op||'',dv:DEVID});if(sw&&it.cal)it.calPending=lot;it.used=lot;save();
 ti=it.name+(it.sec?' ('+it.sec+')':'')+': scaricato 1 pz';c='info';
 if(sw){c='warn';de.push('CAMBIO LOTTO IN USO: da '+sw+' a '+lot+'. Verifica se servono controlli secondo le procedure del laboratorio.')}
 de.push('Lotto '+lot+(left>0?' · restano '+left+' pz':' · lotto esaurito')+' · totale '+total(it)+' pz');
@@ -989,7 +991,7 @@ document.querySelector('nav').onclick=function(e){var b=e.target.closest('button
 document.getElementById('bk').onclick=function(){var p=zbHist.length?zbHist.pop():'avvisi';zbGo=true;view=p;EK=null;BK=null;BMSG='';RM='';BDEL=null;CDEL=null;GMC=false;render();window.scrollTo(0,0)};
 document.getElementById('v').onclick=function(e){var b=e.target.closest('button[data-q]');if(!b)return;
 var it=S.items[b.dataset.k],l=it.lots[+b.dataset.i],dq=+b.dataset.q,dd=isod(today());
-if(dq<0){S.hist=S.hist||[];S.hist.push({d:dd,name:it.name,gtin:it.gtin||'',k:b.dataset.k,sec:it.sec||'',lot:l.lot,exp:l.exp,pu:it.used||'',lg:false,pc:it.calPending||'',op:S.op||'',man:true})}
+if(dq<0){S.hist=S.hist||[];S.hist.push({d:dd,name:it.name,gtin:it.gtin||'',k:b.dataset.k,sec:it.sec||'',lot:l.lot,exp:l.exp,pu:it.used||'',lg:false,pc:it.calPending||'',op:S.op||'',man:true,dv:DEVID})}
 else{var hx=S.hist||[];for(var q=hx.length-1;q>=0;q--){if(hx[q].man&&hx[q].k===b.dataset.k&&hx[q].lot===l.lot&&hx[q].d===dd){hx.splice(q,1);break}}}
 l.qty+=dq;
 if(l.qty<=0)it.lots.splice(+b.dataset.i,1);save();render()};
@@ -1466,8 +1468,133 @@ if(a==='ocsv'){var r=[['Data','Fornitore','Reparto','Tipo','N. ordine','Kit','Co
 if(a==='rosegna'){var ks=roKeys().filter(function(k){return roQ(k)>0});if(!ks.length)return true;OD=newO();OD.forn=FO||'';var rp={};ks.forEach(function(k){rp[S.items[k].sec||'']=1});var rl=Object.keys(rp);if(!OD.rep&&rl.length===1)OD.rep=rl[0];OD.righe=ks.map(function(k){var it=S.items[k];return{n:it.name,c:it.ref||it.gtin||'',qty:roQ(k)}});view='ordini';render();return true}
 return false}
 document.getElementById('v').addEventListener('change',function(e){var i=e.target;if(i.id==='o_fil'){OFIL=i.value;render()}else if(i.id==='o_mail'){S.ordMail=i.value.trim();save()}else if(i.id==='o_days'){S.ordDays=Math.max(1,parseInt(i.value,10)||7);save();render()}else if(/^o_n\d+$/.test(i.id)){var en=nomeKit(i.value);if(en){i.value=en.nome;var c=document.getElementById('o_c'+i.id.slice(3));if(c&&!c.value)c.value=en.codice||en.codiceBarre||''}}});
+/* ===== Condivisione tra telefoni (Firebase, via REST) ===== */
+var SYK='magazzino-kit-fb',SYB='magazzino-kit-fbbase',SYKEYS=['items','hist','log','bolle','cons','ord','veq','nc','reps','gmap','cov','ordDays'];
+var SY={cfg:null,rt:'',email:'',tok:'',exp:0,rev:0,nch:0,ut:null,base:null,busy:false,dirty:false,p:null,timer:null,err:'',off:false,choice:false,changed:false,at:null,msg:''};
+var DEVID=(function(){try{var d=localStorage.getItem('magazzino-kit-dev');if(!d){d=Math.random().toString(36).slice(2,8);localStorage.setItem('magazzino-kit-dev',d)}return d}catch(e){return'x'}})();
+function syLoad(){try{var c=localStorage.getItem(SYK);if(c){var o=JSON.parse(c);SY.cfg=o.cfg||null;SY.rt=o.rt||'';SY.email=o.email||'';SY.rev=o.rev||0;SY.nch=o.nch||0;SY.ut=o.ut||null;SY.choice=!!o.choice}var b=localStorage.getItem(SYB);if(b)SY.base=JSON.parse(b)}catch(e){}}
+function syStore(){try{localStorage.setItem(SYK,JSON.stringify({cfg:SY.cfg,rt:SY.rt,email:SY.email,rev:SY.rev,nch:SY.nch,ut:SY.ut,choice:SY.choice}))}catch(e){}try{if(SY.base)localStorage.setItem(SYB,JSON.stringify(SY.base));else localStorage.removeItem(SYB)}catch(e){}}
+function sst(v){if(v===null||v===undefined||typeof v!=='object')return JSON.stringify(v===undefined?null:v);if(Array.isArray(v))return'['+v.map(sst).join(',')+']';return'{'+Object.keys(v).filter(function(k){return v[k]!==undefined}).sort().map(function(k){return JSON.stringify(k)+':'+sst(v[k])}).join(',')+'}'}
+function cp(v){return v===undefined?undefined:JSON.parse(JSON.stringify(v))}
+/* unione a tre vie: base = ultimo stato sincronizzato, l = questo telefono, r = online */
+function m3(b,l,r){var sb=sst(b),sl=sst(l),sr=sst(r);if(sl===sr)return l;if(sl===sb)return r;return l}
+function mObj(b,l,r,vm){b=b||{};l=l||{};r=r||{};var out={},ks={};[b,l,r].forEach(function(o){Object.keys(o).forEach(function(k){ks[k]=1})});
+ Object.keys(ks).forEach(function(k){var hb=k in b,hl=k in l,hr=k in r;
+  if(hl&&hr){var v=vm(b[k],l[k],r[k],k);if(v!==undefined)out[k]=v;return}
+  if(hl){if(!hb||sst(l[k])!==sst(b[k]))out[k]=l[k];return}
+  if(hr){if(!hb||sst(r[k])!==sst(b[k]))out[k]=r[k];return}});
+ return out}
+function mLots(b,l,r){b=b||[];l=l||[];r=r||[];var ix=function(a){var o={};a.forEach(function(x){o[x.lot]=x});return o},B=ix(b),Lm=ix(l),R=ix(r),keys=[],seen={};
+ [r,l,b].forEach(function(a){a.forEach(function(x){if(!(x.lot in seen)){seen[x.lot]=1;keys.push(x.lot)}})});
+ var out=[];
+ keys.forEach(function(k){var bb=B[k],ll=Lm[k],rr=R[k],bq=bb?(+bb.qty||0):0,res=null;
+  if(ll&&rr){res=mObj(bb||{},ll,rr,function(x,y,z){return m3(x,y,z)});res.qty=Math.max(0,(+rr.qty||0)+((+ll.qty||0)-bq))}
+  else if(ll){if(!bb)res=cp(ll);else{var q=Math.max(0,(+ll.qty||0)-bq);if(q>0){res=cp(ll);res.qty=q}}}
+  else if(rr){if(!bb)res=cp(rr);else{var q2=Math.max(0,(+rr.qty||0)-bq);if(q2>0){res=cp(rr);res.qty=q2}}}
+  if(res)out.push(res)});
+ return out.map(function(x,i){return{x:x,i:i}}).sort(function(p,q){var a=p.x.exp||'9999-12-31',c=q.x.exp||'9999-12-31';return a<c?-1:a>c?1:p.i-q.i}).map(function(o){return o.x})}
+function mItem(b,l,r){return mObj(b||{},l,r,function(bv,lv,rv,k){return k==='lots'?mLots(bv,lv,rv):m3(bv,lv,rv)})}
+function mMulti(b,l,r){b=b||[];l=l||[];r=r||[];var cb={},add=[],rem={};
+ b.forEach(function(x){var k=sst(x);cb[k]=(cb[k]||0)+1});
+ l.forEach(function(x){var k=sst(x);if(cb[k]>0)cb[k]--;else add.push(x)});
+ Object.keys(cb).forEach(function(k){if(cb[k]>0)rem[k]=cb[k]});
+ var out=[];r.forEach(function(x){var k=sst(x);if(rem[k]>0)rem[k]--;else out.push(x)});
+ return out.concat(add)}
+function mIdArr(b,l,r){b=b||[];l=l||[];r=r||[];var K=function(x){return x&&x.id!=null?'id:'+x.id:'j:'+sst(x)},ix=function(a){var o={};a.forEach(function(x){o[K(x)]=x});return o},B=ix(b),Lm=ix(l),R=ix(r),order=[],seen={};
+ [r,l,b].forEach(function(a){a.forEach(function(x){var k=K(x);if(!seen[k]){seen[k]=1;order.push(k)}})});
+ var o=mObj(B,Lm,R,function(bv,lv,rv){if(bv===undefined)return m3(bv,lv,rv);return mObj(bv,lv,rv,function(x,y,z){return m3(x,y,z)})});
+ return order.filter(function(k){return k in o}).map(function(k){return o[k]})}
+function syMerge(b,l,r){b=b||{};var out={};SYKEYS.forEach(function(k){var bv=b[k],lv=l[k],rv=r[k];
+ if(bv===undefined&&lv===undefined&&rv===undefined)return;
+ if(k==='items')out[k]=mObj(bv,lv,rv,function(x,y,z){return mItem(x,y,z)});
+ else if(k==='hist'||k==='log')out[k]=mMulti(bv,lv,rv);
+ else if(k==='bolle'||k==='cons'||k==='ord'||k==='veq'||k==='nc')out[k]=mIdArr(bv,lv,rv);
+ else if(k==='gmap')out[k]=mObj(bv,lv,rv,function(x,y,z){return m3(x,y,z)});
+ else out[k]=m3(bv,lv,rv)});return out}
+function syExtract(){var o={};SYKEYS.forEach(function(k){if(S[k]!==undefined)o[k]=cp(S[k])});return o}
+function syEmpty(l){return!Object.keys(l.items||{}).length&&!(l.hist||[]).length&&!(l.bolle||[]).length&&!(l.cons||[]).length&&!(l.ord||[]).length&&!(l.veq||[]).length}
+function syPut(st){SYKEYS.forEach(function(k){if(st[k]!==undefined)S[k]=st[k];else delete S[k]});S.items=S.items||{};S.hist=S.hist||[];S.log=S.log||[];initReps();saveRaw();SY.changed=true}
+/* applica lo stato unito, tenendo anche ciò che è cambiato su questo telefono mentre si sincronizzava */
+function syApply(snap,mer){var cur=syExtract();var fin=sst(cur)===sst(snap)?mer:syMerge(snap,cur,mer);if(sst(fin)!==sst(cur))syPut(fin)}
+/* rete */
+function syBase(){return'https://firestore.googleapis.com/v1/projects/'+encodeURIComponent(SY.cfg.projectId)+'/databases/(default)/documents'}
+function syDN(id){return'projects/'+SY.cfg.projectId+'/databases/(default)/documents/magazzino/'+id}
+function syHd(tk){return{'Authorization':'Bearer '+tk,'Content-Type':'application/json'}}
+function syFetch(u,o){return fetch(u,o).then(function(r){return r.text().then(function(t){var j=null;try{j=t?JSON.parse(t):null}catch(e){}return{ok:r.ok,st:r.status,j:j}})})}
+function syErr(r){var m=r.j&&(r.j.error&&r.j.error.message||(Array.isArray(r.j)&&r.j[0]&&r.j[0].error&&r.j[0].error.message))||'';
+ if(r.st===401||r.st===403)return new Error('Accesso negato: controlla le regole di Firestore e che la tua email sia nell’elenco.');
+ if(r.st===404)return new Error('Database non trovato: controlla il projectId e che Firestore sia stato creato.');
+ return new Error('Errore del servizio ('+r.st+(m?': '+String(m).slice(0,80):'')+').')}
+function syAuth(email,pw){return syFetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key='+encodeURIComponent(SY.cfg.apiKey),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,password:pw,returnSecureToken:true})}).then(function(r){
+ if(!r.ok){var m=String(r.j&&r.j.error&&r.j.error.message||'');throw new Error(/INVALID_LOGIN|INVALID_PASSWORD|EMAIL_NOT_FOUND/.test(m)?'Email o password non corrette.':/API key|API_KEY/i.test(m)?'API key non valida: ricontrolla la configurazione.':/OPERATION_NOT_ALLOWED/.test(m)?'Accesso con email e password non attivo in Firebase.':/TOO_MANY/.test(m)?'Troppi tentativi: riprova tra qualche minuto.':'Accesso non riuscito ('+(m||r.st)+').')}
+ SY.tok=r.j.idToken;SY.exp=Date.now()+(parseInt(r.j.expiresIn,10)||3600)*1000-60000;SY.rt=r.j.refreshToken;SY.email=email;syStore();return SY.tok})}
+function syToken(){if(SY.tok&&Date.now()<SY.exp)return Promise.resolve(SY.tok);if(!SY.rt)return Promise.reject(new Error('Accedi di nuovo con email e password.'));
+ return syFetch('https://securetoken.googleapis.com/v1/token?key='+encodeURIComponent(SY.cfg.apiKey),{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(SY.rt)}).then(function(r){
+ if(!r.ok)throw new Error('Sessione scaduta: scollega e collega di nuovo con email e password.');SY.tok=r.j.id_token;SY.exp=Date.now()+(parseInt(r.j.expires_in,10)||3600)*1000-60000;if(r.j.refresh_token)SY.rt=r.j.refresh_token;syStore();return SY.tok})}
+function syMeta(tk){return syFetch(syBase()+'/magazzino/meta',{headers:syHd(tk)}).then(function(r){if(r.st===404&&r.j&&r.j.error&&/NOT_FOUND/.test(r.j.error.status||'')&&/document/i.test(r.j.error.message||'')&&!/database/i.test(r.j.error.message||''))return null;if(r.st===404){if(r.j&&r.j.error&&/database/i.test(r.j.error.message||''))throw syErr(r);return null}if(!r.ok)throw syErr(r);var f=r.j.fields||{};return{rev:+(f.rev&&f.rev.integerValue||0),nch:+(f.nch&&f.nch.integerValue||0),ut:r.j.updateTime,by:f.by&&f.by.stringValue||''}})}
+function syState(tk,meta){var names=[];for(var i=0;i<meta.nch;i++)names.push(syDN('c'+meta.rev+'_'+i));
+ return syFetch(syBase()+':batchGet',{method:'POST',headers:syHd(tk),body:JSON.stringify({documents:names})}).then(function(r){if(!r.ok)throw syErr(r);var by={};(r.j||[]).forEach(function(x){if(x.found)by[x.found.name]=x.found.fields&&x.found.fields.s&&x.found.fields.s.stringValue||''});
+  var s='';for(var j=0;j<names.length;j++){if(!(names[j] in by))throw new Error('RETRY');s+=by[names[j]]}return JSON.parse(s)})}
+function syCut(s,n){var o=[],i=0;while(i<s.length){var e=Math.min(s.length,i+n);if(e<s.length){var c=s.charCodeAt(e-1);if(c>=0xD800&&c<=0xDBFF)e--}o.push(s.slice(i,e));i=e}return o.length?o:['']}
+function syPush(tk,state,meta){var parts=syCut(JSON.stringify(state),300000),n=parts.length,rev=(meta?meta.rev:0)+1,W=[];
+ parts.forEach(function(p,i){W.push({update:{name:syDN('c'+rev+'_'+i),fields:{s:{stringValue:p}}}})});
+ W.push({update:{name:syDN('meta'),fields:{rev:{integerValue:String(rev)},nch:{integerValue:String(n)},by:{stringValue:SY.email||''},at:{stringValue:new Date().toISOString()}}},currentDocument:meta?{updateTime:meta.ut}:{exists:false}});
+ if(meta)for(var j=0;j<meta.nch;j++)W.push({delete:syDN('c'+meta.rev+'_'+j)});
+ return syFetch(syBase()+':commit',{method:'POST',headers:syHd(tk),body:JSON.stringify({writes:W})}).then(function(r){
+  if(r.ok){var wr=r.j&&r.j.writeResults||[];return{rev:rev,nch:n,ut:wr[n]&&wr[n].updateTime}}
+  var st=r.j&&r.j.error&&r.j.error.status||'';if(r.st===409||st==='FAILED_PRECONDITION'||st==='ABORTED'||st==='ALREADY_EXISTS')throw new Error('CONFLICT');throw syErr(r)})}
+function syDone(res,base){SY.rev=res.rev;SY.nch=res.nch;SY.ut=res.ut;SY.base=cp(base);SY.choice=false;syStore()}
+function syCycle(tk,n){if(n>5)throw new Error('Troppe modifiche contemporanee: riprova tra poco.');
+ return syMeta(tk).then(function(meta){var loc=syExtract();
+  if(!meta){if(SY.base&&SY.rev)throw new Error('I dati condivisi online non ci sono più: usa «Carica i dati di questo telefono».');
+   return syPush(tk,loc,null).then(function(res){syDone(res,loc)})}
+  if(!SY.base){if(syEmpty(loc))return syState(tk,meta).then(function(rem){syPut(rem);SY.rev=meta.rev;SY.nch=meta.nch;SY.ut=meta.ut;SY.base=cp(rem);SY.choice=false;syStore()});
+   SY.choice=true;syStore();return}
+  var local=sst(loc)!==sst(SY.base);
+  if(meta.rev===SY.rev){if(!local){SY.ut=meta.ut;syStore();return}return syPush(tk,loc,meta).then(function(res){syDone(res,loc)})}
+  return syState(tk,meta).then(function(rem){var mer=syMerge(SY.base,loc,rem);
+   if(sst(mer)===sst(rem)){syApply(loc,rem);SY.rev=meta.rev;SY.nch=meta.nch;SY.ut=meta.ut;SY.base=cp(rem);syStore();return}
+   return syPush(tk,mer,meta).then(function(res){syApply(loc,mer);syDone(res,mer)})})
+ }).catch(function(e){if(e&&(e.message==='CONFLICT'||e.message==='RETRY'))return syCycle(tk,n+1);throw e})}
+function syFail(e){var m=e&&e.message||'Errore';if(e instanceof TypeError||/Failed to fetch|NetworkError|Load failed/i.test(m)){SY.off=true;SY.err=''}else{SY.off=false;SY.err=m}}
+function syRun(){if(!SY.cfg||!SY.rt)return Promise.resolve();if(SY.busy){SY.dirty=true;return SY.p}
+ SY.busy=true;SY.dirty=false;syStat();
+ SY.p=syToken().then(function(tk){return syCycle(tk,0)}).then(function(){SY.err='';SY.off=false;if(!SY.choice)SY.at=new Date()}).catch(syFail).then(function(){SY.busy=false;syStat();if(SY.changed){SY.changed=false;syMaybeRender()}if(SY.dirty&&!SY.choice)syKick(400)});
+ return SY.p}
+function syKick(ms){if(!SY||!SY.cfg||!SY.rt||SY.choice)return;clearTimeout(SY.timer);SY.timer=setTimeout(syRun,ms||2000)}
+function syMaybeRender(){var ae=document.activeElement;if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName))return;if(view==='nuovo'||LV)return;render()}
+function syLine(){var s=SY.at?'Ultima sincronizzazione: '+pad(SY.at.getHours())+':'+pad(SY.at.getMinutes())+'.':'Non ancora sincronizzato.';if(SY.busy)s='Sincronizzo…';if(SY.off)s+=' Nessuna connessione: le modifiche partiranno appena possibile.';if(SY.err)s+=' '+SY.err;return s}
+function syStat(){var e=document.getElementById('syl');if(e)e.textContent=syLine()}
+function syExcl(fn){if(SY.busy){var e=document.getElementById('syst');if(e)e.textContent='Sincronizzazione in corso: riprova tra un attimo.';return}
+ SY.busy=true;syStat();var e2=document.getElementById('syst');
+ syToken().then(function(tk){return fn(tk)}).then(function(){SY.err='';SY.off=false;SY.at=new Date()}).catch(syFail).then(function(){SY.busy=false;SY.changed=false;render()})}
+function syParse(t){var k=/apiKey["']?\s*[:=]\s*["']([^"']+)["']/.exec(t||''),p=/projectId["']?\s*[:=]\s*["']([^"']+)["']/.exec(t||'');return k&&p?{apiKey:k[1],projectId:p[1]}:null}
+function syLink(){var g=function(i){var e=document.getElementById(i);return e?e.value.trim():''},st=document.getElementById('syst'),say=function(t){if(st)st.textContent=t},cfg=syParse(g('sy_cfg')),em=g('sy_em'),pw=document.getElementById('sy_pw')?document.getElementById('sy_pw').value:'';
+ if(!cfg){say('Nella configurazione non trovo apiKey e projectId: incolla tutto il blocco copiato da Firebase.');return}
+ if(!em||!pw){say('Scrivi email e password.');return}
+ SY.cfg=cfg;SY.rt='';SY.tok='';say('Accedo…');
+ syAuth(em,pw).then(function(){SY.rev=0;SY.nch=0;SY.ut=null;SY.base=null;SY.choice=false;SY.err='';SY.at=null;syStore();render();return syRun()}).catch(function(e){SY.cfg=null;SY.rt='';say(e&&e.message?(e instanceof TypeError?'Nessuna connessione.':e.message):'Collegamento non riuscito.')})}
+function syAct(a){
+ if(a==='sylink'){syLink();return true}
+ if(a==='synow'){syRun().then(function(){render()});return true}
+ if(a==='syout'){if(confirm('Scollegare questo telefono? I dati restano qui, ma non si aggiornano più con gli altri telefoni.')){clearTimeout(SY.timer);SY.cfg=null;SY.rt='';SY.tok='';SY.base=null;SY.rev=0;SY.nch=0;SY.ut=null;SY.choice=false;SY.err='';SY.off=false;SY.at=null;try{localStorage.removeItem(SYK);localStorage.removeItem(SYB)}catch(e){}render()}return true}
+ if(a==='sydown'){if(confirm('I dati di questo telefono verranno SOSTITUITI con quelli condivisi online. Fai prima un backup se non sei sicuro. Continuare?'))syExcl(function(tk){return syMeta(tk).then(function(meta){if(!meta)throw new Error('Online non ci sono ancora dati condivisi.');return syState(tk,meta).then(function(rem){syPut(rem);SY.rev=meta.rev;SY.nch=meta.nch;SY.ut=meta.ut;SY.base=cp(rem);SY.choice=false;syStore()})})});return true}
+ if(a==='syup'){if(confirm('I dati condivisi online verranno SOSTITUITI con quelli di questo telefono: gli altri telefoni li riceveranno al prossimo aggiornamento. Continuare?'))syExcl(function(tk){return syMeta(tk).then(function(meta){var loc=syExtract();return syPush(tk,loc,meta).then(function(res){syDone(res,loc)})})});return true}
+ return false}
+function syAfterRestore(){if(SY.cfg){SY.base=null;SY.choice=false;syStore()}}
+function syHtml(){var ta='width:100%;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--ink);font:inherit',h='<h2>Condivisione tra telefoni</h2>';
+ if(!SY.cfg||!SY.rt){return h+'<p class="sub">Per usare le stesse scorte su più telefoni collega l’app a Firebase (gratuito per un uso come questo). Segui la guida, poi incolla qui la configurazione e scrivi email e password del tuo account.</p><textarea id="sy_cfg" rows="5" placeholder="Incolla qui la configurazione di Firebase (apiKey, projectId…)" style="'+ta+'"></textarea><label for="sy_em">Email</label><input type="email" id="sy_em" autocomplete="username"><label for="sy_pw">Password</label><input type="password" id="sy_pw" autocomplete="current-password"><button class="cta" data-a="sylink" type="button">Collega questo telefono</button><p id="syst" class="sub"></p>'}
+ h+='<p class="sub">Collegato come <b>'+esc(SY.email||'')+'</b>. <span id="syl">'+esc(syLine())+'</span></p>';
+ if(SY.choice)h+='<div class="row warn"><b>Scegli quali dati usare</b><small>Su questo telefono ci sono già dei dati e online ce ne sono altri. Finché non scegli, questo telefono non si sincronizza.</small></div><button class="cta" data-a="sydown" type="button">Usa i dati condivisi (sostituisce questo telefono)</button><button class="ed" data-a="syup" type="button">Carica i dati di questo telefono (sostituisce quelli condivisi)</button>';
+ return h+'<button class="ed" data-a="synow" type="button">Sincronizza ora</button> <button class="ed" data-a="syout" type="button">Scollega questo telefono</button><p id="syst" class="sub"></p>'}
+syLoad();
+if(SY.cfg&&SY.rt)setTimeout(syRun,800);
+setInterval(function(){if(!document.hidden&&SY.cfg&&SY.rt&&!SY.choice)syRun()},45000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.cfg&&SY.rt&&!SY.choice)syRun()});
+window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
+
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 16/11/2026 - z20';
+var vr=document.getElementById('ver'),V='Versione 16/11/2026 - z21';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
