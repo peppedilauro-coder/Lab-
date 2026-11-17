@@ -340,7 +340,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 16/11/2026 - z21</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.0</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -713,7 +713,7 @@ function bFormHtml(){var B=BD;return'<div class="prod"><b>Nuova bolla di consegn
 ordSel(B)+(B.ord?'<button class="ed" data-a="bfromord" type="button">Carica le righe dell’ordine</button>':'')+
 '<h2>Kit in arrivo ('+B.righe.length+')</h2>'+
 '<label for="b_srch" style="margin-top:0">Cerca e aggiungi un kit</label><input type="text" id="b_srch" value="'+esc(BSQ)+'" placeholder="Nome, codice o GTIN" autocomplete="off"><div id="b_sres" style="margin:8px 0 12px">'+bSrHtml(BSQ)+'</div>'+
-B.righe.map(function(r,i){return'<div class="row"><label for="b_n'+i+'" style="margin-top:0">Nome kit</label><input type="text" id="b_n'+i+'" value="'+esc(r.n)+'"><label for="b_c'+i+'">Ref (codice prodotto)</label><input type="text" id="b_c'+i+'" value="'+esc(r.c||'')+'">'+(r.g?'<small>Codice a barre '+esc(r.g)+'</small>':'')+'<div class="grid"><div><label for="b_l'+i+'">Lotto</label><input type="text" id="b_l'+i+'" value="'+esc(r.lot)+'"></div><div><label for="b_e'+i+'">Scadenza</label><input type="date" id="b_e'+i+'" value="'+esc(r.exp)+'"'+(r.ns?' disabled':'')+'><label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:400"><input type="checkbox" id="b_s'+i+'"'+(r.ns?' checked':'')+' style="width:auto" onchange="document.getElementById(\'b_e'+i+'\').disabled=this.checked"> Senza scadenza</label></div><div><label for="b_q'+i+'">Quantità</label><input type="number" id="b_q'+i+'" min="1" value="'+esc(r.qty)+'"></div><div><label>&nbsp;</label><button class="ed" style="margin:0" data-a="brm" data-i="'+i+'" type="button">Togli</button></div></div></div>'}).join('')+
+B.righe.map(function(r,i){return'<div class="row"><label for="b_n'+i+'" style="margin-top:0">Nome kit</label><input type="text" id="b_n'+i+'" value="'+esc(r.n)+'"><label for="b_c'+i+'">Ref (codice prodotto)</label><input type="text" id="b_c'+i+'" value="'+esc(r.c||'')+'">'+(r.g?'<small>Codice a barre '+esc(r.g)+'</small>':'')+'<label for="b_l'+i+'">Lotto</label><input type="text" id="b_l'+i+'" value="'+esc(r.lot)+'" style="width:100%;font-size:1.05rem"><div class="grid"><div><label for="b_e'+i+'">Scadenza</label><input type="date" id="b_e'+i+'" value="'+esc(r.exp)+'"'+(r.ns?' disabled':'')+'><label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:400"><input type="checkbox" id="b_s'+i+'"'+(r.ns?' checked':'')+' style="width:auto" onchange="document.getElementById(\'b_e'+i+'\').disabled=this.checked"> Senza scadenza</label></div><div><label for="b_q'+i+'">Quantità</label><input type="number" id="b_q'+i+'" min="1" value="'+esc(r.qty)+'"></div><div><label>&nbsp;</label><button class="ed" style="margin:0" data-a="brm" data-i="'+i+'" type="button">Togli</button></div></div></div>'}).join('')+
 (LIVE_OK?'<button class="cta" id="bscan" data-a="bscan" type="button" style="margin-top:8px">Scansiona un kit</button>':'')+
 '<button class="ed" data-a="brow" type="button">Aggiungi riga a mano</button><p id="st"></p>'+
 '<label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input type="checkbox" id="b_stock"'+(B.stock?' checked':'')+' style="width:auto"> Carica questi kit anche nelle Scorte del reparto</label>'+
@@ -1594,7 +1594,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 16/11/2026 - z21';
+var vr=document.getElementById('ver'),V='Versione 1.0';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
