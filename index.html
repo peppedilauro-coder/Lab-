@@ -340,7 +340,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 16/11/2026 - z19</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 16/11/2026 - z20</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -1263,6 +1263,7 @@ var ESAMI=[
 ['Selenio','',11,'B','n','Non confondere con la provetta azzurra del PT (citrato). Usare materiale adatto agli elementi in traccia ed evitare contaminazioni.'],
 ['Zinco','',11,'B','n','Di norma la stessa provetta del selenio: confermare con il laboratorio di riferimento.'],
 ['Rame','',11,'B','n','Di norma la stessa provetta del selenio: confermare con il laboratorio di riferimento.'],
+['Cromo','cromemia, Cr, cromo sierico, esposizione professionale, protesi metalliche',11,'B','Digiuno non indispensabile. Dopo mezzi di contrasto con gadolinio o iodio attendere 96 ore prima del prelievo','Elemento in traccia: le provette comuni (anche quelle rosse) cedono cromo e falsano il risultato. Per il siero usare la provetta blu per elementi in traccia senza anticoagulante; per il sangue intero la blu con EDTA, secondo il laboratorio. Dividere il siero in una provetta di plastica per metalli, mai di vetro. L’ordine di prelievo varia da laboratorio a laboratorio (alcuni scartano un primo tubo): seguire la procedura del laboratorio di riferimento.'],
 ['Piombo','piombemia',11,'H','n','Sangue intero. Alcuni laboratori usano EDTA o provette per elementi in traccia: confermare.'],
 ["Omocisteina","",0,"D","d","Separare siero o plasma entro 1 ora dal prelievo."],
 ["Lipoproteina(a)","Lp(a)",0,"R","n",""],
@@ -1466,7 +1467,7 @@ if(a==='rosegna'){var ks=roKeys().filter(function(k){return roQ(k)>0});if(!ks.le
 return false}
 document.getElementById('v').addEventListener('change',function(e){var i=e.target;if(i.id==='o_fil'){OFIL=i.value;render()}else if(i.id==='o_mail'){S.ordMail=i.value.trim();save()}else if(i.id==='o_days'){S.ordDays=Math.max(1,parseInt(i.value,10)||7);save();render()}else if(/^o_n\d+$/.test(i.id)){var en=nomeKit(i.value);if(en){i.value=en.nome;var c=document.getElementById('o_c'+i.id.slice(3));if(c&&!c.value)c.value=en.codice||en.codiceBarre||''}}});
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 16/11/2026 - z19';
+var vr=document.getElementById('ver'),V='Versione 16/11/2026 - z20';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
