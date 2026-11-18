@@ -333,6 +333,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 .fun.kit-welcome .kit-welcome-team{width: min(36%,220px);height: min(36vw,220px);max-height:190px;object-fit:contain;flex:0 0 auto;border-radius:50%;background:#eaf7ff}
 
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{touch-action:manipulation}input:not([type=file]):not([type=checkbox]):not([type=radio]),select,textarea{font-size:max(16px,1em)!important}
+.grid>*{min-width:0}input[type=date]{min-width:0;max-width:100%}
 </style>
 </head>
 <body>
@@ -341,7 +342,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{touch-action:
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.7</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.8</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -435,6 +436,7 @@ if(s.indexOf('(')>-1){var re=/\((\d{2,4})\)([^(]*)/g,m;while((m=re.exec(s)))o[m[
 var fx={'01':14,'02':14,'11':6,'13':6,'15':6,'17':6},i=0;
 while(i<s.length){if(s[i]==='\x1d'){i++;continue}var ai=s.substr(i,2);i+=2;if(ai==='24'){ai+=s.charAt(i);i+=1}
 if(fx[ai]){if(s.length-i<fx[ai])return{};o[ai]=s.substr(i,fx[ai]);i+=fx[ai]}else{var j=s.indexOf('\x1d',i);if(j<0)j=s.length;o[ai]=s.substring(i,j);i=j}}
+if(o['10']&&!o['17']&&s.indexOf('\x1d')<0){var mm=/^(.+?)17(\d{2})(0[1-9]|1[0-2])(0\d|[12]\d|3[01])(?:37(\d{1,8}))?$/.exec(o['10']);if(mm){o['10']=mm[1];o['17']=mm[2]+mm[3]+mm[4];if(mm[5])o['37']=mm[5]}}
 if(!o['01']&&o['02'])o['01']=o['02'];return o}
 function alerts(){var a=[];var nb=Object.keys(S.items).length;if(nb&&(!S.bk||-days(S.bk)>30))a.push({c:'info',o:4,t:'Fai un backup dei dati',d:'Ultimo backup: '+(S.bk?fmt(S.bk):'mai')+'. Dalla scheda Riepilogo puoi salvare un file.'});if(typeof SY!=='undefined'&&SY.cfg){if(SY.choice)a.push({c:'warn',o:3,t:'Condivisione: scegli quali dati usare',d:'Apri Riepilogo e scegli se usare i dati condivisi o quelli di questo telefono.'});else if(SY.err)a.push({c:'info',o:4,t:'Condivisione online ferma',d:SY.err+' Le modifiche restano sul telefono.'})}
 Object.keys(S.items).forEach(function(k){var it=S.items[k];if(S.cur&&it.sec!==S.cur)return;var n0=a.length;var NM=it.name+(it.sec&&!S.cur?' ('+it.sec+')':'');
@@ -1620,7 +1622,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.7';
+var vr=document.getElementById('ver'),V='Versione 1.8';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
