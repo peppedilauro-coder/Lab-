@@ -334,6 +334,8 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{touch-action:manipulation}input:not([type=file]):not([type=checkbox]):not([type=radio]),select,textarea{font-size:max(16px,1em)!important}
 .grid>*{min-width:0}input[type=date]{min-width:0;max-width:100%}
+html,body{overflow-x:hidden;max-width:100vw}img,video,canvas,table{max-width:100%}*{-webkit-tap-highlight-color:transparent}
+nav button.hid{display:none!important}#altro{position:fixed;left:8px;right:8px;bottom:calc(76px + env(safe-area-inset-bottom,0px));background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:8px;display:none;z-index:50;box-shadow:0 8px 28px rgba(0,0,0,.18)}#altro.on{display:block}#altro button{display:block;width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;font-weight:600;padding:14px 12px;border-radius:10px}#altro button:active{background:var(--bg)}
 </style>
 </head>
 <body>
@@ -342,7 +344,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{touch-action:
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.8</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.12</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -417,7 +419,8 @@ var KEY='magazzino-kit-v1',DAYS=60,S={items:{},log:[]},view='avvisi',F={};
 try{var r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
 S.hist=S.hist||[];S.log=S.log||[];S.items=S.items||{};
 var SECT0=['Batteriologia','Chimica clinica','Radioimmunologia','Ematologia','Coagulazione','Biologia molecolare'],SECT=SECT0;
-function initReps(){S.bolle=Array.isArray(S.bolle)?S.bolle:[];S.cons=Array.isArray(S.cons)?S.cons:[];S.reps=Array.isArray(S.reps)?S.reps:SECT0.slice();SECT=S.reps}
+function initReps(){S.bolle=Array.isArray(S.bolle)?S.bolle:[];S.cons=Array.isArray(S.cons)?S.cons:[];S.reps=Array.isArray(S.reps)?S.reps:SECT0.slice();SECT=S.reps;if(!S.acc||typeof S.acc!=='object'||Array.isArray(S.acc))S.acc={}}
+function accSec(){var e=(typeof SY!=='undefined'&&SY.email||'').toLowerCase(),v=S.acc&&S.acc[e];return v&&SECT.indexOf(v)>=0?v:''}
 initReps();
 S.cur=S.cur||'';Object.keys(S.items).forEach(function(k){if(k.indexOf('|')<0){var q=S.items[k];q.sec=q.sec||'';S.items['|'+k]=q;delete S.items[k]}});
 function saveRaw(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -526,6 +529,8 @@ function readBk(f){var r=new FileReader();r.onload=function(){try{var o=JSON.par
 async function dlSave(name,blob){var dl=null;try{dl=window.claude?await window.claude.use('downloads'):null}catch(e){}if(dl)return dl.save({filename:name,data:blob});var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
 async function doBk(){var d=today();S.bk=ym(d)+'-'+pad(d.getDate());save();var b=new Blob([JSON.stringify({app:'magazzino-kit',v:1,date:S.bk,S:S})],{type:'application/json'}),ok=true;try{await dlSave('backup-magazzino-kit-'+S.bk+'.json',b)}catch(e){ok=false}render();var m=document.getElementById('bkst');if(m)m.textContent=ok?'Backup salvato: conservalo in un posto sicuro, ad esempio nell’app File.':'Non sono riuscito a salvare il backup.'}
 function act(b){var a=b.dataset.a,it=EK?S.items[EK]:null;if(a.indexOf('sy')===0&&syAct(a))return;
+if(a==='accset'){var em=(prompt('Email del collega (come in Firebase):')||'').trim().toLowerCase();if(!em)return;var sc=prompt('Settore da assegnare (lascia vuoto per togliere il limite):\n'+SECT.join(', '))||'';sc=sc.trim();if(sc&&SECT.indexOf(sc)<0){alert('Settore non trovato. Scrivilo uguale a come appare nell’elenco.');return}if(sc)S.acc[em]=sc;else delete S.acc[em];save();render();return}
+ if(a==='accdel'){delete S.acc[b.dataset.e];save();render();return}
 if(bAct(a,b))return;
 if(a==='help'){openGuide(GM[b.dataset.s]||'primi');return}
 if(a==='gclose'){view=PV||'avvisi';render();return}
@@ -604,11 +609,11 @@ function guideHtml(){var G=[
 ['ordini','Registro ordini','<li><b>Registro ordini</b> (scheda Bolle): salva gli ordini ai fornitori con data, reparto, tipo e kit ordinati.</li><li><b>Compreso nel canone</b> o <b>Fuori canone</b>: lo scegli a ogni ordine. In alto vedi quanti ordini fuori canone hai fatto negli ultimi 90 giorni per fornitore, utile per capire se il canone basta.</li><li><b>Da Avvisi</b>: nella lista di riordino, “Segna come ordinato” prepara l’ordine con i kit suggeriti, da controllare e salvare. “Invia per email” manda subito il PDF della lista, con le quantità che hai impostato (il tuo indirizzo si scrive in fondo al Registro ordini).</li><li><b>Alla consegna</b>: registrando una bolla scegli l’ordine collegato. L’app confronta i kit per codice o nome e aggiorna le quantità: Ordinato, Parziale o Completo.</li><li>Per ordini senza bolla usa “Arrivato tutto”; “Chiudi con differenze” chiude un ordine che non arriverà completo.</li><li>Un ordine aperto da troppo tempo compare in Avvisi (i giorni si scelgono nel registro).</li><li>I dati restano su questo telefono: un collega vede solo i propri ordini.</li>'],
 ['veq','Calendario VEQ','<li><b>Cos’è</b>: il calendario dei controlli esterni di qualità (VEQ), con le date entro cui eseguirli o inviare i risultati. Lo trovi in <b>Riepilogo</b>, con il pulsante <b>Calendario VEQ</b>.</li><li><b>Aggiungere un controllo</b>: tocca <b>Aggiungi un controllo VEQ</b>, scrivi il programma o l’ente, scegli il reparto, aggiungi se vuoi materiale o analiti e la data, poi <b>Salva nel calendario</b>.</li><li><b>Programmare in anticipo</b>: puoi inserire subito i controlli dei mesi futuri, ognuno con la sua data. Compaiono negli Avvisi solo quando mancano 7 giorni.</li><li><b>Si ripete</b>: usalo per i controlli periodici, anche se la data cambia ogni volta. Inserisci la prima data; quando la segni come eseguita, l’app crea il controllo successivo <b>senza data</b>: resta in cima all’elenco con la scritta “data da fissare” e compare anche negli Avvisi. Se inserisci già tutte le date a mano, lascia <b>No, una volta sola</b>, così non hai controlli doppi.</li><li><b>Impostare o cambiare la data</b>: nel controllo senza data scegli il giorno e tocca <b>Imposta data</b>. Per spostare una data già fissata usa <b>Cambia data</b>.</li><li><b>Colori</b>: rosso se è in ritardo, giallo se mancano 7 giorni o meno, azzurro se è più avanti. Il pallino indica il reparto.</li><li><b>Eseguita</b>: scegli <b>conforme</b>, <b>non conforme</b> oppure <b>esito da ricevere</b>. In quest’ultimo caso registri l’esito più tardi, quando arriva il rapporto. Il controllo passa in <b>Eseguiti</b>.</li><li><b>Avvisi</b>: compaiono i controlli in ritardo, quelli in scadenza entro 7 giorni e gli esiti non conformi degli ultimi 30 giorni.</li><li><b>Correggere un errore</b>: per la data usa <b>Cambia data</b>. Per gli altri dati elimina il controllo (chiede conferma) e inseriscilo di nuovo.</li><li><b>CSV</b>: esporta il calendario e si apre da Excel. L’app aiuta a ricordare le date, ma non sostituisce il rapporto ufficiale dell’ente.</li>'],
 ['esami','Guida esami e provette','<li><b>Cos’è</b>: un elenco consultabile degli esami più comuni, con la provetta o il contenitore da usare, la preparazione del paziente e gli accorgimenti per il prelievo. Lo trovi in <b>Riepilogo</b>, con il pulsante <b>Guida esami e provette</b>.</li><li><b>Come cercare</b>: scrivi il nome o l’abbreviazione (per esempio “glicemia”, “PT”, “TSH”) e scegli dall’elenco che compare. Puoi restringere per <b>Settore</b>.</li><li><b>Attenzione</b>: le indicazioni sono generali, raccolte da procedure pubbliche di laboratori italiani. Colori dei tappi, tempi di consegna e preparazione possono cambiare tra produttori e laboratori, quindi per le regole del tuo laboratorio vale il manuale prelievi.</li><li><b>Se manca un esame</b>: dimmelo, oppure mandami il manuale prelievi del laboratorio per adattare l’elenco.</li>'],
-['problemi','Problemi comuni','<li><b>La fotocamera non parte</b>: consentila in Impostazioni, Safari, Fotocamera. Se resta bloccata usa “Scatta foto”. Se la pagina è dentro un’altra app, aprila in Safari.</li><li><b>Codice non letto</b>: avvicinati, usa più luce, evita i riflessi, oppure compila a mano.</li><li><b>Nome sbagliato</b>: scegli un suggerimento, usa “Fotografa il nome” o scrivilo: la volta dopo l’app lo ricorda.</li><li><b>Dati che sembrano spariti</b>: l’app dalla Home e Safari hanno dati separati. Usa sempre la stessa e ripristina dal backup.</li><li><b>Versione</b>: la trovi in fondo alla pagina.</li>'],
+['problemi','Problemi comuni','<li><b>La fotocamera non parte</b>: consentila in Impostazioni, Safari, Fotocamera. Se resta bloccata usa “Scatta foto”. Se la pagina è dentro un’altra app, aprila in Safari.</li><li><b>Codice non letto</b>: avvicinati, usa più luce, evita i riflessi, oppure compila a mano.</li><li><b>Nome sbagliato</b>: scegli un suggerimento, usa “Fotografa il nome” o scrivilo: la volta dopo l’app lo ricorda.</li><li><b>Dati che sembrano spariti</b>: l’app dalla Home e Safari hanno dati separati. Usa sempre la stessa e ripristina dal backup.</li><li><b>Copie automatiche</b>: l’app salva da sola una copia al giorno su questo telefono e tiene le ultime 7. Le trovi in Altro → Riepilogo, sotto il backup. Tocca <b>Ripristina</b> e poi conferma. Non sostituiscono il backup su file: se perdi il telefono servono quello e la condivisione online.</li><li><b>Barra in basso</b>: restano <b>Avvisi</b>, <b>Scarica kit</b> e <b>Carica kit</b>. Tutto il resto (Scorte, Bolle e ordini, Riepilogo con VEQ e impostazioni) è sotto <b>Altro</b>.</li><li><b>Accesso per settore</b>: in Riepilogo, sotto Condivisione tra telefoni, tocca <b>Assegna un settore a un collega</b>, scrivi la sua email e il settore. Quel collega vedrà solo il suo settore. È un limite dell’app, non una protezione di sicurezza. Per togliere il limite tocca <b>Togli</b>.</li><li><b>La pagina si ingrandisce da sola</b>: dalla versione 1.9 lo zoom a due dita e il doppio tocco sono bloccati e la pagina torna alla misura giusta dopo aver scritto in un campo. Se capita ancora, chiudi e riapri l’app e dimmelo.</li><li><b>Versione</b>: la trovi in fondo alla pagina.</li>'],
 ['limiti','Limiti e privacy','<li>I dati stanno su questo telefono. Se attivi la <b>condivisione tra telefoni</b> (Riepilogo), vengono copiati anche su Firebase e li vedono i telefoni collegati: collega solo persone del laboratorio.</li><li>Non inserire dati dei pazienti.</li><li>L’app non sostituisce procedure e registri del laboratorio: controlla sempre lotto e scadenza.</li><li>La ricerca online del nome invia soltanto il codice prodotto.</li>'],
 ['installa','Icona sulla Home','<li>In Safari tocca Condividi e poi <b>Aggiungi a Home</b>, e usa sempre quell’icona.</li><li>Per aggiornare l’app chiudila e riaprila.</li><li><b>Senza rete</b>: l’app si apre con l’ultima copia salvata, a patto che il file sw.js sia caricato accanto a index.html. Con la rete usa sempre la versione più recente.</li><li>Prima di rimuovere l’icona fai un backup: i dati sono dentro l’app.</li>']];
 return'<button class="ed" data-a="gclose" type="button" style="margin:0 0 12px">Chiudi la guida</button>'+G.map(function(g){return'<details id="g-'+g[0]+'"'+(GU===g[0]?' open':'')+'><summary>'+g[1]+'</summary><ul>'+g[2]+'</ul></details>'}).join('')+'<button class="ed" data-a="gtips" type="button">'+(S.notips?'Mostra i suggerimenti nelle schede':'Nascondi i suggerimenti nelle schede')+'</button>'}
-function secBar(){return'<label for="cur">Settore</label><select id="cur"><option value=""'+(S.cur?'':' selected')+'>Tutti i settori</option>'+SECT.map(function(s){return'<option'+(S.cur===s?' selected':'')+'>'+esc(s)+'</option>'}).join('')+'</select>'}
+function secBar(){var L=accSec();if(L){S.cur=L;return'<label>Settore</label><div class="row"><b>'+esc(L)+'</b><small>Il tuo accesso è limitato a questo settore.</small></div>'}return'<label for="cur">Settore</label><select id="cur"><option value=""'+(S.cur?'':' selected')+'>Tutti i settori</option>'+SECT.map(function(s){return'<option'+(S.cur===s?' selected':'')+'>'+esc(s)+'</option>'}).join('')+'</select>'}
 function ym(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)}
 function monthRows(mo,all){return(S.hist||[]).filter(function(x){return x.d.slice(0,7)===mo&&(all||!S.cur||(x.sec||'')===S.cur)}).sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:0})}
 function refOf(x){var it=S.items[x.k||('|'+x.gtin)];return(it&&it.ref)||''}
@@ -1614,6 +1619,7 @@ function syHtml(){var ta='width:100%;margin-top:8px;padding:10px;border:1px soli
  if(!SY.cfg||!SY.rt){return h+'<p class="sub">Per usare le stesse scorte su più telefoni scrivi l’email e la password del tuo account del laboratorio e tocca Collega.</p><details><summary>Usa un altro progetto Firebase</summary><textarea id="sy_cfg" rows="5" placeholder="Incolla qui la configurazione di Firebase (apiKey, projectId…)" style="'+ta+'"></textarea></details><label for="sy_em">Email</label><input type="email" id="sy_em" autocomplete="username"><label for="sy_pw">Password</label><input type="password" id="sy_pw" autocomplete="current-password"><button class="cta" data-a="sylink" type="button">Collega questo telefono</button><p id="syst" class="sub"></p>'}
  h+='<p class="sub">Collegato come <b>'+esc(SY.email||'')+'</b>. <span id="syl">'+esc(syLine())+'</span></p>';
  if(SY.choice)h+='<div class="row warn"><b>Scegli quali dati usare</b><small>Su questo telefono ci sono già dei dati e online ce ne sono altri. Finché non scegli, questo telefono non si sincronizza.</small></div><button class="cta" data-a="sydown" type="button">Usa i dati condivisi (sostituisce questo telefono)</button><button class="ed" data-a="syup" type="button">Carica i dati di questo telefono (sostituisce quelli condivisi)</button>';
+ h+='<h2>Accesso per settore</h2><p class="sub">Assegna a ogni collega il suo settore: vedrà e modificherà solo quello. È un limite dell’app, non una protezione di sicurezza: serve a evitare errori.</p>'+Object.keys(S.acc||{}).map(function(e){return'<div class="row"><b>'+esc(e)+'</b><small>'+esc(S.acc[e])+'</small><button class="ed" data-a="accdel" data-e="'+esc(e)+'" type="button">Togli</button></div>'}).join('')+'<button class="ed" data-a="accset" type="button">Assegna un settore a un collega</button>';
  return h+'<button class="ed" data-a="synow" type="button">Sincronizza ora</button> <button class="ed" data-a="syout" type="button">Scollega questo telefono</button><p id="syst" class="sub"></p>'}
 syLoad();
 if(SY.cfg&&SY.rt)setTimeout(syRun,800);
@@ -1622,10 +1628,46 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.8';
+var vr=document.getElementById('ver'),V='Versione 1.12';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
+</script>
+<script>
+(function(){var d=document,lt=0,vp=d.querySelector('meta[name=viewport]'),base=vp?vp.content:'';
+['gesturestart','gesturechange','gestureend'].forEach(function(e){d.addEventListener(e,function(x){x.preventDefault()},{passive:false})});
+d.addEventListener('touchmove',function(x){if(x.touches&&x.touches.length>1)x.preventDefault()},{passive:false});
+function reset(){if(!vp)return;vp.content=base+',user-scalable=no';setTimeout(function(){window.scrollTo(window.scrollX,window.scrollY)},50)}
+d.addEventListener('focusout',function(){setTimeout(reset,120)});
+if(window.visualViewport)window.visualViewport.addEventListener('resize',function(){if(window.visualViewport.scale>1.01)reset()});
+reset()})();
+</script>
+<script>
+(function(){var nav=document.querySelector('nav');if(!nav)return;
+var lab={scarico:'Scarica kit',nuovo:'Carica kit'};
+nav.querySelectorAll('button').forEach(function(b){var v=b.dataset.v;if(lab[v]){var sp=b.querySelector('span');if(sp)sp.textContent=lab[v]}
+if(v==='scorte'||v==='bolle'||v==='riepilogo')b.classList.add('hid')});
+var alt=document.createElement('button');alt.type='button';alt.dataset.x='altro';alt.innerHTML='<i class="ni" aria-hidden="true">⋯</i><span>Altro</span>';nav.appendChild(alt);
+var sh=document.createElement('div');sh.id='altro';
+[['scorte','📦 Scorte'],['bolle','🧾 Bolle e ordini'],['riepilogo','📊 Riepilogo, VEQ e impostazioni']].forEach(function(x){var b=document.createElement('button');b.type='button';b.textContent=x[1];b.onclick=function(){sh.classList.remove('on');var t=nav.querySelector('button[data-v="'+x[0]+'"]');if(t)t.click()};sh.appendChild(b)});
+document.body.appendChild(sh);
+nav.addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.x==='altro'){e.stopPropagation();sh.classList.toggle('on');return}sh.classList.remove('on')},true);
+document.addEventListener('click',function(e){if(sh.classList.contains('on')&&!e.target.closest('#altro')&&!e.target.closest('nav'))sh.classList.remove('on')});
+function mark(){var on=!!nav.querySelector('button.hid[aria-current="true"]');alt.setAttribute('aria-current',on?'true':'false')}
+new MutationObserver(mark).observe(nav,{attributes:true,subtree:true,attributeFilter:['aria-current']});mark()})();
+</script>
+<script>
+(function(){var SK=KEY+'-snap';
+function rd(){try{var a=JSON.parse(localStorage.getItem(SK)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function day(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function snap(){try{if(!S||!S.items||!Object.keys(S.items).length)return;var a=rd(),t=day();if(a.length&&a[a.length-1].d===t)return;a.push({d:t,j:JSON.stringify(S)});while(a.length>7)a.shift();
+for(;;){try{localStorage.setItem(SK,JSON.stringify(a));break}catch(e){if(a.length<=1)break;a.shift()}}}catch(e){}}
+var o=saveRaw;saveRaw=function(){snap();o.apply(this,arguments)};
+var ob=bkHtml;bkHtml=function(){var h=ob.apply(this,arguments),a=rd();
+if(!a.length)return h+'<h2>Copie automatiche</h2><p class="sub">L’app salva da sola una copia al giorno su questo telefono e tiene le ultime 7. Compariranno qui dopo il primo salvataggio.</p>';
+return h+'<h2>Copie automatiche</h2><p class="sub">Una copia al giorno, ultime 7, su questo telefono. Se un collega sbaglia, ripristina quella di ieri. Prima di sostituire i dati ti chiedo conferma.</p>'+a.slice().reverse().map(function(x,i){var n=0;try{n=Object.keys(JSON.parse(x.j).items).length}catch(e){}return'<div class="row"><b>'+x.d.split('-').reverse().join('/')+'</b><small>'+n+' kit</small><button class="ed" data-snap="'+x.d+'" type="button">Ripristina</button></div>'}).join('')};
+document.addEventListener('click',function(e){var b=e.target.closest('button[data-snap]');if(!b)return;e.stopPropagation();var x=rd().filter(function(y){return y.d===b.dataset.snap})[0];if(!x)return;try{BK=JSON.parse(x.j);render()}catch(er){}},true);
+snap()})();
 </script>
 </body>
 </html>
