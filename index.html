@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Magazzino kit</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -332,6 +332,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 .fun.kit-welcome .kit-welcome-copy small{color:var(--mut)}
 .fun.kit-welcome .kit-welcome-team{width: min(36%,220px);height: min(36vw,220px);max-height:190px;object-fit:contain;flex:0 0 auto;border-radius:50%;background:#eaf7ff}
 
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html,body{touch-action:manipulation}input:not([type=file]):not([type=checkbox]):not([type=radio]),select,textarea{font-size:max(16px,1em)!important}
 </style>
 </head>
 <body>
@@ -340,7 +341,7 @@ body.hasbk #t,body.hasbk #s{padding-left:54px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.4</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.5</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -885,7 +886,7 @@ if(!window.isSecureContext){st.textContent='La pagina non è in una connessione 
 if(!window.Html5Qrcode){st.textContent='Libreria della fotocamera non caricata: controlla la connessione e riprova, oppure usa “Scatta foto”.';return}
 var w=document.createElement('div');w.id='lw';
 w.innerHTML='<div id="qr-box"><div id="qr-reader"></div><div class="aim"></div><div class="tbox" hidden></div></div><div class="lvb"><button class="ed" id="tb" type="button" hidden>Accendi flash</button>'+(txt?'<button class="ed" id="tx" type="button">Scansiona Nome da Testo</button>':'')+'</div><button class="cta" id="cb" type="button" style="margin-top:8px">Chiudi fotocamera</button>';
-document.getElementById(bid).after(w);
+document.getElementById(bid).after(w);try{w.scrollIntoView({block:'start',behavior:'smooth'})}catch(e){}
 var fm=window.Html5QrcodeSupportedFormats,ccfg={useBarCodeDetectorIfSupported:true,verbose:false},sc=null;
 if(fm)ccfg.formatsToSupport=[fm.QR_CODE,fm.DATA_MATRIX,fm.CODE_128,fm.EAN_13,fm.EAN_8,fm.CODE_39,fm.ITF,fm.UPC_A];
 try{sc=new Html5Qrcode('qr-reader',ccfg)}catch(e){try{sc=new Html5Qrcode('qr-reader',false)}catch(e2){sc=null}}
@@ -922,7 +923,7 @@ w.querySelector('#bk').onclick=function(){stopLive();startLive()};
 st.textContent='Avvio della fotocamera per il testo…';
 var stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false})}catch(e){if(LV===q){stopLive();st.textContent='Fotocamera non disponibile per il testo: scrivi il nome a mano.'}return}
 if(LV!==q){stream.getTracks().forEach(function(t){t.stop()});return}
-q.stream=stream;var v=document.createElement('video');v.setAttribute('playsinline','');v.muted=true;v.autoplay=true;v.style.cssText='width:100%;display:block';v.srcObject=stream;rd.appendChild(v);try{await v.play()}catch(e){}
+q.stream=stream;var v=document.createElement('video');v.setAttribute('playsinline','');v.muted=true;v.autoplay=true;v.style.cssText='width:100%;display:block';v.srcObject=stream;rd.appendChild(v);try{await v.play()}catch(e){}try{w.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}
 var tk=stream.getVideoTracks()[0],tb=w.querySelector('#tb');
 try{if(tk.applyConstraints)tk.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(function(){});if(tk.getCapabilities&&tk.getCapabilities().torch){tb.hidden=false;tb.onclick=function(){var on=!q.torch;tk.applyConstraints({advanced:[{torch:on}]}).then(function(){q.torch=on;tb.textContent=on?'Spegni flash':'Accendi flash'}).catch(function(){})}}}catch(e){}
 st.textContent='Carico il motore OCR (solo la prima volta)…';
@@ -1619,7 +1620,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.4';
+var vr=document.getElementById('ver'),V='Versione 1.5';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
