@@ -108,9 +108,9 @@
   {"gtin":"04053228028253","ref":"990352","nome":"Filter-Tips, 1000 pL (1024)","strumento":"QIACUBE","tipologia":"Consumabili"},
   {"gtin":"","ref":"623201","nome":"Reaction Tubes 2 ml PP graduated","strumento":"","tipologia":""},
   {"gtin":"04053228013570","ref":"990382","nome":"Sample Tubes CB (2 ml)","strumento":"QIACUBE","tipologia":"Consumabili"},
-  {"gtin":"","ref":"9717","nome":"REF Quantity (pcs): 960 Puntali Universal con filtro, vol. 1000ul, neutri in PP, sterili in rack da 96pz Puntas con filtro, en PP, 1000ul, estéril","strumento":"","tipologia":"Consumabili"},
-  {"gtin":"","ref":"9716","nome":"Puntali Universal con filtro, vol.200pl, neutri in PP, sterili in rack da 96pz Puntas con filtro, en PP, 200pl, estéril","strumento":"","tipologia":"Consumabili"},
-  {"gtin":"","ref":"9714","nome":"Puntali Universal con filtro, vol. 10ul, neutri in PP, sterili in rack da 96pz Puntas con filtro, en PP, 10ul, estéril","strumento":"","tipologia":"Consumabili"},
+  {"gtin":"08000000077141","ref":"9717","nome":"Puntali Universal con filtro, vol. 1000ul, neutri in PP, sterili in rack da 96pz Puntas con filtro, en PP, 1000ul, estéril","strumento":"","tipologia":"Consumabili"},
+  {"gtin":"08000000077127","ref":"9716","nome":"Puntali Universal con filtro, vol.200pl, neutri in PP, sterili in rack da 96pz Puntas con filtro, en PP, 200pl, estéril","strumento":"","tipologia":"Consumabili"},
+  {"gtin":"08000000077080","ref":"9714","nome":"Puntali Universal con filtro, vol. 10ul, neutri in PP, sterili in rack da 96pz Puntas con filtro, en PP, 10ul, estéril","strumento":"","tipologia":"Consumabili"},
   {"gtin":"04987562433940","ref":"","nome":"UF-CELLPACK,™ CR","strumento":"URISCAN","tipologia":"Reagente"},
   {"gtin":"04987562433933","ref":"","nome":"UF-CELLPACK™ SF","strumento":"URISCAN","tipologia":"Reagente"},
   {"gtin":"","ref":"U95323750","nome":"Reagente di Lavaggio","strumento":"URISCAN","tipologia":"Reagente"},
@@ -132,5 +132,6 @@
   {"gtin":"08426950062295","ref":"0009757600","nome":"DILUENTE","strumento":"CELL DYN 3700","tipologia":"Reagente"},
   {"gtin":"","ref":"CD2042","nome":"DETERGENTE","strumento":"CELL DYN 3700","tipologia":"Reagente"},
   {"gtin":"","ref":"03K111TA3.2106","nome":"CBC-3K","strumento":"CELL DYN 3700","tipologia":"Controllo"},
-  {"gtin":"08426950479772","ref":"00029403501","nome":"CTS FILTER","strumento":"ACL TOP 500","tipologia":"Consumabili"}
+  {"gtin":"08426950479772","ref":"00029403501","nome":"CTS FILTER","strumento":"ACL TOP 500","tipologia":"Consumabili"},
+  {"gtin":"08000000022707","ref":"1507/SG","nome":"Microprovette da 2ml in PP, coniche con base d'appoggio tappo vite guarnizione sterle","strumento":"","tipologia":"Consumabili"}
 ]
