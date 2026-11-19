@@ -395,6 +395,7 @@ nav button.fab .ic{width:32px;height:32px}
 :root[data-theme="dark"] body{background:#0A141C!important;color:var(--ink)!important}
 :root[data-theme="dark"] html{background:#0A141C!important}
 :root[data-theme="dark"] h1,:root[data-theme="dark"] body h1,:root[data-theme="dark"] #v h1,:root[data-theme="dark"] header h1,:root[data-theme="dark"] .hd h1{color:#8AD3F5!important;text-shadow:none!important;-webkit-text-fill-color:#8AD3F5!important}
+:root[data-theme="dark"] label.scan,:root[data-theme="dark"] .scan{background:#0E1D29!important;color:#9FD3F0!important;border-color:#2F8FC4!important}
 :root[data-theme="dark"] summary,:root[data-theme="dark"] details summary,:root[data-theme="dark"] details{background:#15283A!important;color:var(--ink)!important;border-color:#2F4A5E!important}
 :root[data-theme="dark"] #bk,:root[data-theme="dark"] button#bk,:root[data-theme="dark"] [data-a=back],:root[data-theme="dark"] .back,:root[data-theme="dark"] #back,:root[data-theme="dark"] .bk{background:#15283A!important;color:#8CCBF0!important;border-color:#2F4A5E!important}
 :root[data-theme="dark"] h2{color:#BFE3F7!important}
@@ -438,6 +439,7 @@ nav button.fab .ic{width:32px;height:32px}
 :root:not([data-theme="light"]) body{background:#0A141C!important;color:var(--ink)!important}
 :root:not([data-theme="light"]) html{background:#0A141C!important}
 :root:not([data-theme="light"]) h1,:root:not([data-theme="light"]) body h1,:root:not([data-theme="light"]) #v h1,:root:not([data-theme="light"]) header h1,:root:not([data-theme="light"]) .hd h1{color:#8AD3F5!important;text-shadow:none!important;-webkit-text-fill-color:#8AD3F5!important}
+:root:not([data-theme="light"]) label.scan,:root:not([data-theme="light"]) .scan{background:#0E1D29!important;color:#9FD3F0!important;border-color:#2F8FC4!important}
 :root:not([data-theme="light"]) summary,:root:not([data-theme="light"]) details summary,:root:not([data-theme="light"]) details{background:#15283A!important;color:var(--ink)!important;border-color:#2F4A5E!important}
 :root:not([data-theme="light"]) #bk,:root:not([data-theme="light"]) button#bk,:root:not([data-theme="light"]) [data-a=back],:root:not([data-theme="light"]) .back,:root:not([data-theme="light"]) #back,:root:not([data-theme="light"]) .bk{background:#15283A!important;color:#8CCBF0!important;border-color:#2F4A5E!important}
 :root:not([data-theme="light"]) h2{color:#BFE3F7!important}
@@ -2178,6 +2180,7 @@ es.addEventListener('click',function(e){e.stopPropagation();view='esami';render(
 fab.addEventListener('click',function(e){e.stopPropagation();view='scarico';EK=null;BK=null;render();var b2=document.getElementById('lv2');if(b2)b2.click()},true);
 var sh=document.getElementById('altro');
 if(sh){sh.innerHTML='';[['scorte','scorte','Scorte'],['nuovo','box','Carica kit'],['scarico','box','Scarica kit'],['riepilogo','riep','Riepilogo, VEQ e impostazioni']].forEach(function(x){var b=document.createElement('button');b.type='button';b.innerHTML=I[x[1]].replace('<svg','<svg style="width:22px;height:22px;vertical-align:-5px;margin-right:10px;color:#0B6EA6"')+x[2];b.onclick=function(){sh.classList.remove('on');var t=bv(x[0]);if(t)t.click()};sh.appendChild(b)})}
+var oSL=stopLive;stopLive=function(){var r=oSL.apply(this,arguments);setTimeout(function(){if(LV)return;try{var d=document.documentElement;d.style.display='none';void d.offsetHeight;d.style.display='';var b=document.getElementById('lv')||document.getElementById('lv2');if(b)b.scrollIntoView({block:'center'});else window.scrollTo(0,0)}catch(e){}},80);return r};
 var oR=render;render=function(){var r=oR.apply(this,arguments);try{es.setAttribute('aria-current',view==='esami'?'true':'false');if(view==='esami'){var rb=bv('riepilogo');if(rb)rb.setAttribute('aria-current','false')}}catch(e){}return r};
 document.getElementById('v').addEventListener('click',function(e){var b=e.target.closest('button[data-go]');if(!b)return;var g=b.dataset.go;
 if(g==='esami'){view='esami';render();window.scrollTo(0,0)}else if(g==='nuovo'){var n=bv('nuovo');if(n)n.click()}else if(g==='bnew'){var bb=bv('bolle');if(bb)bb.click();var nb=document.querySelector('#v button[data-a="bnew"]');if(nb)nb.click()}},true);
