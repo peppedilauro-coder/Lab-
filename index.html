@@ -2195,9 +2195,15 @@ render()})();
 var CVS='',LIVE=0,PG=[],CUR=null,Q=null,moved=false,STREAM=null,CVP=null,SC={s:1,ox:0,oy:0};
 function el(t,a,h){var e=document.createElement(t);if(a)for(var k in a)e.setAttribute(k,a[k]);if(h!==undefined)e.innerHTML=h;return e}
 function cvReady(){return !!(window.cv&&window.cv.Mat)}
-function loadCV(){if(CVP)return CVP;CVS='load';CVP=new Promise(function(res0){var res=function(v){CVS=v||cvReady()?'ok':'err';res0(v)};if(cvReady())return res(true);var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.9.0-release.5/dist/opencv.js';var done=false;function ok(){if(!done){done=true;res(true)}}
-s.onload=function(){try{if(cvReady())return ok();if(window.cv&&typeof window.cv.then==='function'){window.cv.then(function(m){try{window.cv=m}catch(e){}ok()})}else if(window.cv){window.cv.onRuntimeInitialized=ok}}catch(e){}};
-s.onerror=function(){res(false)};document.head.appendChild(s);setTimeout(function(){res(false)},45000)});return CVP}
+function loadCV(){if(CVP)return CVP;CVS='load';var urls=['https://docs.opencv.org/4.x/opencv.js','https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.10.0-release.1/dist/opencv.js','https://unpkg.com/@techstark/opencv-js@4.10.0-release.1/dist/opencv.js','https://cdn.jsdelivr.net/npm/@techstark/opencv-js@4.9.0-release.3/dist/opencv.js'];
+CVP=new Promise(function(res0){var fin=false;function res(v){if(fin)return;fin=true;CVS=(v||cvReady())?'ok':'err';if(CVS==='err')CVP=null;res0(v)}
+if(cvReady())return res(true);var k=0;
+function next(){if(fin)return;if(k>=urls.length)return res(false);var u=urls[k++],s=document.createElement('script'),got=false;s.src=u;
+function ok(){if(cvReady()){res(true)}}
+s.onload=function(){try{if(cvReady())return res(true);if(window.cv&&typeof window.cv.then==='function'){window.cv.then(function(m){try{window.cv=m}catch(e){}res(true)})}else if(window.cv){window.cv.onRuntimeInitialized=function(){res(true)}}else next()}catch(e){next()}
+setTimeout(function(){if(!fin&&!cvReady())next()},30000)};
+s.onerror=function(){next()};document.head.appendChild(s)}
+next();setTimeout(function(){res(false)},120000)});return CVP}
 function order(p){var s=p.map(function(a){return a[0]+a[1]}),d=p.map(function(a){return a[0]-a[1]});var tl=p[s.indexOf(Math.min.apply(0,s))],br=p[s.indexOf(Math.max.apply(0,s))],tr=p[d.indexOf(Math.max.apply(0,d))],bl=p[d.indexOf(Math.min.apply(0,d))];return[tl,tr,br,bl]}
 function cvDetect(c){var m=[];try{var sc=Math.min(1,600/Math.max(c.width,c.height)),sm=document.createElement('canvas');sm.width=Math.round(c.width*sc);sm.height=Math.round(c.height*sc);sm.getContext('2d').drawImage(c,0,0,sm.width,sm.height);
 var src=cv.imread(sm),g=new cv.Mat(),e=new cv.Mat(),cs=new cv.MatVector(),h=new cv.Mat();m.push(src,g,e,cs,h);
@@ -2239,7 +2245,7 @@ var fr=document.createElement('canvas'),last=null,stab=0,lastMsg='';
 function msg(t){if(t!==lastMsg){lastMsg=t;note(t)}}
 function drawOv(q){var w=m.clientWidth,h=m.clientHeight,r=window.devicePixelRatio||1;ov.width=w*r;ov.height=h*r;var x=ov.getContext('2d');x.scale(r,r);x.clearRect(0,0,w,h);if(!q||!v.videoWidth)return;var s=Math.min(w/v.videoWidth,h/v.videoHeight),ox=(w-v.videoWidth*s)/2,oy=(h-v.videoHeight*s)/2;x.fillStyle='rgba(59,180,238,.25)';x.strokeStyle='#3bb4ee';x.lineWidth=4;x.beginPath();q.forEach(function(p,i){var X=p[0]*s+ox,Y=p[1]*s+oy;if(i)x.lineTo(X,Y);else x.moveTo(X,Y)});x.closePath();x.fill();x.stroke()}
 LIVE=setInterval(function(){if(!v.videoWidth||sh.disabled)return;
-if(!cvReady()){drawOv(null);msg(CVS==='err'?'Riconoscimento automatico non disponibile (serve la rete): inquadra e tocca "Scatta foto".':'Preparo il riconoscimento automatico… intanto puoi toccare "Scatta foto".');return}
+if(!cvReady()){drawOv(null);msg(CVS==='err'?'Riconoscimento automatico non caricato (libreria non scaricata): tocca "Scatta foto" e trascina gli angoli.':'Preparo il riconoscimento automatico… intanto puoi toccare "Scatta foto".');return}
 var s=Math.min(1,640/Math.max(v.videoWidth,v.videoHeight));fr.width=Math.round(v.videoWidth*s);fr.height=Math.round(v.videoHeight*s);fr.getContext('2d').drawImage(v,0,0,fr.width,fr.height);
 var q=cvDetect(fr);if(q)q=q.map(function(p){return[p[0]/s,p[1]/s]});drawOv(q);
 if(!q){last=null;stab=0;msg('Cerco il foglio… inquadralo intero su uno sfondo diverso.');return}
