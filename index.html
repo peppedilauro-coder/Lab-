@@ -502,7 +502,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.36</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.37</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -655,7 +655,7 @@ unkHtml()+'<label for="n">Nome del kit</label><input type="text" id="n" list="dn
 '<button class="cta" id="sv">Salva kit</button><button class="cta" id="rb" type="button" style="background:var(--surf);color:var(--acc);border:2px solid var(--acc)">Registra in Bolla</button><p id="st3" class="sub" style="margin-top:8px"></p>'}
 if(view==='veq')h=veqHtml();
 if(view==='esami')h=esHtml();
-if(view==='riepilogo')h=veqBtn()+esBtn()+repHtml()+statHtml()+qualHtml()+xHtml()+funHtml()+lookHtml()+repColHtml()+bkHtml();
+if(view==='riepilogo')h=veqBtn()+esBtn()+repHtml()+statHtml()+qualHtml()+xHtml()+funHtml()+lookHtml()+exHtml()+repColHtml()+bkHtml();
 if(view==='guida')h=guideHtml();if(view==='ordini')h=ordHtml();
 if(view==='bolle')h=bolleHtml();
 if(view==='scarico')h=(LIVE_OK?'<button class="cta" id="lv2" type="button" style="margin:0 0 10px">Scansiona il kit da usare</button>':'')+'<label class="scan"><input type="file" accept="image/*" capture="environment" id="ph2">Scatta foto del codice</label><div id="rs"></div><p id="st"></p>'+undoBtn();
@@ -969,6 +969,24 @@ sh.innerHTML='<div style="width:40px;height:4px;border-radius:2px;background:#88
 w.appendChild(sh);document.body.appendChild(w);
 function cl(){w.remove()}
 w.addEventListener('click',function(e){if(e.target===w){cl();return}var b=e.target.closest('button');if(!b)return;e.stopPropagation();if(b.id==='baddx'){cl();return}var i=b.getAttribute('data-sh');if(i===null)return;var f=op[+i][3];cl();f()})}
+
+/* ====== v1.37: esempi per migliorare la lettura (solo su questo telefono, spento di partenza) ====== */
+function exOn(){try{return localStorage.getItem('kit-ex-on')==='1'}catch(e){return false}}
+function exDB(){return new Promise(function(res,rej){try{var q=indexedDB.open('kit-ex',1);q.onupgradeneeded=function(){q.result.createObjectStore('e',{keyPath:'id'})};q.onsuccess=function(){res(q.result)};q.onerror=function(){rej(q.error)}}catch(e){rej(e)}})}
+function exAll(){return exDB().then(function(db){return new Promise(function(res,rej){var a=db.transaction('e','readonly').objectStore('e').getAll();a.onsuccess=function(){res(a.result||[])};a.onerror=function(){rej(a.error)}})})}
+function exHit(r){if(!BPG||!BOLL)return null;function find(key,min){if(!key||key.length<min)return null;for(var k=0;k<BOLL.length;k++){var E=BOLL[k];for(var j=0;j<E.L.length;j++){if(E.L[j].b&&nk(E.L[j].t).indexOf(key)>=0)return{E:E,b:E.L[j].b}}}return null}
+return find(nk(r.lot),4)||find(nk(r.c),5)||find(nk((r.n||'').slice(0,14)),8)}
+function exSave(r,hit){try{if(!exOn()||!hit||!BPG||!BD)return;var src=BPG[hit.E.pg];if(!src)return;var sc=hit.E.sc,bx=hit.b,W=src.naturalWidth||src.width,H=src.naturalHeight||src.height,lh=Math.max(10,(bx.y1-bx.y0)/sc),y0=Math.max(0,bx.y0/sc-lh*.8),y1=Math.min(H,bx.y1/sc+lh*.8),k=Math.min(1,900/W),cv=document.createElement('canvas');
+cv.width=Math.max(16,Math.round(W*k));cv.height=Math.max(16,Math.round((y1-y0)*k));var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(src,0,y0,W,y1-y0,0,0,cv.width,cv.height);
+r.exid=r.exid||Date.now()+'-'+Math.random().toString(36).slice(2,7);var rec={id:r.exid,t:isod(today()),forn:BD.forn||'',lot:r.lot||'',exp:r.exp||'',c:r.c||'',n:r.n||''};
+cv.toBlob(function(bl){if(!bl)return;rec.img=bl;exDB().then(function(db){var tx=db.transaction('e','readwrite');tx.objectStore('e').put(rec);tx.oncomplete=function(){exToast()}}).catch(function(){})},'image/jpeg',.8)}catch(e){}}
+function exToast(){exAll().then(function(L){var o=document.getElementById('extoast');if(o)o.remove();var t=document.createElement('div');t.id='extoast';t.setAttribute('role','status');t.textContent='Esempio salvato ('+L.length+')';t.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(110px + env(safe-area-inset-bottom,0px));background:#123d60;color:#fff;border-radius:12px;padding:9px 14px;font-size:.85rem;z-index:9500;box-shadow:0 4px 14px rgba(0,0,0,.25)';document.body.appendChild(t);setTimeout(function(){if(t.parentNode)t.remove()},1800)}).catch(function(){})}
+function exHtml(){setTimeout(function(){var e=document.getElementById('exn');if(!e)return;exAll().then(function(L){var z=0;L.forEach(function(x){z+=x.img?x.img.size:0});e.textContent=L.length+' esempi salvati'+(L.length?' (circa '+(z<1048576?Math.max(1,Math.round(z/1024))+' KB':(z/1048576).toFixed(1).replace('.',',')+' MB')+')':'')}).catch(function(){e.textContent='Archivio esempi non disponibile su questo telefono.'})},0);
+var on=exOn();return'<h2>Esempi per migliorare la lettura</h2><p class="sub">Quando correggi o confermi una riga di bolla letta da foto, l’app salva su questo telefono il ritaglio della riga e il testo giusto (lotto, scadenza, codice, nome del kit, fornitore). Non salva numero bolla, reparto, note né nomi di persone. Non esce nulla dal telefono: esporti il file solo se vuoi mandarlo.</p><button type="button" class="ed" data-a="extog" aria-pressed="'+on+'" style="margin:0 0 6px;'+(on?'background:var(--acc);color:var(--onacc);border-color:var(--acc);font-weight:800':'')+'">Salvataggio esempi: '+(on?'ACCESO':'SPENTO')+'</button><p class="sub" id="exn" style="margin:6px 0">…</p><button type="button" class="ed" data-a="exexp">Esporta gli esempi</button><button type="button" class="ed" data-a="exdel">Cancella gli esempi</button>'}
+async function exExport(){try{var L=await exAll();if(!L.length){alert('Non ci sono ancora esempi salvati.');return}
+var out=[];for(var i=0;i<L.length;i++){var x=L[i],u=await new Promise(function(res){var fr=new FileReader();fr.onload=function(){res(fr.result)};fr.onerror=function(){res('')};fr.readAsDataURL(x.img)});out.push({t:x.t,forn:x.forn,lot:x.lot,exp:x.exp,c:x.c,n:x.n,img:u})}
+var d=today(),b=new Blob([JSON.stringify({app:'magazzino-kit-esempi',v:1,items:out})],{type:'application/json'});await dlSave('esempi-lettura-bolle-'+isod(d)+'.json',b)}catch(e){alert('Non sono riuscito a esportare gli esempi.')}}
+function exClear(){exDB().then(function(db){var tx=db.transaction('e','readwrite');tx.objectStore('e').clear();tx.oncomplete=function(){render()}}).catch(function(){})}
 function bLeg(B){if(!B.righe.length)return'';var ok=B.righe.filter(function(r){return r.ok}).length,n=B.righe.length;return'<div class="leg"><b>COSA SIGNIFICANO I COLORI</b><div><span><i style="background:#2E9E5B"></i>Tutto corrisponde</span><span><i style="background:#1F7AA8"></i>Scadenza non verificata</span><span><i style="background:#E8742A"></i>Corretta dalla scansione</span><span><i style="background:#E0B000"></i>Da controllare</span></div></div><div class="pgs"><i><u style="width:'+Math.round(ok*100/n)+'%"></u></i><span>'+ok+' di '+n+' confermate</span></div>'}
 function bSrHtml(q){q=String(q||'').trim().toLowerCase();var qs=q.replace(/[^a-z0-9]/g,''),qn=nk(q);BSR=[];if(qs.length<2)return'';var r=[],seen={};DATABASE_KIT.forEach(function(k){if(r.length>=10)return;var nm=(k.nome+' '+k.strumento).toLowerCase().replace(/[^a-z0-9]/g,'');if(nm.indexOf(qs)>-1||(qn.length>=3&&(nk(k.codice).indexOf(qn)>-1||nk(k.codiceBarre).indexOf(qn)>-1))){var c=k.codice||k.codiceBarre||'';r.push({n:k.nome||c,c:c,g:String(k.codiceBarre||''),s:[k.strumento,k.codice].filter(Boolean).join(' · ')});if(c)seen[nk(c)]=1}});
 Object.keys(S.items).forEach(function(key){if(r.length>=10)return;var it=S.items[key],c=it.ref||it.gtin||'';if(c&&seen[nk(c)])return;var nm=((it.name||'')+' '+(it.sec||'')).toLowerCase().replace(/[^a-z0-9]/g,'');if(nm.indexOf(qs)>-1||(qn.length>=3&&(nk(it.ref||'').indexOf(qn)>-1||nk(it.gtin||'').indexOf(qn)>-1)))r.push({n:it.name||c,c:it.ref||'',g:it.gtin||'',s:'In magazzino'+(it.sec?' · '+it.sec:'')})});
@@ -1024,10 +1042,10 @@ if(!lot)return{done:true,msg:'Il codice di questo kit non contiene il lotto: non
 var r=pool.filter(function(x){return nk(x.lot)===nl})[0],fix=[];
 if(!r){var c=pool.filter(function(x){return!x.ok}).map(function(x){return{x:x,d:bolLev(nk(x.lot),nl)}}).sort(function(a,b){return a.d-b.d})[0];if(c&&(c.d<=2||!nk(c.x.lot))){r=c.x;fix.push(nk(r.lot)?'lotto: era '+r.lot:'lotto riempito')}}
 if(!r)return{done:false,msg:'Questo lotto non è tra le righe lette dalla foto: l’ho aggiunto come nuova riga.'};
-r.lot=lot;if(exp){if(r.exp&&r.exp!==exp)fix.push('scadenza: era '+fmt(r.exp));r.exp=exp;r.ns=false}
+var xh=exOn()?exHit(r):null;r.lot=lot;if(exp){if(r.exp&&r.exp!==exp)fix.push('scadenza: era '+fmt(r.exp));r.exp=exp;r.ns=false}
 if(kk){if(kk.codice&&nk(r.c)!==nk(kk.codice)){fix.push(r.c?'codice: era '+r.c:'codice riempito');r.c=String(kk.codice)}if(kk.nome)r.n=kk.nome}
 if(!r.g&&/^\d{8,14}$/.test(g))r.g=g;
-var q=parseInt(r.qty,10)||1,msg;if(!r.ok){r.ok=true;r.sc=0;r.fix=fix.join(' · ')}else if(fix.length)r.fix=(r.fix?r.fix+' · ':'')+fix.join(' · ');r.dub='';r.v=!!exp;r.fl=1;r.sc=(r.sc||0)+1;
+var q=parseInt(r.qty,10)||1,msg;if(!r.ok){r.ok=true;r.sc=0;r.fix=fix.join(' · ')}else if(fix.length)r.fix=(r.fix?r.fix+' · ':'')+fix.join(' · ');r.dub='';exSave(r,xh);r.v=!!exp;r.fl=1;r.sc=(r.sc||0)+1;
 if(r.sc>q){r.qty=r.sc;q=r.sc;msg='Hai scansionato più kit di quelli in bolla: quantità portata a '+q+'. Controlla.'}
 else msg=(fix.length?'Corretto dalla scansione ('+fix.join(' · ')+'): ':'✔ Confermato: ')+r.n+', lotto '+r.lot+'. Scansionati '+r.sc+' di '+q+'.';
 return{done:true,msg:msg}}
@@ -1054,8 +1072,8 @@ sh.innerHTML='<div style="width:40px;height:4px;border-radius:2px;background:#88
 w.appendChild(sh);document.body.appendChild(w);document.getElementById('bpicc').appendChild(cv);
 w.addEventListener('click',function(e){if(e.target===w)bPicClose()});
 document.getElementById('bp_x').addEventListener('click',bPicClose);
-document.getElementById('bp_ok').addEventListener('click',function(){r.dub='';bPicClose();render()});
-document.getElementById('bp_sv').addEventListener('click',function(){var l=document.getElementById('bp_l').value.trim(),e=document.getElementById('bp_e').value;r.lot=l;if(e){r.exp=e;r.ns=false}r.dub='';bPicClose();render()});
+document.getElementById('bp_ok').addEventListener('click',function(){r.dub='';exSave(r,hit);bPicClose();render()});
+document.getElementById('bp_sv').addEventListener('click',function(){var l=document.getElementById('bp_l').value.trim(),e=document.getElementById('bp_e').value;r.lot=l;if(e){r.exp=e;r.ns=false}r.dub='';exSave(r,hit);bPicClose();render()});
 cv.addEventListener('click',function(){var big=document.createElement('div');big.style.cssText='position:fixed;inset:0;z-index:9100;background:#000;overflow:auto;-webkit-overflow-scrolling:touch';var im=document.createElement('canvas'),s2=Math.min(1800,W)/W;im.width=Math.round(W*s2);im.height=Math.round(H*s2);im.getContext('2d').drawImage(src,0,0,im.width,im.height);im.style.cssText='display:block;width:250%;max-width:none';var cl=document.createElement('button');cl.textContent='Chiudi';cl.className='cta';cl.style.cssText='position:fixed;top:calc(10px + env(safe-area-inset-top));right:10px;z-index:9200;width:auto;padding:8px 16px';cl.addEventListener('click',function(){document.body.removeChild(big)});big.appendChild(im);big.appendChild(cl);document.body.appendChild(big)})}
 
 function bAct(a,b){if(qAct(a,b))return true;
@@ -1069,6 +1087,9 @@ if(a==='bpick'){var x=BSR[+b.dataset.j];if(!x)return true;readB();var ex=null,em
 if(a==='bfromord'){readB();var o=ords().filter(function(y){return String(y.id)===String(BD.ord)})[0];if(!o)return true;BD.righe=BD.righe.filter(function(z){return(z.n||'').trim()||(z.c||'').trim()||(z.lot||'').trim()});var add=0,skip=0;o.righe.forEach(function(y){var q=(parseInt(y.qty,10)||0)-(+y.rec||0);if(q<=0)return;var dup=BD.righe.some(function(z){return(y.c&&nk(z.c)===nk(y.c))||(onk(z.n)&&onk(z.n)===onk(y.n))});if(dup){skip++;return}var kk=y.c?cercaKit(y.c,true):null;BD.righe.push({n:y.n||'',c:y.c||'',g:kk&&kk.codiceBarre?String(kk.codiceBarre):'',lot:'',exp:'',qty:q});add++});if(!(BD.forn||'').trim()&&o.forn)BD.forn=o.forn;if(!BD.rep&&o.rep)BD.rep=o.rep;render();var s=document.getElementById('st');if(s)s.textContent=add?add+(add===1?' riga caricata':' righe caricate')+' dall’ordine'+(skip?' ('+skip+' già presenti)':'')+'. Ora scrivi lotto e scadenza di ognuna e correggi le quantità arrivate.':'Nessuna riga da caricare: l’ordine è già arrivato per intero o le righe sono già nella bolla.';return true}
 if(a==='brwo'){readB();var rr=BD.righe[+b.dataset.i];if(rr){var o0=rr.open===undefined?!!(rr.dub||!(rr.n||'').trim()||!(rr.lot||'').trim()):!!rr.open;rr.open=!o0;render()}return true}
 if(a==='brm'){readB();BD.righe.splice(+b.dataset.i,1);render();return true}
+if(a==='extog'){try{localStorage.setItem('kit-ex-on',exOn()?'0':'1')}catch(e){}render();return true}
+if(a==='exexp'){exExport();return true}
+if(a==='exdel'){if(confirm('Cancellare tutti gli esempi salvati su questo telefono?'))exClear();return true}
 if(a==='baddsh'){readB();bAddSheet();return true}
 if(a==='bdoc'){readB();docScan();return true}
 if(a==='bfoto'){readB();var bfi=document.getElementById('bfile');if(bfi)bfi.click();return true}
@@ -2197,7 +2218,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.36';
+var vr=document.getElementById('ver'),V='Versione 1.37';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
