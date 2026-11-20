@@ -352,6 +352,10 @@ html.work .prod{padding-left:14px!important}
 html.work{background:#f3f6f8}
 html.work body{background:#f3f6f8!important}
 html.work body::before,html.work body::after,html.work .prod::before,html.work #v::after,html.work #t::before,html.work h1::before{display:none!important}
+
+/* v1.38: pulsante scanner centrato nella barra */
+nav button.fab{align-self:center!important;margin:0 14px!important;width:56px!important;height:56px!important;min-height:56px!important;flex:0 0 56px!important;border-width:3px!important}
+nav button.fab .ic{width:28px!important;height:28px!important}
 </style>
 <style id="v128">
 /* v1.28: grafica nuova, menu con tasto Scansiona, bolla, tema scuro */
@@ -502,7 +506,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.37</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.38</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -2218,7 +2222,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.37';
+var vr=document.getElementById('ver'),V='Versione 1.38';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
