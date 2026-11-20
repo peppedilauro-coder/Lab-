@@ -489,7 +489,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.32</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.33</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -887,11 +887,11 @@ if(hasOcr){set('Secondo passaggio per completare la lettura…');var P2=bolParse
 if(u)URL.revokeObjectURL(u)}catch(e){if(u)URL.revokeObjectURL(u);set(isPdf?'Lettura del PDF non riuscita (la prima volta serve la rete): compila a mano.':'Lettura non riuscita (la prima volta serve la rete): compila a mano.');return}
 if(!P.forn){set('Non riconosco questo fornitore (per ora Werfen, Arrow, Qiagen e Medical Systems). Compila a mano.');return}
 if(!P.righe.length){set('Bolla '+P.forn+' riconosciuta ma non ho trovato righe: riprova con una foto più dritta e ben illuminata.');return}
-BD.righe=BD.righe.filter(function(z){return(z.n||'').trim()||(z.c||'').trim()||(z.lot||'').trim()});var add=0;
+var memn=bolMem(P),dpl=P.num?bolDup({num:P.num,forn:P.forn}):null;BD.righe=BD.righe.filter(function(z){return(z.n||'').trim()||(z.c||'').trim()||(z.lot||'').trim()});var add=0;
 P.righe.forEach(function(r){if(!BD.righe.some(function(z){return z.lot&&r.lot&&nk(z.lot)===nk(r.lot)&&nk(z.c)===nk(r.c)})){BD.righe.push(r);add++}});
 if(!(BD.num||'').trim()&&P.num)BD.num=P.num;if(P.date&&(!BD.date||BD.date===isod(today())))BD.date=P.date;if(!(BD.forn||'').trim())BD.forn=P.forn;
 var dubn=P.righe.filter(function(r){return r.dub}).length,msg='Bolla '+P.forn+' letta: '+add+(add===1?' riga caricata':' righe caricate')+(P.skip?', '+P.skip+(P.skip===1?' riga senza quantità o senza lotto scartata':' righe senza quantità o senza lotto scartate'):'')+'.'+(dubn?' Le righe in giallo hanno dati da controllare.':'')+' Controlla sempre numero, data, lotti e scadenze con la bolla: la lettura può confondere lettere e cifre simili (I/1, O/0).';
-if(!P.num)msg+=' Numero bolla non letto.';if(!P.date)msg+=' Data della bolla non letta.';if(P.tot!==null&&P.tot!==P.sum)msg+=' Controlla le quantità: il totale letto in bolla è '+P.tot+', le righe lette sommano '+P.sum+' (può essere un errore di lettura).';
+if(memn)msg+=' '+memn+(memn===1?' lotto corretto':' lotti corretti')+' con le tue correzioni precedenti (righe gialle).';if(dpl)msg+=' ATTENZIONE: la bolla n. '+dpl.num+(dpl.forn?' di '+dpl.forn:'')+' risulta già registrata il '+fmt(dpl.date)+' ('+dpl.rep+').';if(!P.num)msg+=' Numero bolla non letto.';if(!P.date)msg+=' Data della bolla non letta.';if(P.tot!==null&&P.tot!==P.sum)msg+=' Controlla le quantità: il totale letto in bolla è '+P.tot+', le righe lette sommano '+P.sum+' (può essere un errore di lettura).';
 render();var e2=document.getElementById('st');if(e2)e2.textContent=msg}
 function readB(){if(!BD)return;var g=function(i){var e=document.getElementById(i);return e?e.value:null},v;var sq=g('b_srch');if(sq!==null)BSQ=sq;
 ['num','date','forn','rep','note','ord'].forEach(function(k){v=g('b_'+k);if(v!==null)BD[k]=v});
@@ -968,11 +968,18 @@ if(!num){er('Scrivi il numero della bolla.');return}
 if(!rep){er('Scegli il reparto.');return}
 if(!B.date){er('Scegli la data.');return}
 if(S.bolle.some(function(x){return x.num===num&&x.rep===rep&&(x.forn||'')===forn&&x.date===B.date})){er('Questa bolla risulta già registrata.');return}
+var dp=bolDup(B);if(dp&&B.dupOk!==nk(num)){B.dupOk=nk(num);er('Attenzione: esiste già la bolla n. '+dp.num+(dp.forn?' di '+dp.forn:'')+' del '+fmt(dp.date)+' ('+dp.rep+'). Se è la stessa, non salvarla: i kit verrebbero contati due volte. Se è davvero un’altra, tocca di nuovo Salva.');return}
 var R=B.righe.filter(function(r){return(r.n||'').trim()||(r.lot||'').trim()}).map(function(r){return{n:(r.n||'').trim()||('Kit '+(r.g||'')).trim(),g:r.g||'',c:(r.c||'').trim()||((r.g&&cercaKit(r.g))?String(cercaKit(r.g).codice||''):''),lot:(r.lot||'').trim(),exp:r.ns?'':(r.exp||''),ns:!!r.ns,qty:Math.max(1,parseInt(r.qty,10)||1)}}),ld=0;
 if(B.stock)R.forEach(function(r){if(r.lot&&(r.exp||r.ns)){addStock(rep,r.n,r.g,r.lot,r.exp,r.qty,r.c);ld++}});
 S.bolle.push({id:Date.now(),num:num,date:B.date,forn:forn,rep:rep,note:(B.note||'').trim(),stock:!!B.stock,righe:R,ord:B.ord||''});var OM=ordApply(B.ord,R,num);
-save();BPG=null;BOLL=[];BN=false;BD=null;BV='';BSQ='';BSR=[];
+bolLearn(B);save();BPG=null;BOLL=[];BN=false;BD=null;BV='';BSQ='';BSR=[];
 BMSG='Bolla '+num+' salvata ('+rep+')'+(B.stock?': '+ld+' kit caricati nelle Scorte'+(ld<R.length?', '+(R.length-ld)+' senza lotto o scadenza (non spuntata «Senza scadenza») non caricati':''):'')+'.'+OM;render()}
+/* memoria delle correzioni (per fornitore): letto -> corretto */
+function bolMem(P){var m=S.corr&&S.corr[P.forn],n=0;P.righe.forEach(function(r){r.o={lot:r.lot||'',n:r.n||''};if(!m)return;var kl=nk(r.lot);if(kl&&m.l&&m.l[kl]&&nk(m.l[kl])!==kl){r.lot=m.l[kl];r.dub=r.dub||'lotto corretto come le altre volte: controlla';n++}var kn=nk(r.n);if(kn&&m.n&&m.n[kn])r.n=m.n[kn]});return n}
+function bolLearn(B){var f=(B.forn||'').trim();if(!f)return;B.righe.forEach(function(r){if(!r.o)return;S.corr=S.corr||{};var m=S.corr[f]=S.corr[f]||{l:{},n:{}};
+function put(o,a,b,mx){var ka=nk(a);if(!ka||!nk(b)||ka===nk(b)||bolLev(ka,nk(b))>mx)return;if(!(ka in o)){var ks=Object.keys(o);if(ks.length>=300)delete o[ks[0]]}o[ka]=String(b).trim()}
+put(m.l,r.o.lot,r.lot,3);put(m.n,r.o.n,r.n,5)})}
+function bolDup(B){var num=nk(String(B.num||'').replace(/^0+/,'')),f=nk(B.forn||'');if(!num)return null;return S.bolle.filter(function(x){return nk(String(x.num||'').replace(/^0+/,''))===num&&(!f||!(x.forn||'')||nk(x.forn)===f)})[0]||null}
 function bolLev(a,b){var m=a.length,n=b.length,d=[],i,j;for(i=0;i<=m;i++)d[i]=[i];for(j=1;j<=n;j++)d[0][j]=j;for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]}
 function bolConf(g,lot,exp,it){var rows=BD.righe.filter(function(r){return r.ph});if(!rows.length)return null;var kk=cercaKit(g,true),ng=nk(g),nl=nk(lot);
 var pool=rows.filter(function(r){return(r.g&&nk(r.g)===ng)||(r.c&&(nk(r.c)===ng||(kk&&kk.codice&&nk(r.c)===nk(kk.codice))||(it&&it.ref&&nk(r.c)===nk(it.ref))))});
@@ -2151,7 +2158,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.32';
+var vr=document.getElementById('ver'),V='Versione 1.33';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
