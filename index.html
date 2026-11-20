@@ -489,7 +489,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.30</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.31</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -655,6 +655,8 @@ var mr=new ZXing.MultiFormatReader();mr.setHints(hs);
 try{var t=mr.decode(new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(cv)))).getText();return t||null}catch(e){return null}}
 async function scan(img){var L=attempts(),cnt={};for(var i=0;i<L.length;i++){var t=dec(img,L[i]);if(t){if(gs1(t)['01'])return t;cnt[t]=(cnt[t]||0)+1;if(cnt[t]>=(/^\d{8,14}$/.test(t)?2:3))return t}await new Promise(function(r){setTimeout(r,0)})}return null}
 var EK=null,DP=false,RO=false,BK=null;
+/* Scorte: dopo un nuovo disegno la pagina resta dove eri (non torna al primo kit) */
+(function(){var r0=render,lv=null;render=function(){var sy=window.scrollY,same=(view==='scorte'&&lv==='scorte');var r=r0.apply(this,arguments);lv=view;if(same&&sy>0){var go=function(){window.scrollTo(0,sy)};go();requestAnimationFrame(go);setTimeout(go,120);setTimeout(go,350)}return r}})();
 function est(k){var it=S.items[k],h=(S.hist||[]).filter(function(x){return(x.k||('|'+x.gtin))===k&&days(x.d)>=-90});if(!it||h.length<3)return null;var f=Math.max(14,-days(h.reduce(function(a,x){return x.d<a?x.d:a},h[0].d))),r=h.length/f,t=total(it);return{m:Math.round(r*300)/10,d:t>0?Math.round(t/r):0}}
 function dur(d){return d<=0?'esaurita':d>=60?Math.round(d/30)+' mesi':d+' giorni'}
 function estHtml(k){var e=est(k);return e?'<small class="sub">Consumo circa '+e.m+' kit/mese · scorta per circa '+dur(e.d)+'</small>':''}
@@ -2125,7 +2127,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.30';
+var vr=document.getElementById('ver'),V='Versione 1.31';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
