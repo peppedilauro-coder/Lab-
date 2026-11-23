@@ -120,7 +120,7 @@
   {"gtin":"03610520495780","ref":"TLS0851","nome":"Low-Profile PCR Tubes 8-tube strips, white","strumento":"CFX","tipologia":"Consumabili"},
   {"gtin":"","ref":"HCVD/ISEX/025","nome":"Hepatitis C Virus (HCV) Diagnostic GeneProof®","strumento":"ROTOR GENE","tipologia":"Reagente"},
   {"gtin":"03573026415686","ref":"414320","nome":"VIDAS® TES2","strumento":"VIDAS","tipologia":"Reagente"},
-  {"gtin":"","ref":"SD10320Z","nome":"Bacterial Vaginosis plus Assay","strumento":"CFX","tipologia":"Reagente"},
+  {"gtin":"08809240103203","ref":"SD10320Z","nome":"Bacterial Vaginosis plus Assay","strumento":"CFX","tipologia":"Reagente"},
   {"gtin":"03573026632465","ref":"424480","nome":"VIDAS® HIV","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"03573026351274","ref":"30308","nome":"VIDAS® HCV","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"03573026065065","ref":"30420","nome":"VIDAS® B2M","strumento":"VIDAS","tipologia":"Reagente"},
@@ -134,5 +134,6 @@
   {"gtin":"","ref":"03K111TA3.2106","nome":"CBC-3K","strumento":"CELL DYN 3700","tipologia":"Controllo"},
   {"gtin":"08426950479772","ref":"00029403501","nome":"CTS FILTER","strumento":"ACL TOP 500","tipologia":"Consumabili"},
   {"gtin":"08000000022707","ref":"1507/SG","nome":"Microprovette da 2ml in PP, coniche con base d'appoggio tappo vite guarnizione sterle","strumento":"","tipologia":"Consumabili"},
-  {"gtin":"","ref":"HBV/ISEX/025","nome":"GeneProof® Hepatitis B Virus (HBV)","strumento":"ROTOR GENE","tipologia":""}
+  {"gtin":"","ref":"HBV/ISEX/025","nome":"GeneProof® Hepatitis B Virus (HBV)","strumento":"ROTOR GENE","tipologia":""},
+  {"gtin":"08809240101780","ref":"SD10178Z","nome":"","strumento":"CFX","tipologia":"Reagente"}
 ]
