@@ -129,7 +129,7 @@
   {"gtin":"03573026065317","ref":"30446","nome":"VIDAS® MYO","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"03573026634902","ref":"424641","nome":"VIDAS® TXMN","strumento":"VIDAS","tipologia":"Reagente"},
   {"gtin":"03573026064389","ref":"30204","nome":"VIDAS® CMVG","strumento":"VIDAS","tipologia":"Reagente"},
-  {"gtin":"08426950062295","ref":"0009757600","nome":"DILUENTE","strumento":"CELL DYN 3700","tipologia":"Reagente"},
+  {"gtin":"08426950062295","ref":"0009757600","nome":"Factor Diluent","strumento":"ACL TOP 500","tipologia":"Reagente"},
   {"gtin":"","ref":"CD2042","nome":"DETERGENTE","strumento":"CELL DYN 3700","tipologia":"Reagente"},
   {"gtin":"","ref":"03K111TA3.2106","nome":"CBC-3K","strumento":"CELL DYN 3700","tipologia":"Controllo"},
   {"gtin":"08426950479772","ref":"00029403501","nome":"CTS FILTER","strumento":"ACL TOP 500","tipologia":"Consumabili"},
@@ -137,5 +137,5 @@
   {"gtin":"","ref":"HBV/ISEX/025","nome":"GeneProof® Hepatitis B Virus (HBV)","strumento":"ROTOR GENE","tipologia":""},
   {"gtin":"08809240101780","ref":"SD10178Z","nome":"Candidiasis Assay","strumento":"CFX96","tipologia":"Reagente"},
   {"gtin":"08809240103722","ref":"HP10372X","nome":"HPV28 Detection","strumento":"CFX96","tipologia":"Reagente"},
-  {"gtin":"","ref":"REF PAI1/100","nome":"GeneProof® PAI1 Genotyping","strumento":"Rotorgene","tipologia":""}
+  {"gtin":"","ref":"REF PAI1/100","nome":"GeneProof® PAI1 Genotyping","strumento":"Rotorgene","tipologia":"Reagente"}
 ]
