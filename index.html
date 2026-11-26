@@ -507,7 +507,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.52</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.53</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -964,7 +964,7 @@ async function bolTextOf(pages,mode){var out=[],w=null;for(var i=0;i<pages.lengt
 function bolPoor(P){return!P.forn||!P.righe.length||!P.num||!P.date||P.righe.some(function(r){return!r.lot})}
 function bolScore(P){return P.righe.length*10+P.righe.filter(function(r){return r.lot&&r.exp}).length*3-P.righe.reduce(function(a,r){return a+(r.dub?r.dub.split(' · ').length:0)},0)}
 var BST=0;
-function bolBanner(t,busy){var b=document.getElementById('bst');if(!b){b=document.createElement('div');b.id='bst';b.setAttribute('role','status');b.style.cssText='position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:9000;padding:12px 14px;border-radius:14px;background:var(--acc,#0B6EA6);color:var(--onacc,#fff);font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.25)';document.body.appendChild(b)}b.textContent=t;b.style.display='block';clearTimeout(BST);if(!busy)BST=setTimeout(function(){b.style.display='none'},12000)}
+function bolBanner(t,busy){var b=document.getElementById('bst');if(!b){b=document.createElement('div');b.id='bst';b.setAttribute('role','status');b.style.cssText='position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:9000;padding:12px 14px;border-radius:14px;background:var(--acc,#0B6EA6);color:var(--onacc,#fff);font-weight:700;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.25)';b.onclick=function(){b.style.display='none'};document.body.appendChild(b)}b.textContent=t;b.style.display='block';clearTimeout(BST);if(!busy)BST=setTimeout(function(){b.style.display='none'},12000)}
 async function bolFromFile(f){if(!f||!BD)return;readB();var cvp=Array.isArray(f);function set(t){var e=document.getElementById('st');if(e)e.textContent=t;bolBanner(t,/in corso|Apro il PDF|Secondo passaggio/.test(t))}
 var isPdf=!cvp&&(/pdf/i.test(f.type||'')||/\.pdf$/i.test(f.name||''));set(isPdf?'Apro il PDF…':'Lettura della bolla in corso… può richiedere mezzo minuto. Tieni aperta l’app.');var u='',P=null;
 try{var pages;if(cvp)pages=f.map(function(c){return{src:c}});else if(isPdf)pages=await bolPdfPages(f);else{u=URL.createObjectURL(f);var img=new Image();img.src=u;await img.decode();pages=[{src:img}]}
@@ -979,7 +979,7 @@ P.righe.forEach(function(r){if(!BD.righe.some(function(z){return z.lot&&r.lot&&n
 if(!(BD.num||'').trim()&&P.num)BD.num=P.num;if(P.date&&(!BD.date||BD.date===isod(today())))BD.date=P.date;if(!(BD.forn||'').trim())BD.forn=P.forn;
 var dubn=P.righe.filter(function(r){return r.dub}).length,msg='Bolla '+P.forn+' letta: '+add+(add===1?' riga caricata':' righe caricate')+(P.skip?', '+P.skip+(P.skip===1?' riga senza quantità o senza lotto scartata':' righe senza quantità o senza lotto scartate'):'')+'.'+(dubn?' Le righe in giallo hanno dati da controllare.':'')+' Controlla sempre numero, data, lotti e scadenze con la bolla: la lettura può confondere lettere e cifre simili (I/1, O/0).';
 if(memn)msg+=' '+memn+(memn===1?' lotto corretto':' lotti corretti')+' con le tue correzioni precedenti (righe gialle).';if(dpl)msg+=' ATTENZIONE: la bolla n. '+dpl.num+(dpl.forn?' di '+dpl.forn:'')+' risulta già registrata il '+fmt(dpl.date)+' ('+dpl.rep+').';if(!P.num)msg+=' Numero bolla non letto.';if(!P.date)msg+=' Data della bolla non letta.';if(P.tot!==null&&P.tot!==P.sum)msg+=' Controlla le quantità: il totale letto in bolla è '+P.tot+', le righe lette sommano '+P.sum+' (può essere un errore di lettura).';
-render();var e2=document.getElementById('st');if(e2)e2.textContent=msg}
+render();var e2=document.getElementById('st');if(e2)e2.textContent=msg;bolBanner(msg,false)}
 function readB(){if(!BD)return;var g=function(i){var e=document.getElementById(i);return e?e.value:null},v;var sq=g('b_srch');if(sq!==null)BSQ=sq;
 ['num','date','forn','rep','note','ord'].forEach(function(k){v=g('b_'+k);if(v!==null)BD[k]=v});
 var c=document.getElementById('b_stock');if(c)BD.stock=c.checked;
@@ -2303,7 +2303,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.52';
+var vr=document.getElementById('ver'),V='Versione 1.53';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
