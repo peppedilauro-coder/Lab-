@@ -141,5 +141,6 @@
   {"gtin":"","ref":"CD3041","nome":"DILUENTE","strumento":"CELL DYN 3700","tipologia":"Reagente"},
   {"gtin":"","ref":"CD3043","nome":"SHEAT","strumento":"CELL DYN 3700","tipologia":"Reagente"},
   {"gtin":"","ref":"CD3045","nome":"ENZIMATIC CLEANER","strumento":"CELL DYN 3700","tipologia":"Ragente"},
-  {"gtin":"","ref":"CD3501","nome":"LYSE FOR ABBOTT CELL COUNTERS","strumento":"CELL DYN 3700","tipologia":"Reagente"}
+  {"gtin":"","ref":"CD3501","nome":"LYSE FOR ABBOTT CELL COUNTERS","strumento":"CELL DYN 3700","tipologia":"Reagente"},
+  {"gtin":"","ref":"CD3051","nome":"RETIC.TEST 3,7ml","strumento":"","tipologia":""}
 ]
