@@ -507,7 +507,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.51</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.52</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -931,12 +931,18 @@ var dtRe=/\b(\d{1,2})\/(\d{1,2})\/(20\d\d)\b/;for(i=0;i<L.length;i++){var dm=L[i
 if(cm2){cd2=cm2[1];nm3=cm2[2]}else{nm3=pre3;for(var bk=i-1;bk>=0&&bk>=i-2;bk--){if(dtRe.test(L[bk]))break;var pm=L[bk].match(/^\W*(?:\d{1,2}\s+)?(\d{6,13}[A-Za-z]{0,2})\b\s*(.*)$/);if(pm){cd2=pm[1];if(!nm3||nm3.length<4)nm3=pm[2];break}}}
 nm3=nm3.replace(/^[|!\]\[\s]+/,'').replace(/\s+(?:\d+(?:[.,]\d+)?|\d+\s*[xX]\s*\d[\d\sxX.,]*\s*(?:mL|ml|L)?)\s*$/,'').trim();if(nm3.length<3){nm3='';dubm.push('nome non letto')}cd2=cd2.toUpperCase();if(!cd2)dubm.push('codice non letto');else if(!/[A-Z]$/.test(cd2)&&cd2.length!==12)dubm.push('codice da controllare');
 var rw=bolRow(nm3||'Kit da controllare',cd2,'',lm2[1].toUpperCase(),bolDate(dm[0]),qv,/^[A-Z0-9]{7,12}$/,dubm,/^\d{6,13}[A-Z]{0,2}$/),ex2=-1;o.righe.forEach(function(z,zi){if(z.lot===rw.lot&&z.exp===rw.exp)ex2=zi});if(ex2<0)o.righe.push(rw);else if(!o.righe[ex2].c&&rw.c)o.righe[ex2]=rw}}
- else if(o.forn==='3P BioService'){m=T.match(/D\.?\s*D\.?\s*T\.?\W{0,4}(\d{1,6})\s*\/{1,2}\s*(\d{2})\b\W{0,4}(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{2,4})/i)||T.match(/\b(\d{1,6})\s*\/{1,2}\s*(\d{2})\b\W{0,4}(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{2,4})\b/);if(m){o.num=m[1]+'/'+m[2];var yy=+m[5];o.date=bolIso(yy<100?2000+yy:yy,m[4],m[3])}
-var rc=/^\W{0,3}([A-Z]{2}\s?[\dOo]{4})\s+(.+?)(?:\s+(LT|L|ML|PZ|NR|KIT|CF|CT|FL)\b\W*(\d+[.,]\d{1,2}))?\W*$/i,lr=/Lott[oa]?\W*([A-Za-z0-9]{4,14}?)\s*S[cC]?\w?\.?\W*(\d{1,2}\s*[\/.]\s*\d{1,2}\s*[\/.]\s*\d{4})/i;
-for(i=0;i<L.length;i++){var r3=L[i].match(rc);if(!r3||/^(?:CAUSALE|TRASPORTO|DATA|PAGAMENTO)/i.test(L[i]))continue;var lm3=null,k3;for(k3=i+1;k3<L.length&&k3<i+3;k3++){if(rc.test(L[k3])&&!lr.test(L[k3]))break;lm3=L[k3].match(lr);if(lm3)break}
-var cd3=r3[1].replace(/\s/g,'').toUpperCase().replace(/^([A-Z]{2})([\dOo]+)$/,function(z,a,b){return a+b.replace(/[Oo]/g,'0')}),um=(r3[3]||'').toUpperCase(),qn=r3[4]?parseFloat(r3[4].replace(',','.')):NaN,dub3=[],q3=1;
-if(isNaN(qn)){dub3.push('quantità non letta')}else q3=Math.max(1,Math.round(qn));
-if(!lm3){o.skip++;continue}o.righe.push(bolRow(r3[2],cd3,'',lm3[1].toUpperCase(),bolDate(lm3[2]),q3,/^[A-Z0-9]{6,12}$/,dub3,/^CD\d{4}$/))}}
+
+else if(o.forn==='3P BioService'){m=T.match(/D\.?\s*D\.?\s*T\.?\W{0,4}(\d{1,6})\s*\/{1,2}\s*(\d{2,3})\b/i);if(m){var n2=m[2];if(n2.length===3&&n2[0]==='1')n2=n2.slice(1);o.num=m[1]+'/'+n2}
+if(!o.num){m=T.match(/\b(\d{1,6})\s*\/{1,2}\s*(\d{2,3})\s+\d{1,2}\s*\/\s*\d{1,2}\s*\/\s*\d{2}\b/);if(m){var n3=m[2];if(n3.length===3&&n3[0]==='1')n3=n3.slice(1);o.num=m[1]+'/'+n3}}
+m=T.match(/\b(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{2})\b(?!\d)/);if(m)o.date=bolIso(2000+(+m[3]),m[2],m[1]);
+var lr=/Lott[oa]?\W*([A-Za-z0-9]{4,14}?)\s*S[cC]?\w?\.?\W*(\d{1,2}\s*[\/.]\s*\d{1,2}\s*[\/.]\s*\d{4})/i;
+for(i=0;i<L.length;i++){var lm3=L[i].match(lr);if(!lm3)continue;var pl='',pj;for(pj=i-1;pj>=0&&pj>=i-2;pj--){if(lr.test(L[pj]))break;if(/[A-Z]{4}/.test(L[pj])&&!/ARTICOLO|DESCRIZIONE|QUANTIT|PREZZO|SCONTO|IMPORTO|CAUSALE|TRASPORTO|DESTINATARIO|PAGAMENTO|BONIFICO/i.test(L[pj])){pl=L[pj];break}}
+if(!pl){o.skip++;continue}var nm3=pl.match(/(?:^|[\s|])([A-Z][A-Z.]{3,}.*)$/);if(!nm3){o.skip++;continue}var tx3=nm3[1],q3=1,dub3=[],cd3='',qm=tx3.match(/(\d+)[.,](\d{2})\W*$/),pre3=pl.slice(0,pl.length-tx3.length),cm=pre3.match(/(?:^|[\s|])([A-Z]{2}\s?\d{4})\s*$/);
+if(cm&&/^CD\s?\d{4}$/.test(cm[1]))cd3=cm[1].replace(/\s/g,'');
+if(qm){tx3=tx3.slice(0,qm.index);q3=Math.max(1,+qm[1]);if(qm[2]!=='00')dub3.push('quantità da controllare')}else dub3.push('quantità non letta');
+var tk=tx3.replace(/[|\[\]]+/g,' ').replace(/\s+/g,' ').trim().split(' '),keep=[],z;for(z=0;z<tk.length;z++){if(/^(?:LT|L|ML|PZ|NR|KIT|CF|CT|FL|T|1)$/i.test(tk[z])&&z>0)break;if(/^[a-z]/.test(tk[z])){if(keep.length===1&&keep[0].length<=5){keep=[];continue}break}keep.push(tk[z])}
+if(!qm&&keep.length>1&&/^[A-Z][a-z]+\.?$/.test(keep[keep.length-1]))keep.pop();var name3=keep.join(' ').replace(/\s+\S{1,2}$/,function(w){return/\d/.test(w)?w:''}).trim();
+o.righe.push(bolRow(name3,cd3,'',lm3[1].toUpperCase(),bolDate(lm3[2]),q3,/^[A-Z0-9]{6,12}$/,dub3,null))}}
  else if(o.forn==='Qiagen'){m=T.match(/\b(\d{9})\s+(\d{1,2}-[A-Za-z]{3}-\d{4})/);if(m){o.num=m[1];o.date=bolDate(m[2])}m=T.match(/Total\s+Units\W*(\d+)/i);if(m)o.tot=+m[1];var usedL={},qtk=[],nrows=0,ri=-1;L.forEach(function(l){var re=/([0-9OoZzIl|.,]{3,6})\s*P[CGO]E/g,mm;while((mm=re.exec(l)))qtk.push(bolQty(mm[1]))});for(i=0;i<L.length;i++){if(!/^(?:\S{1,4}\s+){0,2}(\d{4,8})\s+(.+)$/.test(L[i]))continue;for(var kk=i+1;kk<L.length&&kk<i+3;kk++)if(bolLotM(L[kk])){nrows++;break}}var byOrder=(qtk.length===nrows&&nrows>0)?qtk:null;
 for(i=0;i<L.length;i++){var r=L[i].match(/^(?:\S{1,4}\s+){0,2}(\d{4,8})\s+(.+)$/);if(!r)continue;var lm=null,k;for(k=i+1;k<L.length&&k<i+3;k++){lm=bolLotM(L[k]);if(lm)break}if(!lm)continue;usedL[k]=1;ri++;
 var nm=r[2],qq=NaN,qm=nm.match(/^(.*?)\s*([0-9OoZzIl|.,]{3,6})\s*P[CGO]E\W*$/);if(qm){nm=qm[1];qq=bolQty(qm[2])}if(byOrder&&!isNaN(byOrder[ri]))qq=byOrder[ri];var tl=nm.match(/^(.*\))\s+(\S.*)$/);if(tl&&tl[2].length<=14&&!/[A-Za-z]{5,}/.test(tl[2]))nm=tl[1];
@@ -2297,7 +2303,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.51';
+var vr=document.getElementById('ver'),V='Versione 1.52';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
