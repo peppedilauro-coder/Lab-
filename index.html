@@ -507,7 +507,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.47</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.48</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -1746,7 +1746,7 @@ var ESAMI=[
 ['HIV-RNA','carica virale HIV',10,'V','n','Plasma: centrifugare e conservare a +4 °C; congelare se non eseguito entro 24 ore.'],
 ['Test prenatale non invasivo','NIPT, DNA fetale',10,'Z','n','Seguire le istruzioni del kit del laboratorio di riferimento.'],
 ['Selenio','',11,'B','n','Non confondere con la provetta azzurra del PT (citrato). Usare materiale adatto agli elementi in traccia ed evitare contaminazioni.'],
-['Zinco','',11,'B','n','Di norma la stessa provetta del selenio: confermare con il laboratorio di riferimento.'],
+['Zinco','',11,'B','n','Di norma la stessa provetta del selenio (per elementi in traccia). In alternativa si può usare una provetta da siero (con attivatore della coagulazione o gel separatore), ma solo se priva di contaminazione da metalli: i tappi e i gel delle provette comuni possono contenere zinco e falsare il risultato. Confermare con il laboratorio di riferimento.'],
 ['Rame','',11,'B','n','Di norma la stessa provetta del selenio: confermare con il laboratorio di riferimento.'],
 ['Cromo','cromemia, Cr, cromo sierico, esposizione professionale, protesi metalliche',11,'B','Digiuno non indispensabile. Dopo mezzi di contrasto con gadolinio o iodio attendere 96 ore prima del prelievo','Elemento in traccia: le provette comuni (anche quelle rosse) cedono cromo e falsano il risultato. Per il siero usare la provetta blu per elementi in traccia senza anticoagulante; per il sangue intero la blu con EDTA, secondo il laboratorio. Dividere il siero in una provetta di plastica per metalli, mai di vetro. L’ordine di prelievo varia da laboratorio a laboratorio (alcuni scartano un primo tubo): seguire la procedura del laboratorio di riferimento.'],
 ['Piombo','piombemia',11,'H','n','Sangue intero. Alcuni laboratori usano EDTA o provette per elementi in traccia: confermare.'],
@@ -2289,7 +2289,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.47';
+var vr=document.getElementById('ver'),V='Versione 1.48';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
