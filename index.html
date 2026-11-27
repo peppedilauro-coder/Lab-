@@ -507,7 +507,7 @@ nav button.fab .ic{width:32px;height:32px}
 <h1 id="t">Magazzino kit</h1>
 <p class="sub" id="s"></p>
 <main id="v"></main>
-<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.61</p>
+<p class="sub" id="ver" style="text-align:center;margin-top:24px">Versione 1.62</p>
 <nav>
 <button data-v="avvisi"><i class="ni" aria-hidden="true">🔔</i><span>Avvisi</span><i class="bdg" hidden></i></button>
 <button data-v="scorte"><i class="ni" aria-hidden="true">📦</i><span>Scorte</span></button>
@@ -1313,11 +1313,11 @@ var sm=[],mot=0,q=0;for(y=0;y<H;y+=8)for(x=0;x<W;x+=8){sm.push(g[y*W+x])}if(prev
 return{x0:x0,x1:x1,W:W,m:sum/n,sat:sat/n,sharp:sharp,found:found,wf:wf,cut2:cut2,skew:skew,mot:mot,sm:sm}}
 function gEval(c){var f={luce:c.m>=55&&c.m<=225&&c.sat<.3,dritta:c.found&&Math.abs(c.skew)<=3,nitida:c.sharp>=GSH,still:c.mot<GMO},msg='';
 if(c.sat>=.3)msg='Riflesso: inclina un po’ il telefono';else if(!c.found)msg=c.m<30?'Troppo buio: accendi il flash o fai più luce':'Inquadra l’etichetta intera';else if(c.m<55)msg='Troppo buio: accendi il flash o fai più luce';else if(c.wf<.5)msg='Avvicinati un po’';else if(c.cut2)msg='Allontanati un po’';else if(Math.abs(c.skew)>3)msg=c.skew<0?'Ruota un po’ il telefono a sinistra':'Ruota un po’ il telefono a destra';else if(!f.nitida)msg='Metti a fuoco: tieni il telefono a 15-20 cm';else if(!f.still)msg='Tieni fermo…';else msg='Tieni fermo…';f.msg=msg;f.ok=f.luce&&f.dritta&&f.nitida&&c.wf>=.5&&!c.cut2;return f}
-var GSH=130,GMO=7;
+var GSH=130,GMO=16;
 
 function gGuide(w,me,vd,txt){var box=w.querySelector('#qr-box');if(!box)return 0;var fr=document.createElement('div'),ch=document.createElement('div'),ind=document.createElement('div'),bar=document.createElement('div');fr.className='gfr';ch.className='gchip';ind.className='gind';bar.className='gbar';bar.innerHTML='<i></i>';ind.innerHTML='<span>Dritta</span><span>Nitida</span><span>Luce</span>';[fr,ch,ind,bar].forEach(function(e){box.appendChild(e)});var cb2=cropBox(vd);fr.style.cssText='left:'+(cb2.x*100)+'%;top:'+(cb2.y*100)+'%;width:'+(cb2.w*100)+'%;height:'+(cb2.h*100)+'%';
-var prev=null,okn=0,soft=0,NEED=5,sp=ind.children,GR='#27c26b',RD='#e54';
-return setInterval(function(){if(LV!==me||me.done||!vd.videoWidth)return;if(me.mode!=='c'){box.classList.add('gh');return}box.classList.remove('gh');var c;try{c=gCore(vd,vd.videoWidth,vd.videoHeight,prev)}catch(e){return}prev=c.sm;var f=gEval(c),base=f.luce&&f.dritta&&c.wf>=.5&&!c.cut2;if(base&&!f.nitida&&f.still)soft++;else if(!base)soft=0;var nit=f.nitida||soft>=14,ok=base&&nit&&f.still;okn=ok?okn+1:Math.max(0,okn-2);
+var prev=null,okn=0,soft=0,NEED=4,sp=ind.children,GR='#27c26b',RD='#e54';
+return setInterval(function(){if(LV!==me||me.done||!vd.videoWidth)return;if(me.mode!=='c'){box.classList.add('gh');return}box.classList.remove('gh');var c;try{c=gCore(vd,vd.videoWidth,vd.videoHeight,prev)}catch(e){return}prev=c.sm;var f=gEval(c),base=f.luce&&f.dritta&&c.wf>=.5&&!c.cut2;if(base&&!f.nitida&&f.still)soft++;else if(!base)soft=0;var nit=f.nitida||soft>=14,ok=base&&nit&&f.still;okn=ok?okn+1:Math.max(0,okn-1);
 sp[0].style.setProperty('--c',f.dritta?GR:RD);sp[1].style.setProperty('--c',nit?GR:RD);sp[2].style.setProperty('--c',f.luce?GR:RD);
 var st=base&&nit?(okn>=NEED?'g':'o'):'r',msg=f.msg;if(base&&nit)msg=okn>=NEED?(txt?'Leggo l’etichetta…':'Ora inquadra il codice'):'Tieni fermo…';
 fr.className='gfr '+st;ch.className='gchip '+st;ch.textContent=msg;bar.firstChild.style.width=Math.min(100,okn*100/NEED)+'%';
@@ -2344,7 +2344,7 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden&&SY.
 window.addEventListener('online',function(){if(SY.cfg&&SY.rt&&!SY.choice)syRun()});
 
 document.addEventListener('DOMContentLoaded',function(){try{if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){})}catch(e){}
-var vr=document.getElementById('ver'),V='Versione 1.61';
+var vr=document.getElementById('ver'),V='Versione 1.62';
 try{var c=localStorage.getItem(CKEY);if(c)buildCatalogo(JSON.parse(c))}catch(e){}
 fetch('catalogo_kit.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text()}).then(function(t){var j=parseCat(t);if(!j.length)throw new Error('file vuoto o illeggibile');buildCatalogo(j);try{localStorage.setItem(CKEY,JSON.stringify(j))}catch(e){}if(vr)vr.textContent=V+' · Catalogo: '+DATABASE_KIT.length+' kit';if(view==='nuovo'&&!LV){read();render()}}).catch(function(e){if(vr)vr.textContent=V+' · Catalogo NON aggiornato ('+(e&&e.message||e)+')'})});
 render();
